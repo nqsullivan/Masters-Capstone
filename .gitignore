@@ -1,6 +1,10 @@
 # IntelliJ IDE
 .idea
 
+# Ignore DuckDb database store
+*.db
+*.wal
+
 # Below file is sourced from https://github.com/github/gitignore/blob/main/Node.gitignore
 
 # Logs
