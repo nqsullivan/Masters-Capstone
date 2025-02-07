@@ -13,6 +13,8 @@ app.get('/', (req: Request, res: Response) => {
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
 
+  // HEY THIS IS A TEST
+
   /**
       // https://duckdb.org/docs/api/node_neo/overview
       // Connect to DB store
