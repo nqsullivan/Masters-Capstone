@@ -1,0 +1,23 @@
+name: Client Build & Test
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    paths:
+      - 'client/**'
+
+jobs:
+  build-controller:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build & Test Controller
+        run: |
+          cd client
+          npm ci
+          npm run check-format

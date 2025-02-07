@@ -1,0 +1,25 @@
+name: Controller Build & Test
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    paths:
+      - 'controller/**'
+
+jobs:
+  build-controller:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build & Test Controller
+        run: |
+          cd controller
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          pytest

@@ -3,6 +3,7 @@ import pytest
 
 from src.helloWorld import helloWorld
 
+
 def test_helloWorld(capsys):
     helloWorld()
     captured = capsys.readouterr()

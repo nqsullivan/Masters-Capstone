@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response } from 'express';
 import { DuckDBInstance } from '@duckdb/node-api';
 
 const app = express();
@@ -6,14 +6,14 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Welcome to the Node.js + TypeScript API!");
+app.get('/', (req: Request, res: Response) => {
+  res.send('Welcome to the Node.js + TypeScript API!');
 });
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
 
-    /**
+  /**
       // https://duckdb.org/docs/api/node_neo/overview
       // Connect to DB store
       const instance = await DuckDBInstance.create('src/db/testdb.db');
@@ -28,7 +28,7 @@ app.listen(PORT, async () => {
       connection.close();
      */
 
-     /**
+  /**
         // https://github.com/auth0/node-jsonwebtoken
         const token = jwt.sign({
                     role: user.role,
