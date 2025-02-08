@@ -7,6 +7,7 @@ Use the following script below to install dependencies and start up the server.
 ```bash
 cd server
 npm install
+npm run init-data
 npm run build
 npm run serve
 ```

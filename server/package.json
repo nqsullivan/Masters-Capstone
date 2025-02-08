@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
@@ -10,7 +11,8 @@
     "serve": "node dist/index.js",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "init-data": "node scripts/initializeData.js"
   },
   "keywords": [],
   "author": "",
