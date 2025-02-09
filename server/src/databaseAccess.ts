@@ -1,9 +1,9 @@
 import { DuckDBInstance, DuckDBConnection } from '@duckdb/node-api';
-import fs from 'fs';
+
 
 class DatabaseSAccess {
-  private instance: DuckDBInstance;
-  private connection: DuckDBConnection;
+  private instance!: DuckDBInstance;
+  private connection!: DuckDBConnection;
 
   constructor(private databasePath: string) {
 
@@ -11,11 +11,13 @@ class DatabaseSAccess {
 
   async connect() {
     // Check if the database file exists
-    if (!fs.existsSync(this.databasePath)) {
-      throw new Error(`Database at ${this.databasePath} does not exist.`);
+    try {
+      this.instance = await DuckDBInstance.create(this.databasePath);
+      this.connection = await this.instance.connect();
+      console.log('Connected to database');
+    } catch (error) {
+      throw new Error('Database file not found');
     }
-    this.instance = await DuckDBInstance.create(this.databasePath);
-    this.connection = await this.instance.connect();
   }
 
   async disconnect() {

@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import { DuckDBInstance } from '@duckdb/node-api';
+import init from './initializeData.js';
+import DatabaseSAccess from './databaseAccess.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,7 +14,16 @@ app.get('/', (req: Request, res: Response) => {
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
+  //create and initialize the database
+  await init();
+  //connect to the database
+  const dbAccess = new DatabaseSAccess('data/database.db');
+  await dbAccess.connect();
+  //run a query that returns rows
+  const rows = await dbAccess.runAndReturnedRows('SELECT * FROM class');
+  console.log(rows);
 
+ 
   /**
       // https://duckdb.org/docs/api/node_neo/overview
       // Connect to DB store
