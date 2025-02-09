@@ -9,6 +9,12 @@ class AuthService {
   private users: User[] = [];
 
   async register(username: string, password: string): Promise<User> {
+    const existingUser = this.users.find((user) => user.username === username);
+
+    if (existingUser) {
+      throw new Error('Username already taken');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser: User = {
       id: Date.now().toString(),
@@ -29,7 +35,7 @@ class AuthService {
       );
       return token;
     }
-    return null;
+    throw new Error('Invalid credentials');
   }
 
   verifyToken(token: string): User | null {

@@ -21,3 +21,4 @@ jobs:
           cd server
           npm ci
           npm run check-format
+          npm test
