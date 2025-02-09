@@ -15,7 +15,6 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
     const { username, password } = req.body;
-    console.log(req.body);
     try {
         const user = await AuthService.register(username, password);
         res.status(201).json({

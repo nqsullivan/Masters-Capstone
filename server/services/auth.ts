@@ -9,7 +9,6 @@ class AuthService {
   private users: User[] = [];
 
   async register(username: string, password: string): Promise<User> {
-    console.log(`Registering user: ${username} with password: ${password}`);
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser: User = {
       id: Date.now().toString(),
