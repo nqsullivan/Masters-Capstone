@@ -1,12 +1,20 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "commonjs",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
-  "include": ["src"],
+  "include": [
+    "controllers/**/*.ts",
+    "models/**/*.ts",
+    "routes/**/*.ts",
+    "index.ts"
+  ],
   "exclude": ["node_modules"]
 }
