@@ -80,8 +80,7 @@ describe('Auth APIzx', () => {
   });
 
   test('GET /api/verify-token should return 401 for no token', async () => {
-    const response = await request(app)
-      .get('/api/verify-token')
+    const response = await request(app).get('/api/verify-token');
 
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('error', 'Unauthorized');
