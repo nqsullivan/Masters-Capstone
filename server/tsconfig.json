@@ -10,6 +10,11 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["controllers/**/*.ts", "models/**/*.ts", "routes/**/*.ts", "index.ts"],
+  "include": [
+    "controllers/**/*.ts",
+    "models/**/*.ts",
+    "routes/**/*.ts",
+    "index.ts"
+  ],
   "exclude": ["node_modules"]
 }
