@@ -23,7 +23,6 @@ app.listen(PORT, async () => {
   const rows = await dbAccess.runAndReturnedRows('SELECT * FROM class');
   console.log(rows);
 
- 
   /**
       // https://duckdb.org/docs/api/node_neo/overview
       // Connect to DB store

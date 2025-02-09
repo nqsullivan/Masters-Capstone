@@ -1,13 +1,10 @@
 import { DuckDBInstance, DuckDBConnection } from '@duckdb/node-api';
 
-
 class DatabaseSAccess {
   private instance!: DuckDBInstance;
   private connection!: DuckDBConnection;
 
-  constructor(private databasePath: string) {
-
-  }
+  constructor(private databasePath: string) {}
 
   async connect() {
     // Check if the database file exists
@@ -36,7 +33,6 @@ class DatabaseSAccess {
     console.log(rows);
     return rows;
   }
-
 }
 
 export default DatabaseSAccess;
