@@ -15,7 +15,7 @@ router.get('/verify-token', verifyToken);
 
 router.get('/class/:id', verifyToken, getClass);
 router.post('/class', verifyToken, createClass);
-router.patch('/class/:id', verifyToken, updateClass);
+router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
 
 export default router;

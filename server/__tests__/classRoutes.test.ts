@@ -60,14 +60,14 @@ describe('Class API', () => {
     );
   });
 
-  test('PATCH /api/class/{id} should return 200 for valid update', async () => {
+  test('PUT /api/class/{id} should return 200 for valid update', async () => {
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'SER517 Capstone' });
 
     const response = await request(app)
-      .patch(`/api/class/${classResponse.body.id}`)
+      .put(`/api/class/${classResponse.body.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'SER540 Embedded' });
 
@@ -75,9 +75,9 @@ describe('Class API', () => {
     expect(response.body).toHaveProperty('name', 'SER540 Embedded');
   });
 
-  test('PATCH /api/class/{id} should return 400 for invalid class ID', async () => {
+  test('PUT /api/class/{id} should return 400 for invalid class ID', async () => {
     const response = await request(app)
-      .patch('/api/class/invalidId')
+      .put('/api/class/invalidId')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(400);
