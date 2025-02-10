@@ -10,13 +10,13 @@ on:
       - 'server/**'
 
 jobs:
-  build-controller:
+  build-server:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build & Test Controller
+      - name: Build & Test Server
         run: |
           cd server
           npm ci
