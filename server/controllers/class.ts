@@ -11,7 +11,7 @@ const getClass = async (req: Request, res: Response, next: NextFunction) => {
         res.status(200).send(existingClass);
         next();
     } catch (e: any) {
-        res.status(400) && next(e.message);
+        res.status(400).json({ error: e.message });
     }
 };
 
@@ -22,7 +22,7 @@ const createClass = async (req: Request, res: Response, next: NextFunction) => {
         res.status(201).send(newClass);
         next();
     } catch (e: any) {
-        res.status(400) && next(e);
+        res.status(400).json({ error: e.message });
     }
 };
 
@@ -37,7 +37,7 @@ const updateClass = async (req: Request, res: Response, next: NextFunction) => {
         res.status(200).send(updatedClass);
         next();
     } catch (e: any) {
-        res.status(400) && next(e);
+        res.status(400).json({ error: e.message });
     }
 };
 
@@ -51,7 +51,7 @@ const deleteClass = async (req: Request, res: Response, next: NextFunction) => {
         res.status(200);
         next();
     } catch (e: any) {
-        res.status(400) && next(e);
+        res.status(400).json({ error: e.message });
     }
 };
 
