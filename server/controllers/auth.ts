@@ -36,9 +36,6 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  res.status(200).json({
-    username: user.username,
-  });
   next();
 };
 
