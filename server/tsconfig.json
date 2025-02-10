@@ -3,11 +3,18 @@
     "target": "ES6",
     "module": "NodeNext",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "nodenext"
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
-  "include": ["src"],
+  "include": [
+    "controllers/**/*.ts",
+    "models/**/*.ts",
+    "routes/**/*.ts",
+    "index.ts"
+  ],
   "exclude": ["node_modules"]
 }
