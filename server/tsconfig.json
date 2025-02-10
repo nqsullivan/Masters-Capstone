@@ -2,11 +2,11 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
+    "moduleResolution": "nodenext",
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
