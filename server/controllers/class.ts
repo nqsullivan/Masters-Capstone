@@ -4,9 +4,6 @@ import ClassService from '../services/class.ts';
 const getClass = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
-        if (typeof id !== 'string') {
-            throw new Error(`Value for id must be a string but was ${typeof id}`);
-        }
         const existingClass = await ClassService.getClass(id);
         res.status(200).send(existingClass);
         next();
@@ -30,9 +27,6 @@ const updateClass = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const { name } = req.body;
     try {
-        if (typeof id !== 'string') {
-            throw new Error(`Value for id must be a string but was ${typeof id}`);
-        }
         const updatedClass = await ClassService.updateClass(id, name);
         res.status(200).send(updatedClass);
         next();
@@ -44,9 +38,6 @@ const updateClass = async (req: Request, res: Response, next: NextFunction) => {
 const deleteClass = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
-        if (typeof id !== 'string') {
-            throw new Error(`Value for id must be a string but was ${typeof id}`);
-        }
         await ClassService.deleteClass(id);
         res.status(200).send(`Deleted class ${id}`);
         next();
