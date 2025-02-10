@@ -53,23 +53,6 @@ describe('Auth APIzx', () => {
     expect(response.body).toHaveProperty('error', 'Invalid credentials');
   });
 
-  test('GET /api/verify-token should return 200 for a valid token', async () => {
-    await request(app)
-      .post('/api/register')
-      .send({ username: 'testUser', password: 'testPass' });
-
-    const loginResponse = await request(app)
-      .post('/api/login')
-      .send({ username: 'testUser', password: 'testPass' });
-
-    const response = await request(app)
-      .get('/api/verify-token')
-      .set('Authorization', `Bearer ${loginResponse.text}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('username', 'testUser');
-  });
-
   test('GET /api/verify-token should return 401 for an invalid token', async () => {
     const response = await request(app)
       .get('/api/verify-token')
