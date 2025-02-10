@@ -5,10 +5,9 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
   try {
     const token = await AuthService.login(username, password);
-    res.status(200).json({ token });
+    res.status(200).send(token);
     next();
   } catch (e: any) {
-    console.log(e.message);
     res.status(401).json({ error: 'Invalid credentials' }) && next(e);
   }
 };
@@ -17,13 +16,12 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
   try {
     const user = await AuthService.register(username, password);
-    res.status(201).json({
-      username: user.username,
-    });
-    next();
+    res.status(201).json({ username: user.username });
   } catch (e: any) {
-    console.log(e.message);
-    res.status(400).json({ error: 'Invalid request' }) && next(e);
+    const status = e.message === 'Username already taken' ? 400 : 500;
+    res.status(status).json({ error: e.message });
+  } finally {
+    next();
   }
 };
 
