@@ -42,13 +42,13 @@ const updateClass = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const deleteClass = async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.query;
+    const { id } = req.params;
     try {
         if (typeof id !== 'string') {
             throw new Error(`Value for id must be a string but was ${typeof id}`);
         }
         await ClassService.deleteClass(id);
-        res.status(200);
+        res.status(200).send(`Deleted class ${id}`);
         next();
     } catch (e: any) {
         res.status(400).json({ error: e.message });

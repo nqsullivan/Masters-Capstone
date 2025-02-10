@@ -37,11 +37,11 @@ class ClassService {
 
     async deleteClass(id: string) {
         const existingClass = this.classes.find((tempClass) => tempClass.id === id);
-        if (existingClass) {
-            const index = this.classes.indexOf(existingClass);
-            this.classes.splice(index, 1);
+        if (!existingClass) {
+            throw new Error(`Class with id '${id}' not found`);
         }
-        throw new Error(`Class with id '${id}' not found`);
+        const index = this.classes.indexOf(existingClass);
+        this.classes.splice(index, 1);
     }
 }
 
