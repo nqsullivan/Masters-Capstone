@@ -19,7 +19,7 @@ const createClass = async (req: Request, res: Response, next: NextFunction) => {
     const { name } = req.body;
     try {
         const newClass = await ClassService.createClass(name);
-        res.status(200).send(newClass);
+        res.status(201).send(newClass);
         next();
     } catch (e: any) {
         res.status(400) && next(e);
