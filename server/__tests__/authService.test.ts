@@ -1,4 +1,4 @@
-import AuthService from '../services/auth';
+import AuthService from '../src/services/auth.ts';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 describe('AuthService', () => {

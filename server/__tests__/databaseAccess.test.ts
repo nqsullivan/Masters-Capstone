@@ -1,4 +1,4 @@
-import DatabaseSAccess from '../services/databaseAccess';
+import DatabaseSAccess from '../src/services/database';
 import { DuckDBInstance, DuckDBConnection } from '@duckdb/node-api';
 import {
   expect,

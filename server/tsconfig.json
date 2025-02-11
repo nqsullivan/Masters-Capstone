@@ -11,9 +11,9 @@
     "noEmit": true
   },
   "include": [
-    "controllers/**/*.ts",
-    "models/**/*.ts",
-    "routes/**/*.ts",
+    "src/controllers/**/*.ts",
+    "src/models/**/*.ts",
+    "src/routes/**/*.ts",
     "index.ts"
   ],
   "exclude": ["node_modules"]
