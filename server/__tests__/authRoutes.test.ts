@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import routes from '../routes/index';
+import routes from '../src/routes/index';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 const app = express();
