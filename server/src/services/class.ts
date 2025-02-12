@@ -1,15 +1,26 @@
 import { v4 as uuidv4 } from 'uuid';
-
+import DatabaseAccess from '../services/database.ts';
 import { Class } from '../models/class.ts';
 
 class ClassService {
-  private classes: Class[] = [];
+  private db!: DatabaseAccess;
+
+  constructor() {
+    this.init();
+  }
+
+  private async init() {
+    this.db = await DatabaseAccess.getInstance();
+  }
 
   async getClass(id: string): Promise<Class> {
-    const existingClass = this.classes.find((tempClass) => tempClass.id === id);
+    const result = await this.db.runAndReadAll<Class>(
+      `SELECT id, name FROM class WHERE id = ?`,
+      [id]
+    );
 
-    if (existingClass) {
-      return existingClass;
+    if (result.length > 0) {
+      return result[0];
     }
     throw new Error(`Class with id '${id}' not found`);
   }
@@ -18,30 +29,37 @@ class ClassService {
     if (!name) {
       throw new Error('Name cannot be empty');
     }
-    const newClass: Class = {
-      id: uuidv4(),
-      name,
-    };
-    this.classes.push(newClass);
-    return newClass;
+
+    const id = uuidv4();
+    await this.db.runWithNoReturned(
+      `INSERT INTO class (id, name) VALUES (?, ?)`,
+      [id, name]
+    );
+
+    return { id, name };
   }
 
   async updateClass(id: string, name: string): Promise<Class> {
-    const existingClass = this.classes.find((tempClass) => tempClass.id === id);
-    if (existingClass) {
-      existingClass.name = name;
-      return existingClass;
-    }
-    throw new Error(`Class with id '${id}' not found`);
-  }
-
-  async deleteClass(id: string) {
-    const existingClass = this.classes.find((tempClass) => tempClass.id === id);
+    const existingClass = await this.getClass(id);
     if (!existingClass) {
       throw new Error(`Class with id '${id}' not found`);
     }
-    const index = this.classes.indexOf(existingClass);
-    this.classes.splice(index, 1);
+
+    await this.db.runWithNoReturned(`UPDATE class SET name = ? WHERE id = ?`, [
+      name,
+      id,
+    ]);
+
+    return { id, name };
+  }
+
+  async deleteClass(id: string): Promise<void> {
+    const existingClass = await this.getClass(id);
+    if (!existingClass) {
+      throw new Error(`Class with id '${id}' not found`);
+    }
+
+    await this.db.runWithNoReturned(`DELETE FROM class WHERE id = ?`, [id]);
   }
 }
 
