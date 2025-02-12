@@ -10,14 +10,13 @@ describe('AuthService', () => {
 
     const db = await DatabaseSAccess.getInstance();
     await db.runWithNoReturned('DELETE FROM user');
-    await db.runWithNoReturned('DELETE FROM credentials');
+    await db.runWithNoReturned('DELETE FROM credential');
 
     await AuthService.register(testUser.username, testUser.password);
   });
 
   test('should register a new user', async () => {
     const newUser = await AuthService.register('newUser', 'newPassword');
-    expect(newUser).toHaveProperty('id');
     expect(newUser).toHaveProperty('username', 'newUser');
   });
 

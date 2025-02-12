@@ -9,7 +9,6 @@ class DatabaseSAccess {
 
   static async getInstance(): Promise<DatabaseSAccess> {
     const databasePath = process.env.DATABASE_PATH || 'data/database.db';
-    console.log('Database path:', databasePath);
     if (!DatabaseSAccess.instance) {
       DatabaseSAccess.instance = new DatabaseSAccess(databasePath);
       await DatabaseSAccess.instance.connect();
@@ -41,13 +40,13 @@ class DatabaseSAccess {
         `CREATE TABLE IF NOT EXISTS user (id VARCHAR, type VARCHAR, username VARCHAR, password VARCHAR)`
       );
       await this.connection.run(
-        `CREATE TABLE IF NOT EXISTS professor_class_lookup (professor_id VARCHAR, class_id VARCHAR)`
+        `CREATE TABLE IF NOT EXISTS professor_class_lookup (username VARCHAR, class_id VARCHAR)`
       );
       await this.connection.run(
         `CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, user_id VARCHAR, action VARCHAR, entity_type VARCHAR, entity_id VARCHAR)`
       );
       await this.connection.run(
-        `CREATE TABLE IF NOT EXISTS credentials (user_id VARCHAR, hash VARCHAR, salt VARCHAR)`
+        `CREATE TABLE IF NOT EXISTS credential (username VARCHAR, hash VARCHAR)`
       );
 
       console.log('Database connected');

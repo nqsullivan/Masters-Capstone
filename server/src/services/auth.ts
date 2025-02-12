@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 import DatabaseSAccess from './database.ts';
 import { User } from '../models/user.ts';
 
@@ -24,36 +23,34 @@ class AuthService {
       throw new Error('Username and password are required');
     }
 
-    const existingUsers = await AuthService.db.runAndReadAll<{ id: string }>(
-      'SELECT id FROM user WHERE username = ?',
-      [username]
-    );
+    const existingUsers = await AuthService.db.runAndReadAll<{
+      username: string;
+    }>('SELECT username FROM user WHERE username = ?', [username]);
 
     if (existingUsers.length > 0) {
       throw new Error('Username already taken');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userId = uuidv4();
 
     await AuthService.db.runWithNoReturned(
-      'INSERT INTO user (id, username, type) VALUES (?, ?, ?)',
-      [userId, username, 'USER']
+      'INSERT INTO user (username, type) VALUES (?, ?)',
+      [username, 'USER']
     );
 
     await AuthService.db.runWithNoReturned(
-      'INSERT INTO credentials (user_id, hash) VALUES (?, ?)',
-      [userId, hashedPassword]
+      'INSERT INTO credential (username, hash) VALUES (?, ?)',
+      [username, hashedPassword]
     );
 
-    return { id: userId, username, password: hashedPassword, type: 'USER' };
+    return { username, password: hashedPassword, type: 'USER' };
   }
 
   static async login(username: string, password: string): Promise<string> {
     if (!AuthService.db) throw new Error('AuthService not initialized');
 
-    const user = await AuthService.db.runAndReadAll<{ id: string }>(
-      'SELECT id FROM user WHERE username = ?',
+    const user = await AuthService.db.runAndReadAll<{ username: string }>(
+      'SELECT username FROM user WHERE username = ?',
       [username]
     );
 
@@ -62,8 +59,8 @@ class AuthService {
     }
 
     const credentials = await AuthService.db.runAndReadAll<{ hash: string }>(
-      'SELECT hash FROM credentials WHERE user_id = ?',
-      [user[0].id]
+      'SELECT hash FROM credential WHERE username = ?',
+      [username]
     );
 
     if (credentials.length === 0) {
@@ -76,7 +73,7 @@ class AuthService {
       throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ userId: user[0].id }, SECRET_KEY, {
+    const token = jwt.sign({ username: user[0].username }, SECRET_KEY, {
       expiresIn: '1h',
     });
 
@@ -89,11 +86,13 @@ class AuthService {
     if (!AuthService.db) throw new Error('AuthService not initialized');
 
     try {
-      const decodedToken = jwt.verify(token, SECRET_KEY) as { userId: string };
+      const decodedToken = jwt.verify(token, SECRET_KEY) as {
+        username: string;
+      };
 
       const users = await AuthService.db.runAndReadAll<Omit<User, 'password'>>(
-        'SELECT id, username, type FROM user WHERE id = ?',
-        [decodedToken.userId]
+        'SELECT username, type FROM user WHERE username = ?',
+        [decodedToken.username]
       );
 
       return users.length > 0 ? users[0] : null;

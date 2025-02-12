@@ -19,7 +19,7 @@ describe('Class API', () => {
 
     await db.runWithNoReturned('DELETE FROM class');
     await db.runWithNoReturned('DELETE FROM user');
-    await db.runWithNoReturned('DELETE FROM credentials');
+    await db.runWithNoReturned('DELETE FROM credential');
 
     await AuthService.register('admin', 'adminpass');
     token = await AuthService.login('admin', 'adminpass');

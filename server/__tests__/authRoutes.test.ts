@@ -15,7 +15,7 @@ describe('Auth APIzx', () => {
 
     const db = await DatabaseSAccess.getInstance();
     await db.runWithNoReturned('DELETE FROM user');
-    await db.runWithNoReturned('DELETE FROM credentials');
+    await db.runWithNoReturned('DELETE FROM credential');
   });
 
   test('POST /api/register should register a user', async () => {
