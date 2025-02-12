@@ -8,6 +8,7 @@ export default {
     'services/**/*.ts',
     'routes/**/*.ts',
   ],
+  setupFiles: ['./jest.setup.js'],
   coverageThreshold: {
     global: {
       statements: 80,

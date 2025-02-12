@@ -1,8 +1,11 @@
 import express from 'express';
-import routes from './routes/index.ts';
+import routes from './src/routes/index.ts';
+import AuthService from './src/services/auth.ts';
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+AuthService.init();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

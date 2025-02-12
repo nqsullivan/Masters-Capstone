@@ -1,7 +1,24 @@
 import { DuckDBInstance } from '@duckdb/node-api';
+import * as fs from 'node:fs/promises';
+
+async function archiveDatabase(dbPath) {
+  try {
+    await fs.mkdir('data/archive');
+  } catch (error) {}
+  try {
+    await fs.access(dbPath); // Check if the database file exists
+    await fs.rename(dbPath, 'data/archive/database.db'); // Delete the database file
+    console.log(`Database '${dbPath}' archived successfully.`);
+  } catch (error) {
+    console.error(`Error archiving database '${dbPath}':`, error);
+  }
+}
 
 async function init() {
-  const instance = await DuckDBInstance.create('data/database.db');
+  const dbPath = 'data/database.db';
+  archiveDatabase(dbPath);
+
+  const instance = await DuckDBInstance.create(dbPath);
   const db = await instance.connect();
 
   try {
@@ -94,19 +111,19 @@ async function init() {
     );
 
     const userData = [
-      ['1', 'admin', 'admin', 'admin'],
-      ['2', 'teacher', 'teacher', 'teacher'],
-      ['3', 'student', 'student', 'student'],
+      ['admin', 'admin', 'admin'],
+      ['teacher', 'teacher', 'teacher'],
+      ['student', 'student', 'student'],
     ];
     for (const data of userData) {
       await db.run(
-        'INSERT INTO user (id, type, username, password) VALUES (?, ?, ?, ?)',
+        'INSERT INTO user (type, username, password) VALUES (?, ?, ?)',
         data
       );
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS professor_class_lookup (professor_id VARCHAR, class_id VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS professor_class_lookup (username VARCHAR, class_id VARCHAR)'
     );
 
     const professorClassData = [
@@ -116,7 +133,7 @@ async function init() {
     ];
     for (const data of professorClassData) {
       await db.run(
-        'INSERT INTO professor_class_lookup (professor_id, class_id) VALUES (?, ?)',
+        'INSERT INTO professor_class_lookup (username, class_id) VALUES (?, ?)',
         data
       );
     }
@@ -138,7 +155,7 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS credentials (user_id VARCHAR, hash VARCHAR, salt VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS credential (username VARCHAR, hash VARCHAR)'
     );
 
     await db.close();
