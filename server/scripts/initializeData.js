@@ -94,13 +94,13 @@ async function init() {
     );
 
     const userData = [
-      ['1', 'admin', 'admin', 'admin'],
-      ['2', 'teacher', 'teacher', 'teacher'],
-      ['3', 'student', 'student', 'student'],
+      ['admin', 'admin', 'admin'],
+      ['teacher', 'teacher', 'teacher'],
+      ['student', 'student', 'student'],
     ];
     for (const data of userData) {
       await db.run(
-        'INSERT INTO user (id, type, username, password) VALUES (?, ?, ?, ?)',
+        'INSERT INTO user (type, username, password) VALUES (?, ?, ?)',
         data
       );
     }
@@ -138,7 +138,7 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS credential (user_id VARCHAR, hash VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS credential (username VARCHAR, hash VARCHAR)'
     );
 
     await db.close();
