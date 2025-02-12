@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import AuthService from '../services/auth';
+import AuthService from '../services/auth.ts';
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
@@ -31,7 +31,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  const user = AuthService.verifyToken(token);
+  const user = await AuthService.verifyToken(token);
   if (!user) {
     res.status(401).json({ error: 'Unauthorized' });
     return;

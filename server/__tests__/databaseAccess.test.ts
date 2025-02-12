@@ -1,5 +1,4 @@
 import DatabaseSAccess from '../src/services/database';
-import { DuckDBInstance, DuckDBConnection } from '@duckdb/node-api';
 import {
   expect,
   test,
@@ -9,15 +8,11 @@ import {
   jest,
 } from '@jest/globals';
 
-jest.mock('@duckdb/node-api');
-
-//mock duckdb functions
 jest.mock('@duckdb/node-api', () => {
-  // Create a mock database connection object
   const mockConnection = {
     run: jest.fn(),
-    runAndReadAll: jest.fn(() => ({
-      getRows: jest.fn().mockReturnValue([{ id: 1, name: 'Test' }]),
+    runAndReadAll: jest.fn(async () => ({
+      getRowObjects: jest.fn().mockReturnValue([{ id: '1', name: 'Test' }]),
     })),
     close: jest.fn(),
   };
@@ -33,29 +28,36 @@ jest.mock('@duckdb/node-api', () => {
 
 describe('DatabaseSAccess', () => {
   let db: DatabaseSAccess;
-  // Every test will have a new instance of the DatabaseSAccess class
+
   beforeEach(async () => {
-    db = new DatabaseSAccess('test.db'); // Create an instance with a mock database path
-    await db.connect(); // Establish a connection
+    db = await DatabaseSAccess.getInstance();
   });
 
-  //Every test will disconnect from the database
   afterEach(async () => {
     await db.disconnect();
   });
 
-  // Test executing a query that does not return any rows
-  test('runs a query with no returned rows', async () => {
-    const query = 'INSERT INTO users (name) VALUES (?)';
-    await db.runWithNoReturned(query, ['Alice']);
-    expect(db['connection'].run).toHaveBeenCalledWith(query, ['Alice']);
+  test('runWithNoReturned executes a query without returning rows', async () => {
+    const query = 'INSERT INTO user (id, username) VALUES (?, ?)';
+    await db.runWithNoReturned(query, ['1', 'Alice']);
+    expect(db['connection'].run).toHaveBeenCalledWith(query, ['1', 'Alice']);
   });
 
-  // Test executing a query that returns rows
-  test('runs a query and returns rows', async () => {
-    const query = 'SELECT * FROM users'; // Example query
-    const rows = await db.runAndReturnedRows(query); // Execute the query
+  test('runAndReadAll executes a query and returns rows', async () => {
+    const query = 'SELECT * FROM user';
+    const rows = await db.runAndReadAll(query);
     expect(db['connection'].runAndReadAll).toHaveBeenCalledWith(query, []);
-    expect(rows).toEqual([{ id: 1, name: 'Test' }]);
+    expect(rows).toEqual([{ id: '1', name: 'Test' }]);
+  });
+
+  test('getInstance returns the same instance', async () => {
+    const instance1 = await DatabaseSAccess.getInstance();
+    const instance2 = await DatabaseSAccess.getInstance();
+    expect(instance1).toBe(instance2);
+  });
+
+  test('disconnect closes the database connection', async () => {
+    await db.disconnect();
+    expect(db['connection'].close).toHaveBeenCalled();
   });
 });

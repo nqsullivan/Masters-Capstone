@@ -1,10 +1,17 @@
 import AuthService from '../src/services/auth.ts';
+import DatabaseSAccess from '../src/services/database.ts';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 describe('AuthService', () => {
   let testUser = { username: 'testUser', password: 'password123' };
 
   beforeAll(async () => {
+    await AuthService.init();
+
+    const db = await DatabaseSAccess.getInstance();
+    await db.runWithNoReturned('DELETE FROM user');
+    await db.runWithNoReturned('DELETE FROM credentials');
+
     await AuthService.register(testUser.username, testUser.password);
   });
 
@@ -45,13 +52,13 @@ describe('AuthService', () => {
       throw new Error('Token not generated');
     }
 
-    const verifiedUser = AuthService.verifyToken(token);
+    const verifiedUser = await AuthService.verifyToken(token);
     expect(verifiedUser).toBeDefined();
     expect(verifiedUser?.username).toBe(testUser.username);
   });
 
-  test('should reject an invalid JWT token', () => {
-    const verifiedUser = AuthService.verifyToken('invalidtoken');
+  test('should reject an invalid JWT token', async () => {
+    const verifiedUser = await AuthService.verifyToken('invalidtoken');
     expect(verifiedUser).toBeNull();
   });
 });
