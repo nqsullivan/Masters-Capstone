@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CreateLogRequest }  from '../models/logRequest';
+import { CreateLogRequest } from '../models/logRequest';
 import { Log } from '../models/log.ts';
 
 class LogService {

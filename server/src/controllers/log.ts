@@ -1,5 +1,5 @@
 import e, { Request, Response, NextFunction } from 'express';
-import { CreateLogRequest }  from '../models/logRequest';
+import { CreateLogRequest } from '../models/logRequest';
 import LogService from '../services/log.ts';
 
 const getLog = async (req: Request, res: Response, next: NextFunction) => {
