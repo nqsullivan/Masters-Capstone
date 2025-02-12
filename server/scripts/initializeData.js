@@ -1,7 +1,24 @@
 import { DuckDBInstance } from '@duckdb/node-api';
+import * as fs from 'node:fs/promises';
+
+async function archiveDatabase(dbPath) {
+  try {
+    await fs.mkdir('data/archive');
+  } catch (error) {}
+  try {
+    await fs.access(dbPath); // Check if the database file exists
+    await fs.rename(dbPath, 'data/archive/database.db'); // Delete the database file
+    console.log(`Database '${dbPath}' archived successfully.`);
+  } catch (error) {
+    console.error(`Error archiving database '${dbPath}':`, error);
+  }
+}
 
 async function init() {
-  const instance = await DuckDBInstance.create('data/database.db');
+  const dbPath = 'data/database.db';
+  archiveDatabase(dbPath);
+
+  const instance = await DuckDBInstance.create(dbPath);
   const db = await instance.connect();
 
   try {
