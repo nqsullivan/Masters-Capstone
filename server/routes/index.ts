@@ -1,5 +1,6 @@
 import express from 'express';
 import { login, register, verifyToken } from '../controllers/auth.ts';
+import { createSession } from '../controllers/session.ts';
 import {
   getClass,
   createClass,
@@ -17,5 +18,8 @@ router.get('/class/:id', verifyToken, getClass);
 router.post('/class', verifyToken, createClass);
 router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
+
+router.post('/session', verifyToken, createSession);
+
 
 export default router;

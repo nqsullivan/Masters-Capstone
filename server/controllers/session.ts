@@ -1,0 +1,22 @@
+import e, { Request, Response, NextFunction } from 'express';
+import SessionService from '../services/session.ts';
+/*
+export interface Session {
+    classId: string;
+    startTime: Date;
+    endTime: Date;
+    id: string;
+    professorId: string;
+}*/
+const createSession = async (req: Request, res: Response, next: NextFunction) => {
+    const { classId, startTime, endTime, professorId } = req.body;
+    try {
+        const newSession = await SessionService.createSession(classId, startTime, endTime, professorId);
+        res.status(201).send(newSession);
+        next();
+    } catch (e: any) {
+        res.status(400).json({ error: e.message });
+    }
+};
+
+export { createSession };
