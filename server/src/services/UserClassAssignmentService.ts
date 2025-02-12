@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import DatabaseAccess from '../services/database.ts';
 import { UserClassAssignment } from '../models/userClassAssignment.ts';
 
@@ -25,10 +24,7 @@ class UserClassAssignmentService {
     }
 
     const result = await this.db.runAndReadAll<UserClassAssignment>(
-      `SELECT uca.username, uca.username
-       FROM professor_class_lookup uca 
-       JOIN user u ON uca.username = u.username 
-       WHERE uca.class_id = ?`,
+      `SELECT username FROM professor_class_lookup WHERE class_id = ?`,
       [class_id]
     );
 
@@ -47,7 +43,7 @@ class UserClassAssignmentService {
     }
 
     const result = await this.db.runAndReadAll<UserClassAssignment>(
-      `SELECT uca.class_id, uca.class_id
+      `SELECT uca.class_id, c.name
        FROM professor_class_lookup uca 
        JOIN class c ON uca.class_id = c.id 
        WHERE uca.username = ?`,
@@ -75,6 +71,16 @@ class UserClassAssignmentService {
     );
     if (classObj.length === 0) {
       throw new Error(`Class with id '${class_id}' not found`);
+    }
+
+    const existingAssignment = await this.db.runAndReadAll(
+      `SELECT username, class_id FROM professor_class_lookup WHERE username = ? AND class_id = ?`,
+      [username, class_id]
+    );
+    if (existingAssignment.length > 0) {
+      throw new Error(
+        `User with username '${username}' is already assigned to class with id '${class_id}'`
+      );
     }
 
     await this.db.runWithNoReturned(
