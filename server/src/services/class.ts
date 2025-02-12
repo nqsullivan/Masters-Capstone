@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import DatabaseSAccess from '../services/database';
-import { Class } from '../models/class';
+import DatabaseSAccess from '../services/database.ts';
+import { Class } from '../models/class.ts';
 
 class ClassService {
   private db!: DatabaseSAccess;
