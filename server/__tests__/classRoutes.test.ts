@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import routes from '../src/routes/index';
-import DatabaseSAccess from '../src/services/database';
+import DatabaseAccess from '../src/services/database';
 import AuthService from '../src/services/auth';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
@@ -11,11 +11,11 @@ app.use('/api', routes);
 
 describe('Class API', () => {
   let token: string;
-  let db: DatabaseSAccess;
+  let db: DatabaseAccess;
 
   beforeAll(async () => {
     AuthService.init();
-    db = await DatabaseSAccess.getInstance();
+    db = await DatabaseAccess.getInstance();
 
     await db.runWithNoReturned('DELETE FROM class');
     await db.runWithNoReturned('DELETE FROM user');

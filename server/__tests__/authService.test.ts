@@ -1,5 +1,5 @@
 import AuthService from '../src/services/auth.ts';
-import DatabaseSAccess from '../src/services/database.ts';
+import DatabaseAccess from '../src/services/database.ts';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 describe('AuthService', () => {
@@ -8,7 +8,7 @@ describe('AuthService', () => {
   beforeAll(async () => {
     await AuthService.init();
 
-    const db = await DatabaseSAccess.getInstance();
+    const db = await DatabaseAccess.getInstance();
     await db.runWithNoReturned('DELETE FROM user');
     await db.runWithNoReturned('DELETE FROM credential');
 

@@ -1,19 +1,19 @@
 import { DuckDBInstance, DuckDBConnection } from '@duckdb/node-api';
 
-class DatabaseSAccess {
-  private static instance: DatabaseSAccess;
+class DatabaseAccess {
+  private static instance: DatabaseAccess;
   private duckDB!: DuckDBInstance;
   private connection!: DuckDBConnection;
 
   private constructor(private databasePath: string) {}
 
-  static async getInstance(): Promise<DatabaseSAccess> {
+  static async getInstance(): Promise<DatabaseAccess> {
     const databasePath = process.env.DATABASE_PATH || 'data/database.db';
-    if (!DatabaseSAccess.instance) {
-      DatabaseSAccess.instance = new DatabaseSAccess(databasePath);
-      await DatabaseSAccess.instance.connect();
+    if (!DatabaseAccess.instance) {
+      DatabaseAccess.instance = new DatabaseAccess(databasePath);
+      await DatabaseAccess.instance.connect();
     }
-    return DatabaseSAccess.instance;
+    return DatabaseAccess.instance;
   }
 
   private async connect() {
@@ -80,4 +80,4 @@ class DatabaseSAccess {
   }
 }
 
-export default DatabaseSAccess;
+export default DatabaseAccess;

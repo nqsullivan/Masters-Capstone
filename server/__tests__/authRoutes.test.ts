@@ -2,7 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import routes from '../src/routes/index';
 import AuthService from '../src/services/auth';
-import DatabaseSAccess from '../src/services/database';
+import DatabaseAccess from '../src/services/database';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 const app = express();
@@ -13,7 +13,7 @@ describe('Auth APIzx', () => {
   beforeAll(async () => {
     await AuthService.init();
 
-    const db = await DatabaseSAccess.getInstance();
+    const db = await DatabaseAccess.getInstance();
     await db.runWithNoReturned('DELETE FROM user');
     await db.runWithNoReturned('DELETE FROM credential');
   });

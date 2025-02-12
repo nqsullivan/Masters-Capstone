@@ -1,18 +1,18 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import DatabaseSAccess from './database.ts';
+import DatabaseAccess from './database.ts';
 import { User } from '../models/user.ts';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
 class AuthService {
-  private static db: DatabaseSAccess;
+  private static db: DatabaseAccess;
 
   private constructor() {}
 
   static async init() {
     if (!AuthService.db) {
-      AuthService.db = await DatabaseSAccess.getInstance();
+      AuthService.db = await DatabaseAccess.getInstance();
     }
   }
 

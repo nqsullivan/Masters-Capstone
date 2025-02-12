@@ -1,4 +1,4 @@
-import DatabaseSAccess from '../src/services/database';
+import DatabaseAccess from '../src/services/database';
 import {
   expect,
   test,
@@ -26,11 +26,11 @@ jest.mock('@duckdb/node-api', () => {
   };
 });
 
-describe('DatabaseSAccess', () => {
-  let db: DatabaseSAccess;
+describe('DatabaseAccess', () => {
+  let db: DatabaseAccess;
 
   beforeEach(async () => {
-    db = await DatabaseSAccess.getInstance();
+    db = await DatabaseAccess.getInstance();
   });
 
   afterEach(async () => {
@@ -51,8 +51,8 @@ describe('DatabaseSAccess', () => {
   });
 
   test('getInstance returns the same instance', async () => {
-    const instance1 = await DatabaseSAccess.getInstance();
-    const instance2 = await DatabaseSAccess.getInstance();
+    const instance1 = await DatabaseAccess.getInstance();
+    const instance2 = await DatabaseAccess.getInstance();
     expect(instance1).toBe(instance2);
   });
 

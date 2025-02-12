@@ -1,16 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
-import DatabaseSAccess from '../services/database.ts';
+import DatabaseAccess from '../services/database.ts';
 import { UserClassAssignment } from '../models/userClassAssignment.ts';
 
 class UserClassAssignmentService {
-  private db!: DatabaseSAccess;
+  private db!: DatabaseAccess;
 
   constructor() {
     this.init();
   }
 
   private async init() {
-    this.db = await DatabaseSAccess.getInstance();
+    this.db = await DatabaseAccess.getInstance();
   }
 
   async getProfessorsForClass(

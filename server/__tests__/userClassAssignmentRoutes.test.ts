@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import routes from '../src/routes/index';
-import DatabaseSAccess from '../src/services/database';
+import DatabaseAccess from '../src/services/database';
 import AuthService from '../src/services/auth';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
@@ -11,14 +11,14 @@ app.use('/api', routes);
 
 describe('User-Class Assignment API', () => {
   let token: string;
-  let db: DatabaseSAccess;
+  let db: DatabaseAccess;
   const professor_username = 'professor1';
   const professor_password = 'password';
   let class_id: string;
 
   beforeAll(async () => {
     AuthService.init();
-    db = await DatabaseSAccess.getInstance();
+    db = await DatabaseAccess.getInstance();
 
     await db.runWithNoReturned('DELETE FROM professor_class_lookup');
     await db.runWithNoReturned('DELETE FROM class');
