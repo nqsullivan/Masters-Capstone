@@ -1,6 +1,6 @@
 import express from 'express';
 import { login, register, verifyToken } from '../controllers/auth.ts';
-import { createSession } from '../controllers/session.ts';
+import { createSession, deleteSession } from '../controllers/session.ts';
 import {
   getClass,
   createClass,
