@@ -18,5 +18,15 @@ const createSession = async (req: Request, res: Response, next: NextFunction) =>
         res.status(400).json({ error: e.message });
     }
 };
+const deleteSession = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    try {
+        await SessionService.deleteSession(id);
+        res.status(204).send();
+        next();
+    } catch (e: any) {
+        res.status(400).json({ error: e.message });
+    }
+};
 
-export { createSession };
+export { createSession, deleteSession };

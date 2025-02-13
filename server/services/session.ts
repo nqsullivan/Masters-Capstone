@@ -19,6 +19,14 @@ class SessionService {
         this.sessions.push(newSession);
         return newSession;
     }
-}
 
+
+    async deleteSession(sessionId: string): Promise<void> {
+        const sessionIndex = this.sessions.findIndex(session => session.id === sessionId);
+        if (sessionIndex === -1) {
+            throw new Error('Session not found');
+        }
+        this.sessions.splice(sessionIndex, 1);
+    }
+}
 export default new SessionService();

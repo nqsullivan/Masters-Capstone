@@ -20,6 +20,7 @@ router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
 
 router.post('/session', verifyToken, createSession);
+router.delete('/session/:id', verifyToken, deleteSession);
 
 
 export default router;
