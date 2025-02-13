@@ -34,7 +34,9 @@ class LogService {
   }
 
   async createLog(logDetails: CreateLogRequest): Promise<Log> {
-    const user = await UserClassAssignmentService.getProfessor(logDetails.user_id);
+    const user = await UserClassAssignmentService.getProfessor(
+      logDetails.user_id
+    );
     const id = uuidv4();
     const currentDate = this.db.getCurrentDate();
 
