@@ -1,20 +1,26 @@
 import request from 'supertest';
 import express from 'express';
-import routes from '../routes/index';
+import routes from '../src/routes/index';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 import TestUtils from './utils';
+import AuthService from '../src/services/auth';
 
 const app = express();
 app.use(express.json());
 app.use('/api', routes);
 
-let token: string | null = '';
-
-beforeAll(async () => {
-    token = await TestUtils.getValidToken();
-});
 
 describe('Session Routes', () => {
+    let token: string;
+    beforeAll(async () => {
+        await AuthService.init();
+        await AuthService.register('admin', 'adminpass');
+        token = await AuthService.login('admin', 'adminpass');
+    
+        if (!token) {
+          throw new Error('Failed to generate admin token');
+        }
+    });
     const mockStartTime = new Date('2023-01-01T10:00:00Z').toISOString();
     const mockEndTime = new Date('2023-01-01T11:00:00Z').toISOString();
 

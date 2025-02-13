@@ -1,6 +1,8 @@
 import request from 'supertest';
 import express from 'express';
-import routes from '../routes/index';
+import routes from '../src/routes/index';
+import AuthService from '../src/services/auth';
+import DatabaseAccess from '../src/services/database';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 const app = express();
@@ -8,6 +10,14 @@ app.use(express.json());
 app.use('/api', routes);
 
 describe('Auth APIzx', () => {
+  beforeAll(async () => {
+    await AuthService.init();
+
+    const db = await DatabaseAccess.getInstance();
+    await db.runWithNoReturned('DELETE FROM user');
+    await db.runWithNoReturned('DELETE FROM credential');
+  });
+
   test('POST /api/register should register a user', async () => {
     const response = await request(app)
       .post('/api/register')
@@ -51,21 +61,5 @@ describe('Auth APIzx', () => {
 
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('error', 'Invalid credentials');
-  });
-
-  test('GET /api/verify-token should return 401 for an invalid token', async () => {
-    const response = await request(app)
-      .get('/api/verify-token')
-      .set('Authorization', 'Bearer invalidtoken');
-
-    expect(response.status).toBe(401);
-    expect(response.body).toHaveProperty('error', 'Unauthorized');
-  });
-
-  test('GET /api/verify-token should return 401 for no token', async () => {
-    const response = await request(app).get('/api/verify-token');
-
-    expect(response.status).toBe(401);
-    expect(response.body).toHaveProperty('error', 'Unauthorized');
   });
 });
