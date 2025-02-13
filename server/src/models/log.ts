@@ -1,6 +1,6 @@
 export interface Log {
   id: string;
-  timestamp: Date;
+  timestamp: string;
   user_id: string;
   action: string;
   entity_type: string;

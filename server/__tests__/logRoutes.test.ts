@@ -1,4 +1,3 @@
-import TestUtils from './utils';
 import request from 'supertest';
 import express from 'express';
 import routes from '../src/routes/index';
@@ -35,17 +34,27 @@ describe('Log API', () => {
     const response = await request(app)
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
-      .send({ action: 'LOGIN' });
+      .send({
+        user_id: 'admin',
+        action: 'LOGIN',
+        entity_type: 'USER',
+        entity_id: 'admin',
+      });
 
-    expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('action', 'LOGIN');
+    expect(response.status).toBe(201);
   });
 
   test('GET /api/log/{id} should return 200 for valid log ID', async () => {
     const logResponse = await request(app)
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
-      .send({ action: 'SCAN' });
+      .send({
+        user_id: 'admin',
+        action: 'SCAN',
+        entity_type: 'USER',
+        entity_id: 'admin',
+      });
 
     const response = await request(app)
       .get(`/api/log/${logResponse.body.id}`)
@@ -71,7 +80,12 @@ describe('Log API', () => {
     const logResponse = await request(app)
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
-      .send({ entity_type: 'SESSION' });
+      .send({
+        user_id: 'admin',
+        action: 'LOGIN',
+        entity_type: 'SESSION',
+        entity_id: 'admin',
+      });
 
     const response = await request(app)
       .delete(`/api/log/${logResponse.body.id}`)
