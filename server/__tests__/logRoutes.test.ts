@@ -2,6 +2,8 @@ import TestUtils from './utils';
 import request from 'supertest';
 import express from 'express';
 import routes from '../src/routes/index';
+import DatabaseAccess from '../src/services/database';
+import AuthService from '../src/services/auth';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 const app = express();
@@ -9,9 +11,24 @@ app.use(express.json());
 app.use('/api', routes);
 
 describe('Log API', () => {
-  let token: string | null = '';
+  let token: string;
+  let db: DatabaseAccess;
+
   beforeAll(async () => {
-    token = await TestUtils.getValidToken();
+    AuthService.init();
+    db = await DatabaseAccess.getInstance();
+
+    await db.runWithNoReturned('DELETE FROM class');
+    await db.runWithNoReturned('DELETE FROM user');
+    await db.runWithNoReturned('DELETE FROM credential');
+    await db.runWithNoReturned('DELETE FROM log');
+
+    await AuthService.register('admin', 'adminpass');
+    token = await AuthService.login('admin', 'adminpass');
+
+    if (!token) {
+      throw new Error('Failed to generate admin token');
+    }
   });
 
   test('POST /api/log should return 200 for valid request', async () => {
