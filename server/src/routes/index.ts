@@ -2,6 +2,10 @@ import express from 'express';
 import { login, register, verifyToken } from '../controllers/auth.ts';
 import { createSession, deleteSession } from '../controllers/session.ts';
 import {
+  addStudentToSession,
+  deleteStudentFromSession,
+} from '../controllers/studentSessionAssignment.ts';
+import {
   getClass,
   createClass,
   updateClass,
@@ -28,7 +32,12 @@ router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
 router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 
+//classId, startTime, endTime, professorId
 router.post('/session', verifyToken, createSession);
 router.delete('/session/:id', verifyToken, deleteSession);
+
+//studentId, sessionId
+router.post('/student-session', verifyToken, addStudentToSession);
+router.delete('/student-session', verifyToken, deleteStudentFromSession);
 
 export default router;

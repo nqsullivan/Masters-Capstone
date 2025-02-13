@@ -48,6 +48,9 @@ class DatabaseAccess {
       await this.connection.run(
         `CREATE TABLE IF NOT EXISTS credential (username VARCHAR, hash VARCHAR)`
       );
+      await this.connection.run(
+        `CREATE TABLE IF NOT EXISTS student_session_lookup (student_id VARCHAR, session_id VARCHAR)`
+      );
 
       console.log('Database connected');
     } catch (error) {

@@ -14,9 +14,9 @@ class SessionService {
   }
 
   async createSession(
-    classId: string,
     startTime: Date,
     endTime: Date,
+    classId: string,
     professorId: string
   ): Promise<Session> {
     if (!classId || !startTime || !endTime || !professorId) {

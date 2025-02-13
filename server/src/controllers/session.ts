@@ -13,12 +13,12 @@ const createSession = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { classId, startTime, endTime, professorId } = req.body;
+  const { startTime, endTime, classId, professorId } = req.body;
   try {
     const newSession = await SessionService.createSession(
-      classId,
       startTime,
       endTime,
+      classId,
       professorId
     );
     res.status(201).send(newSession);
