@@ -72,13 +72,13 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS session (id VARCHAR, start_time DATETIME, end_time DATETIME, class_id VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS session (id VARCHAR, start_time DATETIME, end_time DATETIME, class_id VARCHAR, professor_id VARCHAR)'
     );
 
     const sessionData = [
-      ['1', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '1'],
-      ['2', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '2'],
-      ['3', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '3'],
+      ['1', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '1', '1'],
+      ['2', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '2', '2'],
+      ['3', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '3', '3'],
     ];
     for (const data of sessionData) {
       await db.run(

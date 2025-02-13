@@ -1,7 +1,7 @@
 export interface Session {
-    classId: string;
+    id: string;
     startTime: Date;
     endTime: Date;
-    id: string;
+    classId: string;
     professorId: string;
 }

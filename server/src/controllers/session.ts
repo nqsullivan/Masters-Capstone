@@ -15,6 +15,8 @@ const createSession = async (req: Request, res: Response, next: NextFunction) =>
         res.status(201).send(newSession);
         next();
     } catch (e: any) {
+        console.log("what");
+        console.log(e);
         res.status(400).json({ error: e.message });
     }
 };

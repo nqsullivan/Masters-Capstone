@@ -21,8 +21,8 @@ describe('Session Routes', () => {
           throw new Error('Failed to generate admin token');
         }
     });
-    const mockStartTime = new Date('2023-01-01T10:00:00Z').toISOString();
-    const mockEndTime = new Date('2023-01-01T11:00:00Z').toISOString();
+    const mockStartTime = new Date('2025-01-01T10:00:00Z').toISOString();
+    const mockEndTime = new Date('2025-01-01T11:00:00Z').toISOString();
 
     test('POST /session should create a new session', async () => {
         const sessionData = {
@@ -76,5 +76,4 @@ describe('Session Routes', () => {
         expect(response.status).toBe(400);
     });
 });
-
 
