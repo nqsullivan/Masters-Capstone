@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateLogRequest } from '../models/logRequest';
 import { Log } from '../models/log.ts';
 import DatabaseAccess from '../services/database.ts';
+import UserClassAssignmentService from '../services/UserClassAssignmentService.ts';
 
 class LogService {
   private db!: DatabaseAccess;
@@ -33,6 +34,7 @@ class LogService {
   }
 
   async createLog(logDetails: CreateLogRequest): Promise<Log> {
+    const user = await UserClassAssignmentService.getProfessor(logDetails.user_id);
     const id = uuidv4();
     const currentDate = this.db.getCurrentDate();
 
