@@ -71,5 +71,4 @@ describe('Session Routes', () => {
     });
 });
 
-//failure scenarios
 
