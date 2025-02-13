@@ -13,6 +13,14 @@ import {
   unassignProfessorFromClass,
 } from '../controllers/userClassAssignment.ts';
 
+import {
+  getStudent,
+  createStudent,
+  updateStudent,
+  deleteStudent,
+} from '../controllers/student.ts';
+
+
 const router = express.Router();
 
 router.post('/login', login);
@@ -27,5 +35,10 @@ router.get('/class/:class_id/professors', verifyToken, getProfessorsForClass);
 router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
 router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
+
+router.get('/student/:id', verifyToken, getStudent);
+router.post('/student', verifyToken, createStudent);
+router.put('/student/:id', verifyToken, updateStudent);
+router.delete('/student/:id', verifyToken, deleteStudent);
 
 export default router;
