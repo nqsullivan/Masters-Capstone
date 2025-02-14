@@ -36,8 +36,9 @@ router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 
 
-
-
+router.get('/log/:id', verifyToken, getLog);
+router.post('/log', verifyToken, createLog);
+router.delete('/log/:id', verifyToken, deleteLog);
 
 router.get('/student/:id', verifyToken, getStudent);
 router.post('/student', verifyToken, createStudent);
