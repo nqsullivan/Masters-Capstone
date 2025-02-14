@@ -1,4 +1,9 @@
-import { DuckDBInstance, DuckDBConnection } from '@duckdb/node-api';
+import {
+  DuckDBInstance,
+  DuckDBConnection,
+  DuckDBPreparedStatement,
+  DuckDBTimestampValue,
+} from '@duckdb/node-api';
 
 class DatabaseAccess {
   private static instance: DatabaseAccess;
@@ -69,8 +74,27 @@ class DatabaseAccess {
     if (!this.connection) {
       await this.connect();
     }
-
     return this.connection.run(query, params);
+  }
+
+  /**
+    To be used to retrieve a prepared statement which are formatted like 'SELECT $1, $2'.
+    From the calling service class, bind the statement like below:
+    prepared.bindTimestamp(1, new DuckDBTimestampValue(time));
+    prepared.bindDecimal(2, new DuckDBDecimalValue(value, width, scale));
+ */
+  async getPreparedStatementObject(query: string) {
+    if (!this.connection) {
+      await this.connect();
+    }
+    return await this.connection.prepare(query);
+  }
+
+  async runPreparedStatement(preparedQuery: DuckDBPreparedStatement) {
+    if (!this.connection) {
+      await this.connect();
+    }
+    return await preparedQuery.run();
   }
 
   async runAndReadAll<T>(query: string, params: any[] = []): Promise<T[]> {
@@ -80,6 +104,10 @@ class DatabaseAccess {
 
     const result = await this.connection.runAndReadAll(query, params);
     return result.getRowObjects() as T[];
+  }
+
+  getCurrentDate(): DuckDBTimestampValue {
+    return new DuckDBTimestampValue(BigInt(Date.now() * 1000));
   }
 }
 
