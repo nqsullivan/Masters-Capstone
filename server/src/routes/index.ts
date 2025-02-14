@@ -36,13 +36,10 @@ router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
 router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 
-
-
 router.get('/student/:id', verifyToken, getStudent);
 router.post('/student', verifyToken, createStudent);
 router.put('/student/:id', verifyToken, updateStudent);
 router.delete('/student/:id', verifyToken, deleteStudent);
-
 
 router.get('/log/:id', verifyToken, getLog);
 router.post('/log', verifyToken, createLog);
