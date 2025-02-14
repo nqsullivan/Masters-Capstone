@@ -20,7 +20,6 @@ import {
   deleteStudent,
 } from '../controllers/student.ts';
 
-
 const router = express.Router();
 
 router.post('/login', login);

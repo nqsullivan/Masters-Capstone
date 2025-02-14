@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import DatabaseAccess from '../services/database.ts';
 import { Student } from '../models/student.ts';
@@ -16,7 +15,7 @@ class StudentService {
 
   async getStudent(id: string): Promise<Student> {
     const result = await this.db.runAndReadAll<Student>(
-        `SELECT id, name, class_id, image FROM student WHERE id = ?`,
+      `SELECT id, name, class_id, image FROM student WHERE id = ?`,
       [id]
     );
 
@@ -26,7 +25,11 @@ class StudentService {
     throw new Error(`Student with id '${id}' not found`);
   }
 
-  async createStudent(name: string, class_id: string, image: string): Promise<Student> {
+  async createStudent(
+    name: string,
+    class_id: string,
+    image: string
+  ): Promise<Student> {
     if (!name || !class_id) {
       throw new Error('Name and class_id cannot be empty');
     }
@@ -40,8 +43,12 @@ class StudentService {
     return { id, name, class_id, image };
   }
 
-
-  async updateStudent(id: string, name: string, class_id: string, image: string): Promise<Student> {
+  async updateStudent(
+    id: string,
+    name: string,
+    class_id: string,
+    image: string
+  ): Promise<Student> {
     const existingStudent = await this.getStudent(id);
     if (!existingStudent) {
       throw new Error(`Student with id '${id}' not found`);
@@ -54,7 +61,6 @@ class StudentService {
 
     return { id, name, class_id, image };
   }
-
 
   async deleteStudent(id: string): Promise<void> {
     const existingStudent = await this.getStudent(id);

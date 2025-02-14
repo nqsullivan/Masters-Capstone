@@ -5,41 +5,57 @@ const getStudent = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   try {
     const student = await StudentService.getStudent(id);
+    res.status(201).send(student);
+  } catch (e: any) {
+    res.status(404).json({ error: e.message });
+  }
+};
+
+const createStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { name, class_id, image } = req.body;
+  try {
+    const student = await StudentService.createStudent(name, class_id, image);
+    res.status(201).send(student);
+  } catch (e: any) {
+    res.status(404).json({ error: e.message });
+  }
+};
+
+const updateStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+  const { name, class_id, image } = req.body;
+  try {
+    const student = await StudentService.updateStudent(
+      id,
+      name,
+      class_id,
+      image
+    );
     res.status(200).send(student);
   } catch (e: any) {
     res.status(404).json({ error: e.message });
   }
 };
 
-const createStudent = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, class_id, image } = req.body;
-  try {
-    const student = await StudentService.createStudent(name, class_id, image);
-    res.status(201).send(student);
-  } catch (e: any) {
-    res.status(400).json({ error: e.message });
-  }
-};
-
-
-const updateStudent = async (req: Request, res: Response, next: NextFunction) => {
-  const { id } = req.params;
-  const { name, class_id, image } = req.body;
-  try {
-    const student = await StudentService.updateStudent(id, name, class_id, image);
-    res.status(200).send(student);
-  } catch (e: any) {
-    res.status(400).json({ error: e.message });
-  }
-};
-
-const deleteStudent = async (req: Request, res: Response, next: NextFunction) => {
+const deleteStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   try {
     await StudentService.deleteStudent(id);
     res.status(200).send(`Deleted student ${id}`);
   } catch (e: any) {
-    res.status(400).json({ error: e.message });
+    res.status(404).json({ error: e.message });
   }
 };
 
