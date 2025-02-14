@@ -1,5 +1,6 @@
 import DatabaseAccess from '../services/database.ts';
 import { UserClassAssignment } from '../models/userClassAssignment.ts';
+import { User } from '../models/user.ts';
 
 class UserClassAssignmentService {
   private db!: DatabaseAccess;
@@ -31,17 +32,21 @@ class UserClassAssignmentService {
     return result;
   }
 
-  async getClassesForProfessor(
-    username: string
-  ): Promise<UserClassAssignment[]> {
-    const user = await this.db.runAndReadAll(
-      `SELECT username FROM user WHERE username = ?`,
+  async getProfessor(username: string): Promise<User> {
+    const user = await this.db.runAndReadAll<User>(
+      `SELECT username, password, type FROM user WHERE username = ?`,
       [username]
     );
     if (user.length === 0) {
       throw new Error(`User with username '${username}' not found`);
     }
+    return user[0];
+  }
 
+  async getClassesForProfessor(
+    username: string
+  ): Promise<UserClassAssignment[]> {
+    const user = await this.getProfessor(username);
     const result = await this.db.runAndReadAll<UserClassAssignment>(
       `SELECT uca.class_id, c.name
        FROM professor_class_lookup uca 
@@ -57,13 +62,7 @@ class UserClassAssignmentService {
     username: string,
     class_id: string
   ): Promise<UserClassAssignment> {
-    const user = await this.db.runAndReadAll(
-      `SELECT username FROM user WHERE username = ?`,
-      [username]
-    );
-    if (user.length === 0) {
-      throw new Error(`User with username '${username}' not found`);
-    }
+    const user = await this.getProfessor(username);
 
     const classObj = await this.db.runAndReadAll(
       `SELECT id FROM class WHERE id = ?`,
