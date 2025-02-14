@@ -14,6 +14,13 @@ import {
 } from '../controllers/userClassAssignment.ts';
 import { getLog, createLog, deleteLog } from '../controllers/log.ts';
 
+import {
+  getStudent,
+  createStudent,
+  updateStudent,
+  deleteStudent,
+} from '../controllers/student.ts';
+
 const router = express.Router();
 
 router.post('/login', login);
@@ -28,6 +35,11 @@ router.get('/class/:class_id/professors', verifyToken, getProfessorsForClass);
 router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
 router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
+
+router.get('/student/:id', verifyToken, getStudent);
+router.post('/student', verifyToken, createStudent);
+router.put('/student/:id', verifyToken, updateStudent);
+router.delete('/student/:id', verifyToken, deleteStudent);
 
 router.get('/log/:id', verifyToken, getLog);
 router.post('/log', verifyToken, createLog);
