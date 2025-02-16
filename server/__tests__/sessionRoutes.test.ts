@@ -4,6 +4,7 @@ import routes from '../src/routes/index';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 import TestUtils from './utils';
 import AuthService from '../src/services/auth';
+import DatabaseAccess from '../src/services/database';
 
 const app = express();
 app.use(express.json());
@@ -20,12 +21,19 @@ describe('Session Routes', () => {
       throw new Error('Failed to generate admin token');
     }
   });
+
   const mockStartTime = new Date('2025-01-01T10:00:00Z').toISOString();
   const mockEndTime = new Date('2025-01-01T11:00:00Z').toISOString();
 
   test('POST /session should create a new session', async () => {
+    // Create a class
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone2' });
+
     const sessionData = {
-      classId: 'fakeClassId',
+      classId: classResponse.body.id,
       startTime: mockStartTime,
       endTime: mockEndTime,
       professorId: 'fakeProfId',
@@ -41,9 +49,15 @@ describe('Session Routes', () => {
   });
 
   test('DELETE /session/:id should delete a session', async () => {
+    // Create a class
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone2' });
+
     // create a session
     const sessionData = {
-      classId: 'fakeClassId',
+      classId: classResponse.body.id,
       startTime: mockStartTime,
       endTime: mockEndTime,
       professorId: 'fakeProfId',

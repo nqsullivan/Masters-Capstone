@@ -23,13 +23,13 @@ class StudentSessionAssignmentService {
     studentId: string,
     sessionId: string
   ): Promise<StudentSessionAssignment> {
-    /*const student = await this.db.runAndReadAll(
-            `SELECT id FROM student WHERE id = ?`,
-            [studentId]
-        );
-        if (student.length === 0) {
-            throw new Error(`Student with id '${studentId}' not found`);
-        }*/
+    const student = await this.db.runAndReadAll(
+      `SELECT id FROM student WHERE id = ?`,
+      [studentId]
+    );
+    if (student.length === 0) {
+      throw new Error(`Student with id '${studentId}' not found`);
+    }
 
     const session = await this.db.runAndReadAll(
       `SELECT id FROM session WHERE id = ?`,

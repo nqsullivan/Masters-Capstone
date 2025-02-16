@@ -12,7 +12,6 @@ class SessionService {
   private async init() {
     this.db = await DatabaseAccess.getInstance();
   }
-
   async createSession(
     startTime: Date,
     endTime: Date,
@@ -22,6 +21,17 @@ class SessionService {
     if (!classId || !startTime || !endTime || !professorId) {
       throw new Error('All fields are required');
     }
+
+    // Check if classId exists in the class table
+    const classExists = await this.db.runAndReadAll<{ id: string }>(
+      `SELECT id FROM class WHERE id = ?`,
+      [classId]
+    );
+
+    if (classExists.length === 0) {
+      throw new Error('Class not found');
+    }
+
     const id = uuidv4();
 
     await this.db.runWithNoReturned(

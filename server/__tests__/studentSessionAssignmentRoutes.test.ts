@@ -4,6 +4,7 @@ import routes from '../src/routes/index';
 import DatabaseAccess from '../src/services/database';
 import AuthService from '../src/services/auth';
 import { expect, test, describe, beforeAll } from '@jest/globals';
+import student from '../src/services/student';
 
 const app = express();
 app.use(express.json());
@@ -12,6 +13,8 @@ app.use('/api', routes);
 describe('Student-Session Assignment API', () => {
   let token: string;
   let sessionId: string;
+  let classId1: string;
+  let studentId1: string;
 
   beforeAll(async () => {
     await AuthService.init();
@@ -22,11 +25,18 @@ describe('Student-Session Assignment API', () => {
       throw new Error('Failed to generate admin token');
     }
 
+    // Create a class
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone' });
+
+    classId1 = classResponse.body.id;
     const sessionResponse = await request(app)
       .post('/api/session')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        classId: 'fakeClassId',
+        classId: classId1,
         startTime: '2025-01-01T10:00:00Z',
         endTime: '2025-01-01T12:00:00Z',
         professorId: 'fakeProfessorId',
@@ -37,6 +47,16 @@ describe('Student-Session Assignment API', () => {
     }
 
     sessionId = sessionResponse.body.id;
+
+    const studentResponse = await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'John Doe',
+        class_id: 'class123',
+        image: 'path/to/image.jpg',
+      });
+    studentId1 = studentResponse.body.id;
   });
 
   test('POST /api/student-session - Add student to session', async () => {
@@ -44,7 +64,7 @@ describe('Student-Session Assignment API', () => {
       .post('/api/student-session')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        studentId: 'fakeStudentId',
+        studentId: studentId1,
         sessionId: sessionId,
       });
 
@@ -63,6 +83,18 @@ describe('Student-Session Assignment API', () => {
     expect(response.status).toBe(400);
   });
 
+  test('POST /api/student-session - Add student to session', async () => {
+    const response = await request(app)
+      .post('/api/student-session')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        studentId: 'fakeStudentId',
+        sessionId: sessionId,
+      });
+
+    expect(response.status).toBe(400);
+  });
+
   test('DELETE /api/student-session - Remove student from session', async () => {
     const response = await request(app)
       .delete('/api/student-session')
@@ -72,7 +104,7 @@ describe('Student-Session Assignment API', () => {
         sessionId: sessionId,
       });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(400);
   });
 
   test('DELETE /api/student-session - Remove student from session', async () => {
