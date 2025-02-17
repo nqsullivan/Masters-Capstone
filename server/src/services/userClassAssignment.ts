@@ -1,4 +1,4 @@
-import DatabaseAccess from '../services/database.ts';
+import DatabaseAccess from './database.ts';
 import { UserClassAssignment } from '../models/userClassAssignment.ts';
 import { User } from '../models/user.ts';
 
@@ -52,7 +52,7 @@ class UserClassAssignmentService {
        FROM professor_class_lookup uca 
        JOIN class c ON uca.class_id = c.id 
        WHERE uca.username = ?`,
-      [username]
+      [user.username]
     );
 
     return result;

@@ -4,9 +4,9 @@ export default {
   testMatch: ['**/__tests__/**/*.test.ts'],
   collectCoverage: true,
   collectCoverageFrom: [
-    '/controllers/**/*.ts',
-    '/services/**/*.ts',
-    '/routes/**/*.ts',
+    'src/controllers/**/*.ts',
+    'src/services/**/*.ts',
+    'src/routes/**/*.ts',
   ],
   setupFiles: ['./jest.setup.js'],
   coverageThreshold: {
