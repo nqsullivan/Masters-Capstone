@@ -18,7 +18,7 @@ const createStudent = async (
 ) => {
   const { name, image } = req.body;
   try {
-    const student = await StudentService.createStudent(name, image);
+    const student = await StudentService.createStudent(name, image || null);
     res.status(201).send(student);
   } catch (e: any) {
     res.status(404).json({ error: e.message });

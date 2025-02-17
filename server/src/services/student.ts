@@ -33,6 +33,10 @@ class StudentService {
       throw new Error('Name cannot be empty');
     }
 
+    if (!image) {
+      image = '';
+    }
+
     const id = uuidv4();
     await this.db.runWithNoReturned(
       `INSERT INTO student (id, name, image) VALUES (?, ?, ?)`,
