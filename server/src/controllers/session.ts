@@ -45,12 +45,16 @@ const getSession = async (req: Request, res: Response, next: NextFunction) => {
       };
       res.status(200).send(sessionWithStrings);
     } else {
-      res.status(404).json({ error: 'Session not found' });
+      throw new Error('Session not found');
     }
     next();
   } catch (e: any) {
     console.log(e);
-    res.status(400).json({ error: e.message });
+    if (e.message === 'Session not found') {
+      res.status(404).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: e.message });
+    }
   }
 };
 
@@ -69,7 +73,7 @@ const updateSession = async (
       classId,
       professorId
     );
-    console.log(updatedSession);
+
     if (updatedSession) {
       const sessionWithStrings = {
         ...updatedSession,
@@ -78,12 +82,16 @@ const updateSession = async (
       };
       res.status(200).send(sessionWithStrings);
     } else {
-      res.status(404).json({ error: 'Session not found' });
+      throw new Error('Session not found');
     }
     next();
   } catch (e: any) {
     console.log(e);
-    res.status(400).json({ error: e.message });
+    if (e.message === 'Session not found') {
+      res.status(404).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: e.message });
+    }
   }
 };
 
@@ -98,14 +106,16 @@ const getStudentsForSession = async (
     if (studentIds) {
       res.status(200).send(studentIds);
     } else {
-      res
-        .status(404)
-        .json({ error: 'Session not found or no students enrolled' });
+      throw new Error('No students found for this session');
     }
     next();
   } catch (e: any) {
     console.log(e);
-    res.status(400).json({ error: e.message });
+    if (e.message === 'No students found for this session') {
+      res.status(404).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: e.message });
+    }
   }
 };
 

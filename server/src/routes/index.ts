@@ -55,7 +55,11 @@ router.get('/session/:sessionId/students', verifyToken, getStudentsForSession);
 
 //studentId, sessionId
 router.post('/student-session', verifyToken, addStudentToSession);
-router.delete('/student-session', verifyToken, deleteStudentFromSession);
+router.delete(
+  '/session/:sessionId/students/:studentId',
+  verifyToken,
+  deleteStudentFromSession
+);
 router.get('/student/:id', verifyToken, getStudent);
 router.post('/student', verifyToken, createStudent);
 router.put('/student/:id', verifyToken, updateStudent);

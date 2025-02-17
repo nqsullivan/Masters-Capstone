@@ -29,7 +29,7 @@ export const deleteStudentFromSession = async (
   next: NextFunction
 ) => {
   try {
-    const { studentId, sessionId } = req.body;
+    const { studentId, sessionId } = req.params;
     await StudentSessionAssignmentService.deleteStudentFromSession(
       studentId,
       sessionId

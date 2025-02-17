@@ -2,10 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import routes from '../src/routes/index';
 import { expect, test, describe, beforeAll } from '@jest/globals';
-import TestUtils from './utils';
 import AuthService from '../src/services/auth';
-import DatabaseAccess from '../src/services/database';
-import exp from 'constants';
 
 const app = express();
 app.use(express.json());
@@ -27,7 +24,6 @@ describe('Session Routes', () => {
   const mockEndTime = new Date('2025-01-01T11:00:00Z').toISOString();
 
   test('POST /session should create a new session', async () => {
-    // Create a class
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
@@ -50,13 +46,11 @@ describe('Session Routes', () => {
   });
 
   test('DELETE /session/:id should delete a session', async () => {
-    // Create a class
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'SER517 Capstone2' });
 
-    // create a session
     const sessionData = {
       classId: classResponse.body.id,
       startTime: mockStartTime,
@@ -71,7 +65,6 @@ describe('Session Routes', () => {
 
     const sessionId = createResponse.body.id;
 
-    // delete the created session
     const deleteResponse = await request(app)
       .delete(`/api/session/${sessionId}`)
       .set('Authorization', `Bearer ${token}`);
@@ -79,7 +72,6 @@ describe('Session Routes', () => {
     expect(deleteResponse.status).toBe(204);
   });
 
-  // Failure scenario: delete a session that does not exist
   test('DELETE /session/:id should return 404 if session does not exist', async () => {
     const SessionId = 'fakeSessionId';
 
@@ -91,13 +83,11 @@ describe('Session Routes', () => {
   });
 
   test('GET /session/:id should return a session by id', async () => {
-    // Create a class
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'SER517 Capstone3' });
 
-    // Create a session
     const sessionData = {
       classId: classResponse.body.id,
       startTime: mockStartTime,
@@ -112,7 +102,6 @@ describe('Session Routes', () => {
 
     const sessionId = createResponse.body.id;
 
-    // Get the created session
     const getResponse = await request(app)
       .get(`/api/session/${sessionId}`)
       .set('Authorization', `Bearer ${token}`);
@@ -122,13 +111,11 @@ describe('Session Routes', () => {
   });
 
   test('PUT /session/:id should update a session', async () => {
-    // Create a class
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'SER517 Capstone2' });
 
-    // Create a session
     const sessionData = {
       classId: classResponse.body.id,
       startTime: mockStartTime,
@@ -143,7 +130,6 @@ describe('Session Routes', () => {
 
     const sessionId = createResponse.body.id;
 
-    // Update the created session  [startTime, endTime, classId, professorId, sessionId]
     const updatedSessionData = {
       startTime: new Date('2026-01-01T12:00:00Z'),
       endTime: new Date('2026-01-01T13:00:00Z'),
@@ -158,14 +144,13 @@ describe('Session Routes', () => {
 
     expect(updateResponse.status).toBe(200);
   });
+
   test('GET /session/:sessionId/students should return students for a session', async () => {
-    // Create a class
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'SER517 Capstone4' });
 
-    // Create a session
     const sessionData = {
       classId: classResponse.body.id,
       startTime: mockStartTime,
@@ -180,7 +165,6 @@ describe('Session Routes', () => {
 
     const sessionId = createResponse.body.id;
 
-    // Mock adding students to the session
     const response1 = await request(app)
       .post('/api/student')
       .set('Authorization', `Bearer ${token}`)
@@ -199,7 +183,6 @@ describe('Session Routes', () => {
       });
     const studentId1 = response1.body.id;
     const studentId2 = response2.body.id;
-    console.log(studentId1);
 
     await request(app)
       .post('/api/student-session')
@@ -217,12 +200,52 @@ describe('Session Routes', () => {
         sessionId: sessionId,
       });
 
-    // Get students for the created session
     const getResponse = await request(app)
       .get(`/api/session/${sessionId}/students`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(getResponse.status).toBe(200);
     expect(getResponse.body).toEqual([studentId1, studentId2]);
+  });
+
+  test('POST /session should return 400 if required fields are missing', async () => {
+    const response = await request(app)
+      .post('/api/session')
+      .set('Authorization', `Bearer ${token}`)
+      .send({});
+
+    expect(response.status).toBe(400);
+  });
+
+  test('PUT /session/:id should return 404 if session does not exist', async () => {
+    const updatedSessionData = {
+      startTime: new Date('2026-01-01T12:00:00Z'),
+      endTime: new Date('2026-01-01T13:00:00Z'),
+      classId: 'fakeClassId',
+      professorId: 'fakeProfId',
+    };
+
+    const response = await request(app)
+      .put('/api/session/fakeSessionId')
+      .set('Authorization', `Bearer ${token}`)
+      .send(updatedSessionData);
+
+    expect(response.status).toBe(404);
+  });
+
+  test('GET /session/:id should return 404 if session does not exist', async () => {
+    const response = await request(app)
+      .get('/api/session/fakeSessionId')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  test('GET /session/:sessionId/students should return 404 if no students found', async () => {
+    const response = await request(app)
+      .get('/api/session/fakeSessionId/students')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(404);
   });
 });
