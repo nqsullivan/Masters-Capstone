@@ -1,6 +1,6 @@
 import express from 'express';
 import { login, register, verifyToken } from '../controllers/auth.ts';
-import { createSession, deleteSession } from '../controllers/session.ts';
+import { createSession, deleteSession, getSession, updateSession } from '../controllers/session.ts';
 import {
   addStudentToSession,
   deleteStudentFromSession,
@@ -43,6 +43,8 @@ router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 //classId, startTime, endTime, professorId
 router.post('/session', verifyToken, createSession);
 router.delete('/session/:id', verifyToken, deleteSession);
+router.get('/session/:id', verifyToken, getSession);
+router.put('/session/:id', verifyToken, updateSession);
 
 //studentId, sessionId
 router.post('/student-session', verifyToken, addStudentToSession);
