@@ -10,10 +10,11 @@ export const addStudentsToSession = async (
     const { sessionId } = req.params;
     const { studentIds } = req.body;
 
-    const assignment = await StudentSessionAssignmentService.addStudentsToSession(
-      studentIds,
-      sessionId
-    );
+    const assignment =
+      await StudentSessionAssignmentService.addStudentsToSession(
+        studentIds,
+        sessionId
+      );
 
     res.status(201).json(assignment);
     next();

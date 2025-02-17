@@ -50,10 +50,7 @@ describe('Student API', () => {
       .send({});
 
     expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty(
-      'error',
-      'Name cannot be empty'
-    );
+    expect(response.body).toHaveProperty('error', 'Name cannot be empty');
   });
 
   test('GET /api/student/:id should return student details for a valid student ID', async () => {

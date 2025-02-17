@@ -25,10 +25,7 @@ class StudentService {
     throw new Error(`Student with id '${id}' not found`);
   }
 
-  async createStudent(
-    name: string,
-    image: string
-  ): Promise<Student> {
+  async createStudent(name: string, image: string): Promise<Student> {
     if (!name) {
       throw new Error('Name cannot be empty');
     }
