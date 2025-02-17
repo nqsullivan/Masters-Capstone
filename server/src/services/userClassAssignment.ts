@@ -52,7 +52,7 @@ class UserClassAssignmentService {
        FROM professor_class_lookup uca 
        JOIN class c ON uca.class_id = c.id 
        WHERE uca.username = ?`,
-      [username]
+      [user.username]
     );
 
     return result;

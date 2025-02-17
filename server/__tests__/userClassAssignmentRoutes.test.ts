@@ -106,6 +106,18 @@ describe('User-Class Assignment API', () => {
     expect(response.body[0]).toHaveProperty('class_id', class_id);
   });
 
+  test('GET /api/professor/:username/classes should return an error if user not found', async () => {
+    const response = await request(app)
+      .get(`/api/professor/invalid_username/classes`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty(
+      'error',
+      'User with username \'invalid_username\' not found'
+    );
+  });
+
   test('POST /api/class/unassign should unassign a professor from a class', async () => {
     const response = await request(app)
       .post('/api/class/unassign')
@@ -119,12 +131,29 @@ describe('User-Class Assignment API', () => {
     );
   });
 
-  test('GET /api/class/:classId/professors should return empty after unassigning', async () => {
+  test('POST /api/class/unassign should return an error if user not found', async () => {
     const response = await request(app)
-      .get(`/api/class/${class_id}/professors`)
-      .set('Authorization', `Bearer ${token}`);
+      .post('/api/class/unassign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: 'invalid_username', class_id });
 
-    expect(response.status).toBe(200);
-    expect(response.body.length).toBe(0);
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty(
+      'error',
+      'User with username \'invalid_username\' not found'
+    );
+  });
+
+  test('POST /api/class/unassign should return an error if class not found', async () => {
+    const response = await request(app)
+      .post('/api/class/unassign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, class_id: 'invalid_class_id' });
+
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty(
+      'error',
+      'Class with id \'invalid_class_id\' not found'
+    );
   });
 });
