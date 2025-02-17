@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import UserClassAssignmentService from '../services/UserClassAssignmentService.ts';
+import UserClassAssignmentService from '../services/userClassAssignment.ts';
 
 export const getProfessorsForClass = async (
   req: Request,

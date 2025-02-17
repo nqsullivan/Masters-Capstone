@@ -79,6 +79,18 @@ describe('User-Class Assignment API', () => {
     expect(response.body[0]).toHaveProperty('username', professor_username);
   });
 
+  test('GET /api/class/:classId/professors should return an error if class not found', async () => {
+    const response = await request(app)
+      .get(`/api/class/invalid_class_id/professors`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty(
+      'error',
+      'Class with id \'invalid_class_id\' not found'
+    );
+  });
+
   test('GET /api/professor/:username/classes should return assigned classes', async () => {
     await request(app)
       .post('/api/class/assign')

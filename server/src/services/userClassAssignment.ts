@@ -1,4 +1,4 @@
-import DatabaseAccess from '../services/database.ts';
+import DatabaseAccess from './database.ts';
 import { UserClassAssignment } from '../models/userClassAssignment.ts';
 import { User } from '../models/user.ts';
 
