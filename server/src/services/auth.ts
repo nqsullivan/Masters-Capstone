@@ -17,8 +17,6 @@ class AuthService {
   }
 
   static async register(username: string, password: string): Promise<User> {
-    if (!AuthService.db) throw new Error('AuthService not initialized');
-
     if (!username || !password) {
       throw new Error('Username and password are required');
     }
@@ -47,8 +45,6 @@ class AuthService {
   }
 
   static async login(username: string, password: string): Promise<string> {
-    if (!AuthService.db) throw new Error('AuthService not initialized');
-
     const user = await AuthService.db.runAndReadAll<{ username: string }>(
       'SELECT username FROM user WHERE username = ?',
       [username]
@@ -62,10 +58,6 @@ class AuthService {
       'SELECT hash FROM credential WHERE username = ?',
       [username]
     );
-
-    if (credentials.length === 0) {
-      throw new Error('Invalid credentials');
-    }
 
     const isValid = await bcrypt.compare(password, credentials[0].hash);
 
@@ -83,8 +75,6 @@ class AuthService {
   static async verifyToken(
     token: string
   ): Promise<Omit<User, 'password'> | null> {
-    if (!AuthService.db) throw new Error('AuthService not initialized');
-
     try {
       const decodedToken = jwt.verify(token, SECRET_KEY) as {
         username: string;
