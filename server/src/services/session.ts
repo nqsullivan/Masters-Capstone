@@ -44,35 +44,33 @@ class SessionService {
 
   async getSession(sessionId: string): Promise<{ [key: string]: any }> {
     const result = await this.db.runAndReadAll<{
-        id: string;
-        start_time: { micros: bigint };
-        end_time: { micros: bigint };
-        class_id: string;
-        professor_id: string;
-      }>(
+      id: string;
+      start_time: { micros: bigint };
+      end_time: { micros: bigint };
+      class_id: string;
+      professor_id: string;
+    }>(
       `SELECT id, start_time, end_time, class_id, professor_id FROM session WHERE id = ?`,
       [sessionId]
     );
 
     if (result.length > 0) {
-        const startTimeDuckDB = result[0].start_time.micros; 
-        const endTimeDuckDB = result[0].end_time.micros;
+      const startTimeDuckDB = result[0].start_time.micros;
+      const endTimeDuckDB = result[0].end_time.micros;
 
-        const startTimeDate = Number(startTimeDuckDB) / 1000;
-        const endTimeDate = Number(endTimeDuckDB) / 1000;
+      const startTimeDate = Number(startTimeDuckDB) / 1000;
+      const endTimeDate = Number(endTimeDuckDB) / 1000;
 
+      // Create a Session object
+      const session = <Session>{
+        id: result[0].id,
+        startTime: new Date(startTimeDate),
+        endTime: new Date(endTimeDate),
+        classId: result[0].class_id,
+        professorId: result[0].professor_id,
+      };
 
-        // Create a Session object
-        const session = <Session>({
-            id: result[0].id,
-            startTime: new Date(startTimeDate),
-            endTime: new Date(endTimeDate),
-            classId: result[0].class_id,
-            professorId: result[0].professor_id
-        });
-        
-
-        return session;
+      return session;
     }
     throw new Error('Session not found');
   }
@@ -87,27 +85,25 @@ class SessionService {
       sessionId,
     ]);
   }
-    async updateSession(
-        sessionId: string,
-        startTime: Date,
-        endTime: Date,
-        classId: string,
-        professorId: string
-    ): Promise<Session> {
-        const existingSession = await this.getSession(sessionId);
-        if (!existingSession) {
-            throw new Error('Session not found');
-        }
-
-        await this.db.runWithNoReturned(
-            `UPDATE session SET start_time = ?, end_time = ?, class_id = ?, professor_id = ? WHERE id = ?`,
-            [startTime, endTime, classId, professorId, sessionId]
-        );
-
-        return { id: sessionId, startTime, endTime, classId, professorId };
+  async updateSession(
+    sessionId: string,
+    startTime: Date,
+    endTime: Date,
+    classId: string,
+    professorId: string
+  ): Promise<Session> {
+    const existingSession = await this.getSession(sessionId);
+    if (!existingSession) {
+      throw new Error('Session not found');
     }
+
+    await this.db.runWithNoReturned(
+      `UPDATE session SET start_time = ?, end_time = ?, class_id = ?, professor_id = ? WHERE id = ?`,
+      [startTime, endTime, classId, professorId, sessionId]
+    );
+
+    return { id: sessionId, startTime, endTime, classId, professorId };
+  }
 }
 
 export default new SessionService();
-
-

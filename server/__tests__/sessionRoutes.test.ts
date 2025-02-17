@@ -93,71 +93,69 @@ describe('Session Routes', () => {
   test('GET /session/:id should return a session by id', async () => {
     // Create a class
     const classResponse = await request(app)
-        .post('/api/class')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'SER517 Capstone3' });
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone3' });
 
     // Create a session
     const sessionData = {
-        classId: classResponse.body.id,
-        startTime: mockStartTime,
-        endTime: mockEndTime,
-        professorId: 'fakeProfId',
+      classId: classResponse.body.id,
+      startTime: mockStartTime,
+      endTime: mockEndTime,
+      professorId: 'fakeProfId',
     };
 
     const createResponse = await request(app)
-        .post('/api/session')
-        .set('Authorization', `Bearer ${token}`)
-        .send(sessionData);
+      .post('/api/session')
+      .set('Authorization', `Bearer ${token}`)
+      .send(sessionData);
 
     const sessionId = createResponse.body.id;
 
     // Get the created session
     const getResponse = await request(app)
-        .get(`/api/session/${sessionId}`)
-        .set('Authorization', `Bearer ${token}`);
+      .get(`/api/session/${sessionId}`)
+      .set('Authorization', `Bearer ${token}`);
 
     expect(getResponse.status).toBe(200);
     expect(getResponse.body).toHaveProperty('id', sessionId);
-});
+  });
 
-test('PUT /session/:id should update a session', async () => {
+  test('PUT /session/:id should update a session', async () => {
     // Create a class
     const classResponse = await request(app)
-        .post('/api/class')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'SER517 Capstone2' });
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone2' });
 
     // Create a session
     const sessionData = {
-        classId: classResponse.body.id,
-        startTime: mockStartTime,
-        endTime: mockEndTime,
-        professorId: 'fakeProfId',
+      classId: classResponse.body.id,
+      startTime: mockStartTime,
+      endTime: mockEndTime,
+      professorId: 'fakeProfId',
     };
 
     const createResponse = await request(app)
-        .post('/api/session')
-        .set('Authorization', `Bearer ${token}`)
-        .send(sessionData);
+      .post('/api/session')
+      .set('Authorization', `Bearer ${token}`)
+      .send(sessionData);
 
     const sessionId = createResponse.body.id;
 
     // Update the created session  [startTime, endTime, classId, professorId, sessionId]
     const updatedSessionData = {
-        startTime: new Date('2026-01-01T12:00:00Z'),
-        endTime: new Date('2026-01-01T13:00:00Z'),
-        classId: classResponse.body.id,
-        professorId: 'fakeProfId',
+      startTime: new Date('2026-01-01T12:00:00Z'),
+      endTime: new Date('2026-01-01T13:00:00Z'),
+      classId: classResponse.body.id,
+      professorId: 'fakeProfId',
     };
 
     const updateResponse = await request(app)
-        .put(`/api/session/${sessionId}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send(updatedSessionData);
+      .put(`/api/session/${sessionId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(updatedSessionData);
 
     expect(updateResponse.status).toBe(200);
+  });
 });
-
-});
-
