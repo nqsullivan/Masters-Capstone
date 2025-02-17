@@ -104,6 +104,18 @@ class SessionService {
 
     return { id: sessionId, startTime, endTime, classId, professorId };
   }
+
+  async getStudentsForSession(sessionId: string): Promise<string[]> {
+    const result = await this.db.runAndReadAll<{ student_id: string }>(
+      `SELECT student_id FROM student_session_lookup WHERE session_id = ?`,
+      [sessionId]
+    );
+
+    if (result.length > 0) {
+      return result.map((row) => row.student_id);
+    }
+    throw new Error('No students found for this session');
+  }
 }
 
 export default new SessionService();

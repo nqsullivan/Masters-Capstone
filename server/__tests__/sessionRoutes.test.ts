@@ -158,4 +158,71 @@ describe('Session Routes', () => {
 
     expect(updateResponse.status).toBe(200);
   });
+  test('GET /session/:sessionId/students should return students for a session', async () => {
+    // Create a class
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone4' });
+
+    // Create a session
+    const sessionData = {
+      classId: classResponse.body.id,
+      startTime: mockStartTime,
+      endTime: mockEndTime,
+      professorId: 'fakeProfId',
+    };
+
+    const createResponse = await request(app)
+      .post('/api/session')
+      .set('Authorization', `Bearer ${token}`)
+      .send(sessionData);
+
+    const sessionId = createResponse.body.id;
+
+    // Mock adding students to the session
+    const response1 = await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'John Doe1',
+        class_id: 'class123',
+        image: 'path/to/image.jpg',
+      });
+    const response2 = await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'John Doe2',
+        class_id: 'class123',
+        image: 'path/to/image.jpg',
+      });
+    const studentId1 = response1.body.id;
+    const studentId2 = response2.body.id;
+    console.log(studentId1);
+
+    await request(app)
+      .post('/api/student-session')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        studentId: studentId1,
+        sessionId: sessionId,
+      });
+
+    await request(app)
+      .post('/api/student-session')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        studentId: studentId2,
+        sessionId: sessionId,
+      });
+
+    // Get students for the created session
+    const getResponse = await request(app)
+      .get(`/api/session/${sessionId}/students`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toEqual([studentId1, studentId2]);
+  });
 });

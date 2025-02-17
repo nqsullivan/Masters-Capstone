@@ -5,6 +5,7 @@ import {
   deleteSession,
   getSession,
   updateSession,
+  getStudentsForSession,
 } from '../controllers/session.ts';
 import {
   addStudentToSession,
@@ -50,6 +51,7 @@ router.post('/session', verifyToken, createSession);
 router.delete('/session/:id', verifyToken, deleteSession);
 router.get('/session/:id', verifyToken, getSession);
 router.put('/session/:id', verifyToken, updateSession);
+router.get('/session/:sessionId/students', verifyToken, getStudentsForSession);
 
 //studentId, sessionId
 router.post('/student-session', verifyToken, addStudentToSession);

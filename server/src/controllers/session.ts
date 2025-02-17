@@ -1,13 +1,5 @@
 import e, { Request, Response, NextFunction } from 'express';
 import SessionService from '../services/session.ts';
-/*
-export interface Session {
-    classId: string;
-    startTime: Date;
-    endTime: Date;
-    id: string;
-    professorId: string;
-}*/
 const createSession = async (
   req: Request,
   res: Response,
@@ -24,8 +16,6 @@ const createSession = async (
     res.status(201).send(newSession);
     next();
   } catch (e: any) {
-    console.log('what');
-    console.log(e);
     res.status(400).json({ error: e.message });
   }
 };
@@ -97,4 +87,34 @@ const updateSession = async (
   }
 };
 
-export { createSession, deleteSession, getSession, updateSession };
+const getStudentsForSession = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { sessionId } = req.params;
+  try {
+    console.log('session id controller: ', sessionId);
+    const studentIds = await SessionService.getStudentsForSession(sessionId);
+    console.log(studentIds);
+    if (studentIds) {
+      res.status(200).send(studentIds);
+    } else {
+      res
+        .status(404)
+        .json({ error: 'Session not found or no students enrolled' });
+    }
+    next();
+  } catch (e: any) {
+    console.log(e);
+    res.status(400).json({ error: e.message });
+  }
+};
+
+export {
+  createSession,
+  deleteSession,
+  getSession,
+  updateSession,
+  getStudentsForSession,
+};
