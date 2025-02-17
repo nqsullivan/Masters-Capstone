@@ -8,7 +8,7 @@ import {
   getStudentsForSession,
 } from '../controllers/session.ts';
 import {
-  addStudentToSession,
+  addStudentsToSession,
   deleteStudentFromSession,
 } from '../controllers/studentSessionAssignment.ts';
 import {
@@ -54,7 +54,7 @@ router.put('/session/:id', verifyToken, updateSession);
 router.get('/session/:sessionId/students', verifyToken, getStudentsForSession);
 
 //studentId, sessionId
-router.post('/student-session', verifyToken, addStudentToSession);
+router.post('/session/:sessionId/students', verifyToken, addStudentsToSession);
 router.delete(
   '/session/:sessionId/students/:studentId',
   verifyToken,

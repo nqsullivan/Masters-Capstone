@@ -51,43 +51,45 @@ describe('Student-Session Assignment API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'John Doe',
-        class_id: 'class123',
         image: 'path/to/image.jpg',
       });
     studentId1 = studentResponse.body.id;
   });
 
-  test('POST /api/student-session - Add student to session', async () => {
+  test('POST /api/session/:sessionId/students - Add student to session', async () => {
     const response = await request(app)
-      .post('/api/student-session')
+      .post(`/api/session/${sessionId}/students`)
       .set('Authorization', `Bearer ${token}`)
       .send({
-        studentId: studentId1,
-        sessionId: sessionId,
+        studentIds: [studentId1],
       });
 
     expect(response.status).toBe(201);
+
+    const response2 = await request(app)
+      .get(`/api/session/${sessionId}/students`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response2.status).toBe(200);
   });
 
-  test('POST /api/student-session - Add student to session with invalid studentId', async () => {
+  test('POST /api/session/:sessionId/students - Add student to session with invalid studentId', async () => {
     const response = await request(app)
-      .post('/api/student-session')
+      .post(`/api/session/${sessionId}/students`)
       .set('Authorization', `Bearer ${token}`)
       .send({
-        studentId: 'fakeStudentId',
-        sessionId: sessionId,
+        studentIds: ['fakeStudentId'],
       });
 
     expect(response.status).toBe(400);
   });
 
-  test('POST /api/student-session - Add student to session with invalid sessionId', async () => {
+  test('POST /api/session/:sessionId/students - Add student to session with invalid sessionId', async () => {
     const response = await request(app)
-      .post('/api/student-session')
+      .post(`/api/session/fakeSessionId/students`)
       .set('Authorization', `Bearer ${token}`)
       .send({
-        studentId: studentId1,
-        sessionId: 'fakeSessionId',
+        studentIds: [studentId1],
       });
 
     expect(response.status).toBe(400);
@@ -118,19 +120,29 @@ describe('Student-Session Assignment API', () => {
   });
 
   test('GET /api/session/:sessionId/students - Get all students in a session', async () => {
-    await request(app)
-      .post('/api/student-session')
+    const studentResponse = await request(app)
+      .post('/api/student')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        studentId: studentId1,
-        sessionId: sessionId,
+        name: 'Jane Doe',
+        image: 'path/to/image.jpg',
       });
-    const response2 = await request(app)
+
+    const studentId2 = studentResponse.body.id;
+
+    await request(app)
+      .post(`/api/session/${sessionId}/students`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        studentIds: [studentId1, studentId2],
+      });
+
+    const response = await request(app)
       .get(`/api/session/${sessionId}/students`)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(response2.status).toBe(200);
-    expect(response2.body).toBeInstanceOf(Array);
+    expect(response.status).toBe(200);
+    expect(response.body.length).toBe(2);
   });
 
   test('GET /api/student-session - Get all students in a session with invalid sessionId', async () => {

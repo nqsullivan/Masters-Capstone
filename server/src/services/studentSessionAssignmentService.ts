@@ -12,18 +12,10 @@ class StudentSessionAssignmentService {
     this.db = await DatabaseAccess.getInstance();
   }
 
-  async addStudentToSession(
-    studentId: string,
+  async addStudentsToSession(
+    studentIds: string[],
     sessionId: string
-  ): Promise<StudentSessionAssignment> {
-    const student = await this.db.runAndReadAll(
-      `SELECT id FROM student WHERE id = ?`,
-      [studentId]
-    );
-    if (student.length === 0) {
-      throw new Error(`Student with id '${studentId}' not found`);
-    }
-
+  ): Promise<StudentSessionAssignment[]> {
     const session = await this.db.runAndReadAll(
       `SELECT id FROM session WHERE id = ?`,
       [sessionId]
@@ -32,22 +24,35 @@ class StudentSessionAssignmentService {
       throw new Error(`Session with id '${sessionId}' not found`);
     }
 
-    const existingAssignment = await this.db.runAndReadAll(
-      `SELECT student_id, session_id FROM student_session_lookup WHERE student_id = ? AND session_id = ?`,
-      [studentId, sessionId]
-    );
-    if (existingAssignment.length > 0) {
-      throw new Error(
-        `Student with id '${studentId}' is already assigned to session with id '${sessionId}'`
+    const assignments: StudentSessionAssignment[] = [];
+    for (const studentId of studentIds) {
+      const student = await this.db.runAndReadAll(
+        `SELECT id FROM student WHERE id = ?`,
+        [studentId]
       );
+      if (student.length === 0) {
+        throw new Error(`Student with id '${studentId}' not found`);
+      }
+
+      const existingAssignment = await this.db.runAndReadAll(
+        `SELECT student_id, session_id FROM student_session_lookup WHERE student_id = ? AND session_id = ?`,
+        [studentId, sessionId]
+      );
+      if (existingAssignment.length > 0) {
+        throw new Error(
+          `Student with id '${studentId}' is already assigned to session with id '${sessionId}'`
+        );
+      }
+
+      await this.db.runWithNoReturned(
+        `INSERT INTO student_session_lookup (student_id, session_id) VALUES (?, ?)`,
+        [studentId, sessionId]
+      );
+
+      assignments.push({ studentId, sessionId });
     }
 
-    await this.db.runWithNoReturned(
-      `INSERT INTO student_session_lookup (student_id, session_id) VALUES (?, ?)`,
-      [studentId, sessionId]
-    );
-
-    return { studentId, sessionId };
+    return assignments;
   }
 
   async deleteStudentFromSession(

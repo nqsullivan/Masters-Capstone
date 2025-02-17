@@ -34,20 +34,20 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS student (id VARCHAR, name VARCHAR, class_id VARCHAR, image VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS student (id VARCHAR, name VARCHAR, image VARCHAR)'
     );
 
     const studentData = [
-      ['1', 'Student 1', '1', 'https://via.placeholder.com/150'],
-      ['2', 'Student 2', '1', 'https://via.placeholder.com/150'],
-      ['3', 'Student 3', '2', 'https://via.placeholder.com/150'],
-      ['4', 'Student 4', '2', 'https://via.placeholder.com/150'],
-      ['5', 'Student 5', '3', 'https://via.placeholder.com/150'],
-      ['6', 'Student 6', '3', 'https://via.placeholder.com/150'],
+      ['1', 'Student 1', 'https://via.placeholder.com/150'],
+      ['2', 'Student 2', 'https://via.placeholder.com/150'],
+      ['3', 'Student 3', 'https://via.placeholder.com/150'],
+      ['4', 'Student 4', 'https://via.placeholder.com/150'],
+      ['5', 'Student 5', 'https://via.placeholder.com/150'],
+      ['6', 'Student 6', 'https://via.placeholder.com/150'],
     ];
     for (const data of studentData) {
       await db.run(
-        'INSERT INTO student (id, name, class_id, image) VALUES (?, ?, ?, ?)',
+        'INSERT INTO student (id, name, image) VALUES (?, ?, ?, ?)',
         data
       );
     }

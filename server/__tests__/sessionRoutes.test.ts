@@ -170,7 +170,6 @@ describe('Session Routes', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'John Doe1',
-        class_id: 'class123',
         image: 'path/to/image.jpg',
       });
     const response2 = await request(app)
@@ -178,27 +177,17 @@ describe('Session Routes', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'John Doe2',
-        class_id: 'class123',
         image: 'path/to/image.jpg',
       });
     const studentId1 = response1.body.id;
     const studentId2 = response2.body.id;
 
-    await request(app)
-      .post('/api/student-session')
+    const postResponse = await request(app)
+      .post(`/api/session/${sessionId}/students`)
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        studentId: studentId1,
-        sessionId: sessionId,
-      });
+      .send({ studentIds: [studentId1, studentId2] });
 
-    await request(app)
-      .post('/api/student-session')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        studentId: studentId2,
-        sessionId: sessionId,
-      });
+    expect(postResponse.status).toBe(201);
 
     const getResponse = await request(app)
       .get(`/api/session/${sessionId}/students`)

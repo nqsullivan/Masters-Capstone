@@ -1,19 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import StudentSessionAssignmentService from '../services/studentSessionAssignmentService.ts';
 
-export const addStudentToSession = async (
+export const addStudentsToSession = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { studentId, sessionId } = req.body;
+    const { sessionId } = req.params;
+    const { studentIds } = req.body;
 
-    const assignment =
-      await StudentSessionAssignmentService.addStudentToSession(
-        studentId,
-        sessionId
-      );
+    const assignment = await StudentSessionAssignmentService.addStudentsToSession(
+      studentIds,
+      sessionId
+    );
 
     res.status(201).json(assignment);
     next();
