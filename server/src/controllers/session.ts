@@ -94,9 +94,7 @@ const getStudentsForSession = async (
 ) => {
   const { sessionId } = req.params;
   try {
-    console.log('session id controller: ', sessionId);
     const studentIds = await SessionService.getStudentsForSession(sessionId);
-    console.log(studentIds);
     if (studentIds) {
       res.status(200).send(studentIds);
     } else {
