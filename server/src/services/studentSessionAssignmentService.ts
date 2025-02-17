@@ -1,13 +1,6 @@
 import DatabaseAccess from '../services/database.ts';
 import { StudentSessionAssignment } from '../models/studentSessionAssignment.ts';
 
-/**
- export interface StudentSessionAssignment {
-    studentId: string;
-    sessionId: string;
-}
- */
-
 class StudentSessionAssignmentService {
   private db!: DatabaseAccess;
 
