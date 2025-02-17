@@ -87,7 +87,7 @@ describe('User-Class Assignment API', () => {
     expect(response.status).toBe(500);
     expect(response.body).toHaveProperty(
       'error',
-      'Class with id \'invalid_class_id\' not found'
+      "Class with id 'invalid_class_id' not found"
     );
   });
 
@@ -114,7 +114,7 @@ describe('User-Class Assignment API', () => {
     expect(response.status).toBe(500);
     expect(response.body).toHaveProperty(
       'error',
-      'User with username \'invalid_username\' not found'
+      "User with username 'invalid_username' not found"
     );
   });
 
@@ -140,7 +140,7 @@ describe('User-Class Assignment API', () => {
     expect(response.status).toBe(500);
     expect(response.body).toHaveProperty(
       'error',
-      'User with username \'invalid_username\' not found'
+      "User with username 'invalid_username' not found"
     );
   });
 
@@ -153,7 +153,7 @@ describe('User-Class Assignment API', () => {
     expect(response.status).toBe(500);
     expect(response.body).toHaveProperty(
       'error',
-      'Class with id \'invalid_class_id\' not found'
+      "Class with id 'invalid_class_id' not found"
     );
   });
 });

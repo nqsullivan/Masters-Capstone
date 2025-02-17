@@ -53,7 +53,9 @@ class ClassService {
   async deleteClass(id: string): Promise<void> {
     const existingClass = await this.getClass(id);
 
-    await this.db.runWithNoReturned(`DELETE FROM class WHERE id = ?`, [existingClass.id]);
+    await this.db.runWithNoReturned(`DELETE FROM class WHERE id = ?`, [
+      existingClass.id,
+    ]);
   }
 }
 
