@@ -1,5 +1,5 @@
-import e, { Request, Response, NextFunction } from 'express';
-import { CreateLogRequest } from '../models/logRequest';
+import { Request, Response, NextFunction } from 'express';
+import { CreateLogRequest } from '../models/logRequest.ts';
 import LogService from '../services/log.ts';
 
 const getLog = async (req: Request, res: Response, next: NextFunction) => {
@@ -21,13 +21,9 @@ const createLog = async (req: Request, res: Response, next: NextFunction) => {
     entity_type,
     entity_id,
   };
-  try {
-    const newLog = await LogService.createLog(logRequest);
-    res.status(201).send(newLog);
-    next();
-  } catch (e: any) {
-    res.status(400).json({ error: e.message });
-  }
+  const newLog = await LogService.createLog(logRequest);
+  res.status(201).send(newLog);
+  next();
 };
 
 const deleteLog = async (req: Request, res: Response, next: NextFunction) => {

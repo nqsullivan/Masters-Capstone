@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import UserClassAssignmentService from '../services/UserClassAssignmentService.ts';
+import UserClassAssignmentService from '../services/userClassAssignment.ts';
+import ClassService from '../services/class.ts';
 
 export const getProfessorsForClass = async (
   req: Request,
@@ -64,9 +65,13 @@ export const unassignProfessorFromClass = async (
 ) => {
   try {
     const { username, class_id } = req.body;
+
+    const professor = await UserClassAssignmentService.getProfessor(username);
+    const classObj = await ClassService.getClass(class_id);
+
     await UserClassAssignmentService.unassignProfessorFromClass(
-      username,
-      class_id
+      professor.username,
+      classObj.id
     );
 
     res.status(200).json({ message: 'Professor unassigned from class' });
