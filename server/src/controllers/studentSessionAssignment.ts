@@ -18,7 +18,6 @@ export const addStudentToSession = async (
     res.status(201).json(assignment);
     next();
   } catch (e: any) {
-    console.log(e);
     res.status(400).json({ error: e.message });
   }
 };
