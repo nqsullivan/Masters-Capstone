@@ -38,16 +38,12 @@ class StudentSessionAssignmentService {
         `SELECT student_id, session_id FROM student_session_lookup WHERE student_id = ? AND session_id = ?`,
         [studentId, sessionId]
       );
-      if (existingAssignment.length > 0) {
-        throw new Error(
-          `Student with id '${studentId}' is already assigned to session with id '${sessionId}'`
+      if (existingAssignment.length == 0) {
+        await this.db.runWithNoReturned(
+          `INSERT INTO student_session_lookup (student_id, session_id) VALUES (?, ?)`,
+          [studentId, sessionId]
         );
       }
-
-      await this.db.runWithNoReturned(
-        `INSERT INTO student_session_lookup (student_id, session_id) VALUES (?, ?)`,
-        [studentId, sessionId]
-      );
 
       assignments.push({ studentId, sessionId });
     }

@@ -51,8 +51,6 @@ const getSession = async (req: Request, res: Response, next: NextFunction) => {
   } catch (e: any) {
     if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
-    } else {
-      res.status(400).json({ error: e.message });
     }
   }
 };
@@ -87,8 +85,6 @@ const updateSession = async (
   } catch (e: any) {
     if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
-    } else {
-      res.status(400).json({ error: e.message });
     }
   }
 };
@@ -110,8 +106,6 @@ const getStudentsForSession = async (
   } catch (e: any) {
     if (e.message === 'No students found for this session') {
       res.status(404).json({ error: e.message });
-    } else {
-      res.status(400).json({ error: e.message });
     }
   }
 };

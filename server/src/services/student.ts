@@ -61,7 +61,9 @@ class StudentService {
   async deleteStudent(id: string): Promise<void> {
     const existingStudent = await this.getStudent(id);
 
-    await this.db.runWithNoReturned(`DELETE FROM student WHERE id = ?`, [existingStudent.id]);
+    await this.db.runWithNoReturned(`DELETE FROM student WHERE id = ?`, [
+      existingStudent.id,
+    ]);
     // Delete all student_session_lookup entries for this student
     await this.db.runWithNoReturned(
       `DELETE FROM student_session_lookup WHERE student_id = ?`,
