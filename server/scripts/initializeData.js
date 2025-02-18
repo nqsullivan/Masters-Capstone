@@ -47,7 +47,7 @@ async function init() {
     ];
     for (const data of studentData) {
       await db.run(
-        'INSERT INTO student (id, name, image) VALUES (?, ?, ?, ?)',
+        'INSERT INTO student (id, name, image) VALUES (?, ?, ?)',
         data
       );
     }
@@ -82,7 +82,7 @@ async function init() {
     ];
     for (const data of sessionData) {
       await db.run(
-        'INSERT INTO session (id, start_time, end_time, class_id) VALUES (?, ?, ?, ?)',
+        'INSERT INTO session (id, start_time, end_time, class_id, professor_id) VALUES (?, ?, ?, ?, ?)',
         data
       );
     }

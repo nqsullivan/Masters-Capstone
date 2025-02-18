@@ -49,13 +49,10 @@ class StudentService {
     image: string
   ): Promise<Student> {
     const existingStudent = await this.getStudent(id);
-    if (!existingStudent) {
-      throw new Error(`Student with id '${id}' not found`);
-    }
 
     await this.db.runWithNoReturned(
       `UPDATE student SET name = ?, image = ? WHERE id = ?`,
-      [name, image, id]
+      [name, image, existingStudent.id]
     );
 
     return { id, name, image };
@@ -63,15 +60,12 @@ class StudentService {
 
   async deleteStudent(id: string): Promise<void> {
     const existingStudent = await this.getStudent(id);
-    if (!existingStudent) {
-      throw new Error(`Student with id '${id}' not found`);
-    }
 
-    await this.db.runWithNoReturned(`DELETE FROM student WHERE id = ?`, [id]);
+    await this.db.runWithNoReturned(`DELETE FROM student WHERE id = ?`, [existingStudent.id]);
     // Delete all student_session_lookup entries for this student
     await this.db.runWithNoReturned(
       `DELETE FROM student_session_lookup WHERE student_id = ?`,
-      [id]
+      [existingStudent.id]
     );
   }
 }

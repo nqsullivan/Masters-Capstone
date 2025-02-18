@@ -41,13 +41,10 @@ class ClassService {
 
   async updateClass(id: string, name: string): Promise<Class> {
     const existingClass = await this.getClass(id);
-    if (!existingClass) {
-      throw new Error(`Class with id '${id}' not found`);
-    }
 
     await this.db.runWithNoReturned(`UPDATE class SET name = ? WHERE id = ?`, [
       name,
-      id,
+      existingClass.id,
     ]);
 
     return { id, name };
@@ -55,11 +52,10 @@ class ClassService {
 
   async deleteClass(id: string): Promise<void> {
     const existingClass = await this.getClass(id);
-    if (!existingClass) {
-      throw new Error(`Class with id '${id}' not found`);
-    }
 
-    await this.db.runWithNoReturned(`DELETE FROM class WHERE id = ?`, [id]);
+    await this.db.runWithNoReturned(`DELETE FROM class WHERE id = ?`, [
+      existingClass.id,
+    ]);
   }
 }
 
