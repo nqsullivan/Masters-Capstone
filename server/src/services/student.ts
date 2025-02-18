@@ -68,6 +68,11 @@ class StudentService {
     }
 
     await this.db.runWithNoReturned(`DELETE FROM student WHERE id = ?`, [id]);
+    // Delete all student_session_lookup entries for this student
+    await this.db.runWithNoReturned(
+      `DELETE FROM student_session_lookup WHERE student_id = ?`,
+      [id]
+    );
   }
 }
 
