@@ -16,7 +16,6 @@ class DatabaseAccess {
     const databasePath = process.env.DATABASE_PATH || 'data/database.db';
     if (!DatabaseAccess.instance) {
       DatabaseAccess.instance = new DatabaseAccess(databasePath);
-      await DatabaseAccess.instance.connect();
     }
     return DatabaseAccess.instance;
   }
@@ -29,13 +28,13 @@ class DatabaseAccess {
       `CREATE TABLE IF NOT EXISTS class (id VARCHAR, name VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS student (id VARCHAR, name VARCHAR, class_id VARCHAR, image VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS student (id VARCHAR, name VARCHAR, image VARCHAR)`
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS student_class_lookup (student_id VARCHAR, class_id VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS session (id VARCHAR, start_time DATETIME, end_time DATETIME, class_id VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS session (id VARCHAR, start_time DATETIME, end_time DATETIME, class_id VARCHAR, professor_id VARCHAR)`
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, student_id VARCHAR, session_id VARCHAR, check_in DATETIME, did_check_in BOOLEAN)`
@@ -51,6 +50,9 @@ class DatabaseAccess {
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS credential (username VARCHAR, hash VARCHAR)`
+    );
+    await this.connection.run(
+      `CREATE TABLE IF NOT EXISTS student_session_lookup (student_id VARCHAR, session_id VARCHAR)`
     );
 
     console.log('Database connected');
@@ -76,6 +78,9 @@ class DatabaseAccess {
     prepared.bindDecimal(2, new DuckDBDecimalValue(value, width, scale));
  */
   async getPreparedStatementObject(query: string) {
+    if (!this.connection) {
+      await this.connect();
+    }
     return await this.connection.prepare(query);
   }
 
@@ -84,6 +89,9 @@ class DatabaseAccess {
   }
 
   async runAndReadAll<T>(query: string, params: any[] = []): Promise<T[]> {
+    if (!this.connection) {
+      await this.connect();
+    }
     const result = await this.connection.runAndReadAll(query, params);
     return result.getRowObjects() as T[];
   }

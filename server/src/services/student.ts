@@ -15,7 +15,7 @@ class StudentService {
 
   async getStudent(id: string): Promise<Student> {
     const result = await this.db.runAndReadAll<Student>(
-      `SELECT id, name, class_id, image FROM student WHERE id = ?`,
+      `SELECT id, name, image FROM student WHERE id = ?`,
       [id]
     );
 
@@ -25,38 +25,37 @@ class StudentService {
     throw new Error(`Student with id '${id}' not found`);
   }
 
-  async createStudent(
-    name: string,
-    class_id: string,
-    image: string
-  ): Promise<Student> {
-    if (!name || !class_id) {
-      throw new Error('Name and class_id cannot be empty');
+  async createStudent(name: string, image: string): Promise<Student> {
+    if (!name) {
+      throw new Error('Name cannot be empty');
+    }
+
+    if (!image) {
+      image = '';
     }
 
     const id = uuidv4();
     await this.db.runWithNoReturned(
-      `INSERT INTO student (id, name, class_id, image) VALUES (?, ?, ?, ?)`,
-      [id, name, class_id, image]
+      `INSERT INTO student (id, name, image) VALUES (?, ?, ?)`,
+      [id, name, image]
     );
 
-    return { id, name, class_id, image };
+    return { id, name, image };
   }
 
   async updateStudent(
     id: string,
     name: string,
-    class_id: string,
     image: string
   ): Promise<Student> {
     const existingStudent = await this.getStudent(id);
 
     await this.db.runWithNoReturned(
-      `UPDATE student SET name = ?, class_id = ?, image = ? WHERE id = ?`,
-      [name, class_id, image, existingStudent.id]
+      `UPDATE student SET name = ?, image = ? WHERE id = ?`,
+      [name, image, existingStudent.id]
     );
 
-    return { id, name, class_id, image };
+    return { id, name, image };
   }
 
   async deleteStudent(id: string): Promise<void> {
@@ -65,6 +64,11 @@ class StudentService {
     await this.db.runWithNoReturned(`DELETE FROM student WHERE id = ?`, [
       existingStudent.id,
     ]);
+    // Delete all student_session_lookup entries for this student
+    await this.db.runWithNoReturned(
+      `DELETE FROM student_session_lookup WHERE student_id = ?`,
+      [existingStudent.id]
+    );
   }
 }
 

@@ -16,9 +16,9 @@ const createStudent = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, class_id, image } = req.body;
+  const { name, image } = req.body;
   try {
-    const student = await StudentService.createStudent(name, class_id, image);
+    const student = await StudentService.createStudent(name, image || null);
     res.status(201).send(student);
   } catch (e: any) {
     res.status(404).json({ error: e.message });
@@ -31,14 +31,9 @@ const updateStudent = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-  const { name, class_id, image } = req.body;
+  const { name, image } = req.body;
   try {
-    const student = await StudentService.updateStudent(
-      id,
-      name,
-      class_id,
-      image
-    );
+    const student = await StudentService.updateStudent(id, name, image);
     res.status(200).send(student);
   } catch (e: any) {
     res.status(404).json({ error: e.message });
