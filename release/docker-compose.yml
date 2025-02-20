@@ -8,7 +8,7 @@ services:
   controller:
     build: ./controller
     ports:
-      - "5000:5000"
+      - "8888:8888"
     restart: unless-stopped
 
   server:
