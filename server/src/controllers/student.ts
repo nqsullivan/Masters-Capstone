@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import StudentService from '../services/student.ts';
+import StudentService from '../services/student.js';
 
 const getStudent = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;

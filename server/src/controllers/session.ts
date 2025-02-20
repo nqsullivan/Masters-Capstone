@@ -1,5 +1,5 @@
 import e, { Request, Response, NextFunction } from 'express';
-import SessionService from '../services/session.ts';
+import SessionService from '../services/session.js';
 const createSession = async (
   req: Request,
   res: Response,

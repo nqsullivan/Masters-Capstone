@@ -1,36 +1,36 @@
 import express from 'express';
-import { login, register, verifyToken } from '../controllers/auth.ts';
+import { login, register, verifyToken } from '../controllers/auth.js';
 import {
   createSession,
   deleteSession,
   getSession,
   updateSession,
   getStudentsForSession,
-} from '../controllers/session.ts';
+} from '../controllers/session.js';
 import {
   addStudentsToSession,
   deleteStudentFromSession,
-} from '../controllers/studentSessionAssignment.ts';
+} from '../controllers/studentSessionAssignment.js';
 import {
   getClass,
   createClass,
   updateClass,
   deleteClass,
-} from '../controllers/class.ts';
+} from '../controllers/class.js';
 import {
   getProfessorsForClass,
   getClassesForProfessor,
   assignProfessorToClass,
   unassignProfessorFromClass,
-} from '../controllers/userClassAssignment.ts';
-import { getLog, createLog, deleteLog } from '../controllers/log.ts';
+} from '../controllers/userClassAssignment.js';
+import { getLog, createLog, deleteLog } from '../controllers/log.js';
 
 import {
   getStudent,
   createStudent,
   updateStudent,
   deleteStudent,
-} from '../controllers/student.ts';
+} from '../controllers/student.js';
 
 const router = express.Router();
 

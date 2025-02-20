@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { CreateLogRequest } from '../models/logRequest.ts';
-import LogService from '../services/log.ts';
+import { CreateLogRequest } from '../models/logRequest.js';
+import LogService from '../services/log.js';
 
 const getLog = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;

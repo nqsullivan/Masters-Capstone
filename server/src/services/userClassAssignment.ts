@@ -1,6 +1,6 @@
-import DatabaseAccess from './database.ts';
-import { UserClassAssignment } from '../models/userClassAssignment.ts';
-import { User } from '../models/user.ts';
+import DatabaseAccess from './database.js';
+import { UserClassAssignment } from '../models/userClassAssignment.js';
+import { User } from '../models/user.js';
 
 class UserClassAssignmentService {
   private db!: DatabaseAccess;

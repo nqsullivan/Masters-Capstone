@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CreateLogRequest } from '../models/logRequest.ts';
-import { Log } from '../models/log.ts';
-import DatabaseAccess from '../services/database.ts';
-import UserClassAssignmentService from './userClassAssignment.ts';
+import { CreateLogRequest } from '../models/logRequest.js';
+import { Log } from '../models/log.js';
+import DatabaseAccess from '../services/database.js';
+import UserClassAssignmentService from './userClassAssignment.js';
 
 class LogService {
   private db!: DatabaseAccess;
