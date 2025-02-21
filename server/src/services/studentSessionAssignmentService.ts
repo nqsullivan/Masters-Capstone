@@ -1,5 +1,5 @@
-import DatabaseAccess from '../services/database.ts';
-import { StudentSessionAssignment } from '../models/studentSessionAssignment.ts';
+import DatabaseAccess from '../services/database.js';
+import { StudentSessionAssignment } from '../models/studentSessionAssignment.js';
 
 class StudentSessionAssignmentService {
   private db!: DatabaseAccess;

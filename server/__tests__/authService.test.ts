@@ -1,5 +1,5 @@
-import AuthService from '../src/services/auth.ts';
-import DatabaseAccess from '../src/services/database.ts';
+import AuthService from '../src/services/auth.js';
+import DatabaseAccess from '../src/services/database.js';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 describe('AuthService', () => {

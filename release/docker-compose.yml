@@ -1,0 +1,20 @@
+services:
+  client:
+    build: ./client
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  controller:
+    build: ./controller
+    ports:
+      - "8888:8888"
+    restart: unless-stopped
+
+  server:
+    build: ./server
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development

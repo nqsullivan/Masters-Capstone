@@ -1,4 +1,4 @@
-import AuthService from '../src/services/auth.ts';
+import AuthService from '../src/services/auth.js';
 
 class TestUtils {
   async getValidToken(): Promise<string | null> {

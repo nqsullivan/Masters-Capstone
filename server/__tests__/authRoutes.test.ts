@@ -1,9 +1,9 @@
 import request from 'supertest';
 import express from 'express';
-import routes from '../src/routes/index.ts';
-import AuthService from '../src/services/auth.ts';
-import DatabaseAccess from '../src/services/database.ts';
-import { verifyToken } from '../src/controllers/auth.ts';
+import routes from '../src/routes/index.js';
+import AuthService from '../src/services/auth.js';
+import DatabaseAccess from '../src/services/database.js';
+import { verifyToken } from '../src/controllers/auth.js';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 import { jest } from '@jest/globals';
 

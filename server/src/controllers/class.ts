@@ -1,5 +1,5 @@
 import e, { Request, Response, NextFunction } from 'express';
-import ClassService from '../services/class.ts';
+import ClassService from '../services/class.js';
 
 const getClass = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;

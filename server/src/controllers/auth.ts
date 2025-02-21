@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import AuthService from '../services/auth.ts';
+import AuthService from '../services/auth.js';
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
