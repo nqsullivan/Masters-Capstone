@@ -3,8 +3,7 @@ import express from 'express';
 import routes from '../src/routes/index';
 import DatabaseAccess from '../src/services/database';
 import AuthService from '../src/services/auth';
-import { expect, test, describe, beforeAll } from '@jest/globals';
-import { beforeEach } from 'node:test';
+import { expect, test, describe, beforeAll, beforeEach } from '@jest/globals';
 
 const app = express();
 app.use(express.json());
@@ -28,6 +27,10 @@ describe('Log API', () => {
     if (!token) {
       throw new Error('Failed to generate admin token');
     }
+  });
+
+  beforeEach(async () => {
+    await db.runWithNoReturned('DELETE FROM log');
   });
 
   test('POST /api/log should return 200 for valid request', async () => {
@@ -107,7 +110,6 @@ describe('Log API', () => {
   });
 
   test('GET /api/logs should return 200 and 1 page of 2 logs', async () => {
-    await db.runWithNoReturned('DELETE FROM log');
     await request(app)
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
@@ -143,7 +145,6 @@ describe('Log API', () => {
   });
 
   test('GET /api/logs?page=2&size=1 should return 200 and 1 page of 1 singular log', async () => {
-    await db.runWithNoReturned('DELETE FROM log');
     await request(app)
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
