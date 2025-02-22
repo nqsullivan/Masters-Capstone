@@ -31,6 +31,7 @@ import {
   updateStudent,
   deleteStudent,
 } from '../controllers/student.ts';
+import { get } from 'http';
 
 const router = express.Router();
 
@@ -68,5 +69,8 @@ router.delete('/student/:id', verifyToken, deleteStudent);
 router.get('/log/:id', verifyToken, getLog);
 router.post('/log', verifyToken, createLog);
 router.delete('/log/:id', verifyToken, deleteLog);
+
+//retriving images from aws S3
+router.get('/images/:key', verifyToken, getImage);
 
 export default router;
