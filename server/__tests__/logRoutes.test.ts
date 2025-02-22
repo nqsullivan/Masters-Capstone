@@ -4,6 +4,7 @@ import routes from '../src/routes/index';
 import DatabaseAccess from '../src/services/database';
 import AuthService from '../src/services/auth';
 import { expect, test, describe, beforeAll } from '@jest/globals';
+import { beforeEach } from 'node:test';
 
 const app = express();
 app.use(express.json());
@@ -20,7 +21,6 @@ describe('Log API', () => {
     await db.runWithNoReturned('DELETE FROM class');
     await db.runWithNoReturned('DELETE FROM user');
     await db.runWithNoReturned('DELETE FROM credential');
-    await db.runWithNoReturned('DELETE FROM log');
 
     await AuthService.register('admin', 'adminpass');
     token = await AuthService.login('admin', 'adminpass');
@@ -104,5 +104,76 @@ describe('Log API', () => {
       'error',
       "Log with id 'invalidId' not found"
     );
+  });
+
+  test('GET /api/logs should return 200 and 1 page of 2 logs', async () => {
+    await db.runWithNoReturned('DELETE FROM log');
+    await request(app)
+      .post('/api/log')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        user_id: 'admin',
+        action: 'SCAN',
+        entity_type: 'USER',
+        entity_id: 'admin',
+      });
+
+    await request(app)
+      .post('/api/log')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        user_id: 'admin',
+        action: 'LOGIN',
+        entity_type: 'USER',
+        entity_id: 'admin',
+      });
+
+    const response = await request(app)
+      .get(`/api/logs`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('page', 1);
+    expect(response.body).toHaveProperty('page_size', 10);
+    expect(response.body).toHaveProperty('total_items', 2);
+    expect(response.body).toHaveProperty('total_pages', 1);
+    expect(response.body.data).toHaveLength(2);
+    expect(response.body.data[0]).toHaveProperty('action', 'SCAN');
+    expect(response.body.data[1]).toHaveProperty('action', 'LOGIN');
+  });
+
+  test('GET /api/logs?page=2&size=1 should return 200 and 1 page of 1 singular log', async () => {
+    await db.runWithNoReturned('DELETE FROM log');
+    await request(app)
+      .post('/api/log')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        user_id: 'admin',
+        action: 'SCAN',
+        entity_type: 'USER',
+        entity_id: 'admin',
+      });
+
+    await request(app)
+      .post('/api/log')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        user_id: 'admin',
+        action: 'LOGIN',
+        entity_type: 'USER',
+        entity_id: 'admin',
+      });
+
+    const response = await request(app)
+      .get(`/api/logs?page=2&size=1`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('page', 2);
+    expect(response.body).toHaveProperty('page_size', 1);
+    expect(response.body).toHaveProperty('total_items', 2);
+    expect(response.body).toHaveProperty('total_pages', 2);
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data[0]).toHaveProperty('action', 'LOGIN');
   });
 });
