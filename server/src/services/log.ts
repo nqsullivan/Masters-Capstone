@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateLogRequest } from '../models/logRequest.js';
 import { Log } from '../models/log.js';
 import DatabaseAccess from '../services/database.js';
-import UserClassAssignmentService from './userClassAssignment.js';
 
 class LogService {
   private db!: DatabaseAccess;
@@ -63,6 +62,18 @@ class LogService {
   async deleteLog(id: string) {
     const existingLog = await this.getLog(id);
     await this.db.runWithNoReturned(`DELETE FROM log WHERE id = ?`, [id]);
+  }
+
+  async getLogPage(page: number, size: number): Promise<Log[]> {
+    const offset = (page - 1) * size;
+    const logPage = await this.db.runAndReadAll<Log>(
+      'SELECT * from Log LIMIT ? OFFSET ?',
+      [size, offset]
+    );
+    logPage.forEach((log) => {
+      log.timestamp = log.timestamp.toString();
+    });
+    return logPage;
   }
 }
 
