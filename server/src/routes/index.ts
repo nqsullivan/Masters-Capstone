@@ -69,4 +69,6 @@ router.get('/log/:id', verifyToken, getLog);
 router.post('/log', verifyToken, createLog);
 router.delete('/log/:id', verifyToken, deleteLog);
 
+router.post('/upload/image', verifyToken, )
+
 export default router;
