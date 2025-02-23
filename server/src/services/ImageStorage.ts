@@ -18,7 +18,7 @@ class ImageStorage {
         });
     }
 
-    public uploadImageToAWS(file: { originalname: string; buffer: Buffer; mimetype: string; }) {
+    async uploadImageToAWS(file: { originalname: string; buffer: Buffer; mimetype: string; }) {
         const params = {
             Bucket: process.env.S3_BUCKET_NAME,
             Key: Date.now() + '_' + file.originalname, 

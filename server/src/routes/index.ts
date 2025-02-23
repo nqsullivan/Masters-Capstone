@@ -31,6 +31,8 @@ import {
   updateStudent,
   deleteStudent,
 } from '../controllers/student.js';
+import upload from '../middleware/upload-middleware.js';
+import { uploadImage } from '../controllers/ImageStorage.js';
 
 const router = express.Router();
 
@@ -69,6 +71,6 @@ router.get('/log/:id', verifyToken, getLog);
 router.post('/log', verifyToken, createLog);
 router.delete('/log/:id', verifyToken, deleteLog);
 
-router.post('/upload/image', verifyToken, )
+router.post('/upload/image', verifyToken, upload.single('image'), uploadImage);
 
 export default router;
