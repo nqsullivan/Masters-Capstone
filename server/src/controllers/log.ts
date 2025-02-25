@@ -47,6 +47,7 @@ const getLogsPaginated = async (
   try {
     const logPage = await LogService.getLogPage(page, size);
     res.status(200).send(logPage);
+    next();
   } catch (e: any) {
     res.status(400).json({ error: e.message });
   }
