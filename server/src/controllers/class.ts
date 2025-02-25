@@ -46,7 +46,11 @@ const deleteClass = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getClassPage = async (req: Request, res: Response, next: NextFunction) => {
+const getClassPage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const page: number = parseInt(req.query.page as string) || 1;
   const size: number = parseInt(req.query.size as string) || 10;
   try {
@@ -56,6 +60,6 @@ const getClassPage = async (req: Request, res: Response, next: NextFunction) => 
   } catch (e: any) {
     res.status(400).json({ error: e.message });
   }
-}
+};
 
 export { getClass, createClass, updateClass, deleteClass, getClassPage };

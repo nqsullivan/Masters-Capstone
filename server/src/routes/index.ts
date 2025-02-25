@@ -16,7 +16,7 @@ import {
   createClass,
   updateClass,
   deleteClass,
-  getClassPage
+  getClassPage,
 } from '../controllers/class.js';
 import {
   getProfessorsForClass,

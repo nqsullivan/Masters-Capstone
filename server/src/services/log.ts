@@ -67,7 +67,11 @@ class LogService {
   }
 
   async getLogPage(page: number, size: number): Promise<LogPageResponse> {
-    const pageResponse = await UtilService.buildPageResponse<Log>(page, size, 'Log');
+    const pageResponse = await UtilService.buildPageResponse<Log>(
+      page,
+      size,
+      'Log'
+    );
     pageResponse.data.forEach((log) => {
       log.timestamp = log.timestamp.toString();
     });
