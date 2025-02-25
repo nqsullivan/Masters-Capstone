@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { CreateLogRequest } from '../models/logRequest.js';
 import { Log } from '../models/log.js';
+import { LogPageResponse } from '../models/logPageResponse.js';
 import DatabaseAccess from '../services/database.js';
-import UserClassAssignmentService from './userClassAssignment.js';
 
 class LogService {
   private db!: DatabaseAccess;
@@ -63,6 +63,36 @@ class LogService {
   async deleteLog(id: string) {
     const existingLog = await this.getLog(id);
     await this.db.runWithNoReturned(`DELETE FROM log WHERE id = ?`, [id]);
+  }
+
+  async getLogPage(page: number, size: number): Promise<LogPageResponse> {
+    if (size > 100) {
+      size = 100;
+    }
+    const offset = (page - 1) * size;
+    const logPage = await this.db.runAndReadAll<Log>(
+      'SELECT * from Log LIMIT ? OFFSET ?',
+      [size, offset]
+    );
+
+    const countResponse = await this.db.runAndReadAll(
+      'SELECT count(id) from log'
+    );
+    const totalCountObj = countResponse[0] as any;
+    const totalCountLogs = Number(totalCountObj['count(id)']);
+    const totalPages = Math.ceil(totalCountLogs / size);
+
+    logPage.forEach((log) => {
+      log.timestamp = log.timestamp.toString();
+    });
+    const temp = {
+      page: page,
+      page_size: size,
+      total_items: totalCountLogs,
+      total_pages: totalPages,
+      data: logPage,
+    };
+    return temp;
   }
 }
 

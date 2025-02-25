@@ -37,4 +37,19 @@ const deleteLog = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { getLog, createLog, deleteLog };
+const getLogsPaginated = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const page: number = parseInt(req.query.page as string) || 1;
+  const size: number = parseInt(req.query.size as string) || 10;
+  try {
+    const logPage = await LogService.getLogPage(page, size);
+    res.status(200).send(logPage);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+export { getLog, createLog, deleteLog, getLogsPaginated };
