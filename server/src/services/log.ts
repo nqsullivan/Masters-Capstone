@@ -66,6 +66,9 @@ class LogService {
   }
 
   async getLogPage(page: number, size: number): Promise<LogPageResponse> {
+    if (size > 100) {
+      size = 100;
+    }
     const offset = (page - 1) * size;
     const logPage = await this.db.runAndReadAll<Log>(
       'SELECT * from Log LIMIT ? OFFSET ?',
@@ -82,9 +85,6 @@ class LogService {
     logPage.forEach((log) => {
       log.timestamp = log.timestamp.toString();
     });
-
-    console.log(logPage);
-
     const temp = {
       page: page,
       page_size: size,
@@ -92,7 +92,6 @@ class LogService {
       total_pages: totalPages,
       data: logPage,
     };
-    console.log(temp);
     return temp;
   }
 }
