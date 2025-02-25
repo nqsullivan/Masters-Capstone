@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import DatabaseAccess from '../services/database.js';
 import { Student } from '../models/student.js';
+import { StudentPageResponse } from '../models/studentPageResponse.js';
+import UtilService from './util.js';
 
 class StudentService {
   private db!: DatabaseAccess;
@@ -69,6 +71,13 @@ class StudentService {
       `DELETE FROM student_session_lookup WHERE student_id = ?`,
       [existingStudent.id]
     );
+  }
+
+  async getStudentPage(
+    page: number,
+    size: number
+  ): Promise<StudentPageResponse> {
+    return await UtilService.buildPageResponse<Student>(page, size, 'Student');
   }
 }
 
