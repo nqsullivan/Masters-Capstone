@@ -16,6 +16,7 @@ import {
   createClass,
   updateClass,
   deleteClass,
+  getClassPage
 } from '../controllers/class.js';
 import {
   getProfessorsForClass,
@@ -43,6 +44,7 @@ router.post('/login', login);
 router.post('/register', register);
 
 router.get('/class/:id', verifyToken, getClass);
+router.get('/classes', verifyToken, getClassPage);
 router.post('/class', verifyToken, createClass);
 router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
