@@ -3,6 +3,7 @@ import { CreateLogRequest } from '../models/logRequest.js';
 import { Log } from '../models/log.js';
 import { LogPageResponse } from '../models/logPageResponse.js';
 import DatabaseAccess from '../services/database.js';
+import UtilService from '../services/util.js';
 
 class LogService {
   private db!: DatabaseAccess;
@@ -66,33 +67,15 @@ class LogService {
   }
 
   async getLogPage(page: number, size: number): Promise<LogPageResponse> {
-    if (size > 100) {
-      size = 100;
-    }
-    const offset = (page - 1) * size;
-    const logPage = await this.db.runAndReadAll<Log>(
-      'SELECT * from Log LIMIT ? OFFSET ?',
-      [size, offset]
+    const pageResponse = await UtilService.buildPageResponse<Log>(
+      page,
+      size,
+      'Log'
     );
-
-    const countResponse = await this.db.runAndReadAll(
-      'SELECT count(id) from log'
-    );
-    const totalCountObj = countResponse[0] as any;
-    const totalCountLogs = Number(totalCountObj['count(id)']);
-    const totalPages = Math.ceil(totalCountLogs / size);
-
-    logPage.forEach((log) => {
+    pageResponse.data.forEach((log) => {
       log.timestamp = log.timestamp.toString();
     });
-    const temp = {
-      page: page,
-      page_size: size,
-      total_items: totalCountLogs,
-      total_pages: totalPages,
-      data: logPage,
-    };
-    return temp;
+    return pageResponse;
   }
 }
 
