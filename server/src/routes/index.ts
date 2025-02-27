@@ -16,6 +16,7 @@ import {
   createClass,
   updateClass,
   deleteClass,
+  getClassPage,
 } from '../controllers/class.js';
 import {
   getProfessorsForClass,
@@ -23,7 +24,12 @@ import {
   assignProfessorToClass,
   unassignProfessorFromClass,
 } from '../controllers/userClassAssignment.js';
-import { getLog, createLog, deleteLog } from '../controllers/log.js';
+import {
+  getLog,
+  createLog,
+  deleteLog,
+  getLogsPaginated,
+} from '../controllers/log.js';
 
 import {
   getStudent,
@@ -40,6 +46,7 @@ router.post('/login', login);
 router.post('/register', register);
 
 router.get('/class/:id', verifyToken, getClass);
+router.get('/classes', verifyToken, getClassPage);
 router.post('/class', verifyToken, createClass);
 router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
@@ -70,6 +77,7 @@ router.delete('/student/:id', verifyToken, deleteStudent);
 router.get('/log/:id', verifyToken, getLog);
 router.post('/log', verifyToken, createLog);
 router.delete('/log/:id', verifyToken, deleteLog);
+router.get('/logs', verifyToken, getLogsPaginated);
 
 router.post('/upload/image', verifyToken, upload.single('image'), uploadImage);
 
