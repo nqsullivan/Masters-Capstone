@@ -38,7 +38,7 @@ import {
   deleteStudent,
 } from '../controllers/student.js';
 import upload from '../middleware/upload-middleware.js';
-import { uploadImage } from '../controllers/ImageStorage.js';
+import { uploadImage } from '../controllers/imageStorage.js';
 
 const router = express.Router();
 
