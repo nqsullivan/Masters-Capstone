@@ -28,7 +28,6 @@ class ImageStorage {
       Body: file.buffer,
       ContentType: file.mimetype,
     };
-    console.log('Uploading image to AWS S3');
 
     try {
       const response = await this.s3.send(new PutObjectCommand(params));
