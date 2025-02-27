@@ -3,7 +3,7 @@ import express from 'express';
 import routes from '../src/routes/index';
 import DatabaseAccess from '../src/services/database';
 import AuthService from '../src/services/auth';
-import { expect, test, describe, beforeAll } from '@jest/globals';
+import { expect, test, describe, beforeAll, beforeEach } from '@jest/globals';
 
 const app = express();
 app.use(express.json());
@@ -17,7 +17,6 @@ describe('Student API', () => {
     AuthService.init();
     db = await DatabaseAccess.getInstance();
 
-    await db.runWithNoReturned('DELETE FROM student');
     await db.runWithNoReturned('DELETE FROM user');
     await db.runWithNoReturned('DELETE FROM credential');
 
@@ -27,6 +26,10 @@ describe('Student API', () => {
     if (!token) {
       throw new Error('Failed to generate admin token');
     }
+  });
+
+  beforeEach(async () => {
+    await db.runWithNoReturned('DELETE FROM student');
   });
 
   test('POST /api/student should create a student successfully', async () => {
@@ -148,5 +151,62 @@ describe('Student API', () => {
       'error',
       "Student with id 'invalidId' not found"
     );
+  });
+
+  test('GET /api/students should return 200 and 1 page of 2 students', async () => {
+    await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Student1',
+      });
+
+    await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Student2',
+      });
+
+    const response = await request(app)
+      .get(`/api/students`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('page', 1);
+    expect(response.body).toHaveProperty('page_size', 10);
+    expect(response.body).toHaveProperty('total_items', 2);
+    expect(response.body).toHaveProperty('total_pages', 1);
+    expect(response.body.data).toHaveLength(2);
+    expect(response.body.data[0]).toHaveProperty('name', 'Student1');
+    expect(response.body.data[1]).toHaveProperty('name', 'Student2');
+  });
+
+  test('GET /api/students?page=2&size=1 should return 200 and 1 page of 1 singular student', async () => {
+    await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Student1',
+      });
+
+    await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Student2',
+      });
+
+    const response = await request(app)
+      .get(`/api/students?page=2&size=1`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('page', 2);
+    expect(response.body).toHaveProperty('page_size', 1);
+    expect(response.body).toHaveProperty('total_items', 2);
+    expect(response.body).toHaveProperty('total_pages', 2);
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data[0]).toHaveProperty('name', 'Student2');
   });
 });
