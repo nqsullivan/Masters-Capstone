@@ -36,6 +36,7 @@ import {
   createStudent,
   updateStudent,
   deleteStudent,
+  getStudentPage,
 } from '../controllers/student.js';
 import upload from '../middleware/upload-middleware.js';
 import { uploadImage } from '../controllers/imageStorage.js';
@@ -70,6 +71,7 @@ router.delete(
   deleteStudentFromSession
 );
 router.get('/student/:id', verifyToken, getStudent);
+router.get('/students', verifyToken, getStudentPage);
 router.post('/student', verifyToken, createStudent);
 router.put('/student/:id', verifyToken, updateStudent);
 router.delete('/student/:id', verifyToken, deleteStudent);
