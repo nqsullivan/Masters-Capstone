@@ -1,3 +1,4 @@
+pytest
 RPi.GPIO
 adafruit-circuitpython-pn532
 transitions
