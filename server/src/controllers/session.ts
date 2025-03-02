@@ -131,6 +131,25 @@ const addAttendanceRecord = async (
   }
 };
 
+const deleteAttendanceRecord = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { attendanceId } = req.params;
+
+  try {
+    await SessionService.deleteAttendanceRecord(attendanceId);
+    res.status(204).send(); // 204 No Content means delete success
+  } catch (e: any) {
+    if (e.message === 'Attendance record not found') {
+      res.status(404).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: e.message });
+    }
+  }
+};
+
 export {
   createSession,
   deleteSession,
@@ -138,4 +157,5 @@ export {
   updateSession,
   getStudentsForSession,
   addAttendanceRecord,
+  deleteAttendanceRecord,
 };

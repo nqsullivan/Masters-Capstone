@@ -8,6 +8,7 @@ import {
   getStudentsForSession,
   addAttendanceRecord,
 } from '../controllers/session.js';
+import { deleteAttendanceRecord } from '../controllers/session.js'; //new delete endpoint
 import {
   addStudentsToSession,
   deleteStudentFromSession,
@@ -85,5 +86,7 @@ router.delete('/log/:id', verifyToken, deleteLog);
 router.get('/logs', verifyToken, getLogsPaginated);
 
 router.post('/upload/image', verifyToken, upload.single('image'), uploadImage);
+
+router.delete('/attendance/:attendanceId', verifyToken, deleteAttendanceRecord);//delete router for attendance
 
 export default router;
