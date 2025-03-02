@@ -124,7 +124,7 @@ const addAttendanceRecord = async (
       checkInTime,
       portraitUrl
     );
-    res.status(200).send(attendance);
+    res.status(201).send(attendance);
     next();
   } catch (e: any) {
     res.status(400).json({ error: e.message }) && next(e);

@@ -341,15 +341,22 @@ import express from 'express';
 import routes from '../src/routes/index';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 import AuthService from '../src/services/auth';
-import SessionService from '../src/services/session';
+import DatabaseAccess from '../src/services/database';
 const app = express();
 app.use(express.json());
 app.use('/api', routes);
 
 describe('Session Routes', () => {
   let token: string;
+  let db: DatabaseAccess;
+
   beforeAll(async () => {
-    await AuthService.init();
+    AuthService.init();
+    db = await DatabaseAccess.getInstance();
+
+    await db.runWithNoReturned('DELETE FROM user');
+    await db.runWithNoReturned('DELETE FROM credential');
+
     await AuthService.register('admin', 'adminpass');
     token = await AuthService.login('admin', 'adminpass');
 
@@ -616,5 +623,95 @@ describe('Session Routes', () => {
 
     expect(response.status).toBe(404);
     expect(response.body.error).toBe('No students found for this session');
+  });
+
+  test('POST /api/session/:sessionId/attendance should return 200 and attendance details', async () => {
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone2' });
+
+    const sessionData = {
+      classId: classResponse.body.id,
+      startTime: mockStartTime,
+      endTime: mockEndTime,
+      professorId: 'fakeProfId',
+    };
+
+    const sessionResponse = await request(app)
+      .post('/api/session')
+      .set('Authorization', `Bearer ${token}`)
+      .send(sessionData);
+
+    const studentResponse = await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'John Doe',
+        image: 'path/to/image.jpg',
+      });
+
+    const attendanceData = {
+      studentId: studentResponse.body.id,
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .post(`/api/session/${sessionResponse.body.id}/attendance`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(attendanceData);
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.portait_url).toBe('www.test.com');
+  });
+
+  test('POST /api/session/:sessionId/attendance with invalid sessionId should return 400 and error details', async () => {
+    const attendanceData = {
+      studentId: 1,
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .post(`/api/session/${'invalidId'}/attendance`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(attendanceData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('POST /api/session/:sessionId/attendance with missing studentId should return 400 and error details', async () => {
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone2' });
+
+    const sessionData = {
+      classId: classResponse.body.id,
+      startTime: mockStartTime,
+      endTime: mockEndTime,
+      professorId: 'fakeProfId',
+    };
+
+    const sessionResponse = await request(app)
+      .post('/api/session')
+      .set('Authorization', `Bearer ${token}`)
+      .send(sessionData);
+
+    const attendanceData = {
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .post(`/api/session/${sessionResponse.body.id}/attendance`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(attendanceData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
   });
 });
