@@ -284,6 +284,25 @@
           </a>
         }
       </div>
+      <!-- app.component.html -->
+      <div class="container">
+        <!-- left -->
+        <div class="sidebar">
+          <h2>Sidebar</h2>
+          <ul>
+            <li><a routerLink="/">Home</a></li>
+            <li><a routerLink="/about">About</a></li>
+            <li><a routerLink="/contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- main cotent -->
+        <div class="main-content">
+          <h1>Hello, {{ title }}</h1>
+          <p>Welcome to the app!</p>
+          <router-outlet></router-outlet>
+        </div>
+      </div>
       <div class="social-links">
         <a
           href="https://github.com/angular/angular"
