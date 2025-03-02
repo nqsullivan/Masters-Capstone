@@ -2,18 +2,27 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 class ImageStorage {
   private s3: S3Client;
+  private accessKey: string;
+  private secret: string;
+  private region: string;
+  private bucketName: string;
 
   constructor() {
-    if (!process.env.ACCESS_KEY || !process.env.SECRET || !process.env.REGION) {
+    this.accessKey = process.env.ACCESS_KEY || '';
+    this.secret = process.env.SECRET || '';
+    this.region = process.env.REGION || '';
+    this.bucketName = process.env.BUCKET_NAME || '';
+
+    if (!this.accessKey || !this.secret || !this.region || !this.bucketName) {
       throw new Error('Missing AWS configuration in environment variables');
     }
 
     this.s3 = new S3Client({
       credentials: {
-        accessKeyId: process.env.ACCESS_KEY,
-        secretAccessKey: process.env.SECRET,
+        accessKeyId: this.accessKey,
+        secretAccessKey: this.secret,
       },
-      region: process.env.REGION,
+      region: this.region,
     });
   }
 
@@ -31,7 +40,7 @@ class ImageStorage {
 
     try {
       const response = await this.s3.send(new PutObjectCommand(params));
-      const fileUrl = `https://${process.env.BUCKET_NAME}.s3.${process.env.REGION}.amazonaws.com/${params.Key}`;
+      const fileUrl = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${params.Key}`;
       return { fileUrl, response };
     } catch (e: any) {
       console.log(e.message);
