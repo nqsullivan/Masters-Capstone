@@ -7,9 +7,20 @@ services:
 
   controller:
     build: ./controller
-    ports:
-      - "8888:8888"
     restart: unless-stopped
+    network_mode: "host"
+    privileged: true
+    devices:
+      - "/dev/gpiomem:/dev/gpiomem"
+      - "/dev/i2c-1:/dev/i2c-1"
+      - "/dev/spidev0.0:/dev/spidev0.0"
+    environment:
+      - BLINKA_FORCEBOARD=RaspberryPi4
+      - BLINKA_FORCECHIP=BCM2XXX
+    volumes:
+      - "/sys:/sys:ro"
+      - "/proc/device-tree:/proc/device-tree:ro"
+      - "/dev:/dev"
 
   server:
     build: ./server

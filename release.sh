@@ -33,8 +33,24 @@ cp main.py ../release/controller
 cp -r src ../release/controller
 cp requirements.txt ../release/controller
 cp Dockerfile ../release/controller
-
-cd ../release
-zip -r release.zip . -x "release.zip"
-
 cd - > /dev/null
+
+cd release
+zip -r release.zip . -x "release.zip"
+cd - > /dev/null
+
+nc -z -w5 raspberrypi.local 22 || { echo "Raspberry Pi is not reachable"; exit 1; }
+
+scp release/release.zip nathanielsullivan@raspberrypi.local:~/release.zip
+ssh nathanielsullivan@raspberrypi.local << 'EOF'
+    rm -rf ~/release
+    mkdir -p ~/release
+    unzip -o ~/release.zip -d ~/release
+    cd ~/release
+    docker-compose down
+    docker-compose build
+    docker-compose up -d
+    rm ~/release.zip
+EOF
+
+echo "Deployment completed successfully!"
