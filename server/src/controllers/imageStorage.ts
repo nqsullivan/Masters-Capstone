@@ -16,7 +16,9 @@ const uploadImage = async (req: Request, res: Response, next: NextFunction) => {
   } catch (e: any) {
     if (e.message === 'No image file provided') {
       res.status(400).json({ error: e.message });
-    } else if (e.message === 'Missing AWS configuration in environment variables') {
+    } else if (
+      e.message === 'Missing AWS configuration in environment variables'
+    ) {
       res.status(500).json({ error: e.message });
     }
   }
