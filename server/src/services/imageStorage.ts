@@ -32,7 +32,7 @@ class ImageStorage {
     mimetype: string;
   }) {
     const params = {
-      Bucket: process.env.BUCKET_NAME,
+      Bucket: this.bucketName,
       Key: Date.now() + '_' + file.originalname,
       Body: file.buffer,
       ContentType: file.mimetype,
