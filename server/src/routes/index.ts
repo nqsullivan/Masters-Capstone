@@ -6,6 +6,7 @@ import {
   getSession,
   updateSession,
   getStudentsForSession,
+  addAttendanceRecord,
 } from '../controllers/session.js';
 import {
   addStudentsToSession,
@@ -70,6 +71,8 @@ router.delete(
   verifyToken,
   deleteStudentFromSession
 );
+router.post('/session/:sessionId/attendance', verifyToken, addAttendanceRecord);
+
 router.get('/student/:id', verifyToken, getStudent);
 router.get('/students', verifyToken, getStudentPage);
 router.post('/student', verifyToken, createStudent);
