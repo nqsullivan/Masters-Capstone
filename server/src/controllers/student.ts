@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import StudentService from '../services/student.ts';
+import StudentService from '../services/student.js';
 
 const getStudent = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
@@ -54,4 +54,26 @@ const deleteStudent = async (
   }
 };
 
-export { getStudent, createStudent, updateStudent, deleteStudent };
+const getStudentPage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const page: number = parseInt(req.query.page as string) || 1;
+  const size: number = parseInt(req.query.size as string) || 10;
+  try {
+    const studentPage = await StudentService.getStudentPage(page, size);
+    res.status(200).send(studentPage);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+export {
+  getStudent,
+  createStudent,
+  updateStudent,
+  deleteStudent,
+  getStudentPage,
+};

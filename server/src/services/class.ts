@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import DatabaseAccess from '../services/database.ts';
-import { Class } from '../models/class.ts';
+import DatabaseAccess from '../services/database.js';
+import { Class } from '../models/class.js';
+import { ClassPageResponse } from '../models/classPageResponse.js';
+import UtilService from './util.js';
 
 class ClassService {
   private db!: DatabaseAccess;
@@ -56,6 +58,10 @@ class ClassService {
     await this.db.runWithNoReturned(`DELETE FROM class WHERE id = ?`, [
       existingClass.id,
     ]);
+  }
+
+  async getClassPage(page: number, size: number): Promise<ClassPageResponse> {
+    return await UtilService.buildPageResponse<Class>(page, size, 'Class');
   }
 }
 

@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import DatabaseAccess from '../services/database.ts';
-import { Session } from '../models/session.ts';
+import DatabaseAccess from '../services/database.js';
+import { Session } from '../models/session.js';
+import { Attendance } from '../models/attendance.js';
+import StudentService from './student.js';
 
 class SessionService {
   private db!: DatabaseAccess;
@@ -115,6 +117,39 @@ class SessionService {
       return result.map((row) => row.student_id);
     }
     throw new Error('No students found for this session');
+  }
+
+  async addAttendanceRecord(
+    sessionId: string,
+    studentId: string,
+    checkInTime: string,
+    portraitUrl: string
+  ): Promise<Attendance> {
+    if (!sessionId || !studentId || !checkInTime) {
+      throw new Error(
+        'sessionId, studentId, and checkInTime fields are required'
+      );
+    }
+
+    const session = await this.getSession(sessionId);
+    const student = await StudentService.getStudent(studentId);
+    const id = uuidv4();
+    portraitUrl = portraitUrl || '';
+    const portraitCaptured = portraitUrl !== '';
+
+    await this.db.runWithNoReturned(
+      'INSERT INTO attendance (id, student_id, session_id, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
+      [id, student.id, session.id, checkInTime, portraitUrl, portraitCaptured]
+    );
+
+    return {
+      id,
+      student_id: student.id,
+      session_id: session.id,
+      check_in: checkInTime,
+      portait_url: portraitUrl,
+      portait_captured: portraitCaptured,
+    };
   }
 }
 

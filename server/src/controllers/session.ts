@@ -1,5 +1,5 @@
 import e, { Request, Response, NextFunction } from 'express';
-import SessionService from '../services/session.ts';
+import SessionService from '../services/session.js';
 const createSession = async (
   req: Request,
   res: Response,
@@ -110,10 +110,32 @@ const getStudentsForSession = async (
   }
 };
 
+const addAttendanceRecord = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { sessionId } = req.params;
+  const { studentId, checkInTime, portraitUrl } = req.body;
+  try {
+    const attendance = await SessionService.addAttendanceRecord(
+      sessionId,
+      studentId,
+      checkInTime,
+      portraitUrl
+    );
+    res.status(201).send(attendance);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message }) && next(e);
+  }
+};
+
 export {
   createSession,
   deleteSession,
   getSession,
   updateSession,
   getStudentsForSession,
+  addAttendanceRecord,
 };

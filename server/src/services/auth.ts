@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import DatabaseAccess from './database.ts';
-import { User } from '../models/user.ts';
+import DatabaseAccess from './database.js';
+import { User } from '../models/user.js';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
