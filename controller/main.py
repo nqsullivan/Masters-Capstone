@@ -1,20 +1,22 @@
-from src.helloWorld import helloWorld
 from src.state_machine import StateMachine
+from src.controllers.nfc import NFCController
+from src.controllers.ultrasonic import UltrasonicController
+from src.controllers.camera import CameraController
+import time
 
-if __name__ == "__main__":
-    helloWorld()
+nfc = NFCController()
+camera = CameraController()
+sm = StateMachine(nfc, camera)
+ultrasonic = UltrasonicController(sm)
 
-    sm = StateMachine()
-    print(f"Initial State: {sm.state}")
+nfc.start(sm)
+ultrasonic.start()
 
-    sm.boot_up()
-    print(f"State after boot_up: {sm.state}")
-
-    sm.motion_detected()
-    print(f"State after motion_detected: {sm.state}")
-
-'''
-Notes about state machine: 
-The 'state' attribute and transition methods are dynamically created by the 'transitions' library.
-Some IDEs might show "Unresolved attribute reference" warnings here. These prompts do not affect any functionality and can be ignored.
-'''
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    print("\nShutting down...")
+    nfc.stop()
+    ultrasonic.stop()
+    sm.stop()
