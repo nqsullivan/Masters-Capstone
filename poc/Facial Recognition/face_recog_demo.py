@@ -109,6 +109,15 @@ def capture_face(identity, frame, x, y, w, h):
     except Exception as e:
         print(f"⚠️ Error capturing face: {e}")
 
+def reset_session():
+    """
+    Reset the session by removing faces that haven't been seen within the session duration.
+    This ensures that only recent faces are tracked in the `seen_faces` dictionary.
+    """
+    global seen_faces
+    current_time = time.time()
+    seen_faces = {k: v for k, v in seen_faces.items() if current_time - v < SESSION_DURATION}
+
 def main():
     """
     Main function to run the face recognition system.
