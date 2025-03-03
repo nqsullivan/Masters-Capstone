@@ -81,6 +81,19 @@ def compare_faces(embedding):
 
     return identity, min_distance
 
+def log_face(identity):
+    """
+    Log the recognized face identity along with a timestamp to the log file.
+    """
+    try:
+        timestamp = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
+        log_entry = f"{identity}, {timestamp}\n"
+        with open(LOG_FILE, "a") as log_file:
+            log_file.write(log_entry)
+        print(f"Logged: {log_entry.strip()}")
+    except Exception as e:
+        print(f"⚠️ Error logging face: {e}")
+
 def main():
     """
     Main function to run the face recognition system.
