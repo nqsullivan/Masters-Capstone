@@ -18,7 +18,7 @@ class UltrasonicController:
         print("Ultrasonic Controller initialized. Motion detection active.")
 
     def get_distance(self):
-        """Measures the distance using the ultrasonic sensor."""
+        """Measures the distance using the ultrasonic sensor with timeout handling."""
         GPIO.output(self.trig_pin, False)
         time.sleep(0.1)
 
@@ -26,13 +26,17 @@ class UltrasonicController:
         time.sleep(0.00001)
         GPIO.output(self.trig_pin, False)
 
-        pulse_start = time.time()
+        start_time = time.time()
+
         while GPIO.input(self.echo_pin) == 0:
             pulse_start = time.time()
+            if pulse_start - start_time > 0.02:
+                return None
 
-        pulse_end = time.time()
         while GPIO.input(self.echo_pin) == 1:
             pulse_end = time.time()
+            if pulse_end - pulse_start > 0.02:
+                return None
 
         pulse_duration = pulse_end - pulse_start
         distance = pulse_duration * 17150
@@ -41,10 +45,18 @@ class UltrasonicController:
     def detect_motion(self):
         """Continuously monitors motion and sends events to the state machine."""
         last_distance = self.get_distance()
+
+        if last_distance is None:
+            return
+
         time.sleep(1)
 
         while self.running:
             current_distance = self.get_distance()
+
+            if current_distance is None:
+                time.sleep(0.5)
+                continue
 
             if (
                 current_distance < self.threshold
@@ -56,6 +68,7 @@ class UltrasonicController:
                     )
                 else:
                     print("StateMachine not initialized!")
+
                 time.sleep(2)
 
             last_distance = current_distance
