@@ -94,6 +94,21 @@ def log_face(identity):
     except Exception as e:
         print(f"⚠️ Error logging face: {e}")
 
+def capture_face(identity, frame, x, y, w, h):
+    """
+    Capture and save the detected face image with a timestamp and identity label.
+    The image is saved in the `CAPTURED_PHOTO_DIR` directory.
+    """
+    try:
+        timestamp = datetime.now().strftime("%m%d%Y_%H%M%S")
+        filename = os.path.join(CAPTURED_PHOTO_DIR, f"{identity}_{timestamp}.jpg")
+        face_crop = frame[int(y):int(h), int(x):int(w)]
+        cv2.putText(face_crop, f"{identity}, {timestamp}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.imwrite(filename, face_crop)
+        print(f"Captured {filename}")
+    except Exception as e:
+        print(f"⚠️ Error capturing face: {e}")
+
 def main():
     """
     Main function to run the face recognition system.
