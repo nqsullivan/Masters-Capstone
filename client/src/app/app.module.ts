@@ -9,12 +9,7 @@ import { ContactComponent } from './contact/contact.component';
 import { routes } from './app.routes';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    AboutComponent,
-    ContactComponent,
-  ],
+  declarations: [AppComponent, HomeComponent, AboutComponent, ContactComponent],
   imports: [
     BrowserModule,
     RouterModule.forRoot(routes), // 配置路由
