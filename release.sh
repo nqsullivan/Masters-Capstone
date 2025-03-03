@@ -47,9 +47,9 @@ ssh nathanielsullivan@raspberrypi.local << 'EOF'
     mkdir -p ~/release
     unzip -o ~/release.zip -d ~/release
     cd ~/release
-    docker-compose down
-    docker-compose build
-    docker-compose up -d
+    docker compose down
+    docker compose build
+    docker compose up -d
     rm ~/release.zip
 EOF
 
