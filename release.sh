@@ -39,10 +39,19 @@ cd release
 zip -r release.zip . -x "release.zip"
 cd - > /dev/null
 
-nc -z -w5 raspberrypi.local 22 || { echo "Raspberry Pi is not reachable"; exit 1; }
+if [ -z "$RPI_HOST" ]; then
+    read -p "Enter Raspberry Pi hostname (or IP): " RPI_HOST
+fi
 
-scp release/release.zip nathanielsullivan@raspberrypi.local:~/release.zip
-ssh nathanielsullivan@raspberrypi.local << 'EOF'
+if [ -z "$RPI_USER" ]; then
+    read -p "Enter Raspberry Pi username: " RPI_USER
+fi
+
+nc -z -w5 "$RPI_HOST" 22 || { echo "Raspberry Pi is not reachable"; exit 1; }
+
+scp release/release.zip "$RPI_USER@$RPI_HOST":~/release.zip
+
+ssh "$RPI_USER@$RPI_HOST" << 'EOF'
     rm -rf ~/release
     mkdir -p ~/release
     unzip -o ~/release.zip -d ~/release
