@@ -1,355 +1,24 @@
-/** 
 import request from 'supertest';
 import express from 'express';
 import routes from '../src/routes/index';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 import AuthService from '../src/services/auth';
-import { createSession, deleteSession, getSession, updateSession, getStudentsForSession } from '../src/controllers/session';
-import SessionService from '../src/services/session';
-
-const app = express();
-app.use(express.json());
-app.use('/api', routes);
-
-jest.mock('../src/services/session');
-
-describe('Session Routes and Controller', () => {
-  let token: string;
-
-  beforeAll(async () => {
-    await AuthService.init();
-    await AuthService.register('admin', 'adminpass');
-    token = await AuthService.login('admin', 'adminpass');
-
-    if (!token) {
-      throw new Error('Failed to generate admin token');
-    }
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  const mockStartTime = new Date('2025-01-01T10:00:00Z').toISOString();
-  const mockEndTime = new Date('2025-01-01T11:00:00Z').toISOString();
-
-  test('GET /session/:id should return a session by id', async () => {
-    const classResponse = await request(app)
-      .post('/api/class')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone3' });
-
-    const sessionData = {
-      classId: classResponse.body.id,
-      startTime: mockStartTime,
-      endTime: mockEndTime,
-      professorId: 'fakeProfId',
-    };
-    console.log('sessionData: ', sessionData);
-    const createResponse = await request(app)
-      .post('/api/session')
-      .set('Authorization', `Bearer ${token}`)
-      .send(sessionData);
-
-    const sessionId = createResponse.body.id;
-    console.log('sessionId: ', sessionId);
-
-    const getResponse = await request(app)
-      .get(`/api/session/${sessionId}`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(getResponse.status).toBe(200);
-    expect(getResponse.body).toHaveProperty('id', sessionId);
-  });
-
-
-  test('POST /session should return 400 if startTime is missing', async () => {
-    const classResponse = await request(app)
-      .post('/api/class')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone2' });
-
-    const sessionData = {
-      classId: classResponse.body.id,
-      endTime: mockEndTime,
-      professorId: 'fakeProfId',
-    };
-
-    const response = await request(app)
-      .post('/api/session')
-      .set('Authorization', `Bearer ${token}`)
-      .send(sessionData);
-
-    expect(response.status).toBe(201);
-  });
-
-  test('PUT /session/:id should return 400 if startTime is missing', async () => {
-    const classResponse = await request(app)
-      .post('/api/class')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone2' });
-
-    const sessionData = {
-      classId: classResponse.body.id,
-      startTime: mockStartTime,
-      endTime: mockEndTime,
-      professorId: 'fakeProfId',
-    };
-
-    const createResponse = await request(app)
-      .post('/api/session')
-      .set('Authorization', `Bearer ${token}`)
-      .send(sessionData);
-
-    const sessionId = createResponse.body.id;
-
-    const updatedSessionData = {
-      endTime: new Date('2026-01-01T13:00:00Z'),
-      classId: classResponse.body.id,
-      professorId: 'fakeProfId',
-    };
-
-    const response = await request(app)
-      .put(`/api/session/${sessionId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(updatedSessionData);
-
-    expect(response.status).toBe(404);
-  });
-
-  test('PUT /session/:id should return 400 if endTime is missing', async () => {
-    const classResponse = await request(app)
-      .post('/api/class')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone2' });
-
-    const sessionData = {
-      classId: classResponse.body.id,
-      startTime: mockStartTime,
-      endTime: mockEndTime,
-      professorId: 'fakeProfId',
-    };
-
-    const createResponse = await request(app)
-      .post('/api/session')
-      .set('Authorization', `Bearer ${token}`)
-      .send(sessionData);
-
-    const sessionId = createResponse.body.id;
-
-    const updatedSessionData = {
-      startTime: new Date('2026-01-01T12:00:00Z'),
-      classId: classResponse.body.id,
-      professorId: 'fakeProfId',
-    };
-
-    const response = await request(app)
-      .put(`/api/session/${sessionId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(updatedSessionData);
-
-    expect(response.status).toBe(404);
-  });
-
-  test('PUT /session/:id should return 400 if classId is missing', async () => {
-    const classResponse = await request(app)
-      .post('/api/class')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone2' });
-
-    const sessionData = {
-      classId: classResponse.body.id,
-      startTime: mockStartTime,
-      endTime: mockEndTime,
-      professorId: 'fakeProfId',
-    };
-
-    const createResponse = await request(app)
-      .post('/api/session')
-      .set('Authorization', `Bearer ${token}`)
-      .send(sessionData);
-
-    const sessionId = createResponse.body.id;
-
-    const updatedSessionData = {
-      startTime: new Date('2026-01-01T12:00:00Z'),
-      endTime: new Date('2026-01-01T13:00:00Z'),
-      professorId: 'fakeProfId',
-    };
-
-    const response = await request(app)
-      .put(`/api/session/${sessionId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(updatedSessionData);
-
-    expect(response.status).toBe(404);
-  });
-
-  test('PUT /session/:id should return 400 if professorId is missing', async () => {
-    const classResponse = await request(app)
-      .post('/api/class')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone2' });
-
-    const sessionData = {
-      classId: classResponse.body.id,
-      startTime: mockStartTime,
-      endTime: mockEndTime,
-      professorId: 'fakeProfId',
-    };
-
-    const createResponse = await request(app)
-      .post('/api/session')
-      .set('Authorization', `Bearer ${token}`)
-      .send(sessionData);
-
-    const sessionId = createResponse.body.id;
-
-    const updatedSessionData = {
-      startTime: new Date('2026-01-01T12:00:00Z'),
-      endTime: new Date('2026-01-01T13:00:00Z'),
-      classId: classResponse.body.id,
-    };
-
-    const response = await request(app)
-      .put(`/api/session/${sessionId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(updatedSessionData);
-
-    expect(response.status).toBe(404);
-  });
-
-  test('createSession should return 400 if an error occurs', async () => {
-    (SessionService.createSession as jest.Mock).mockRejectedValue(new Error('Create session error'));
-
-    const response = await request(app)
-      .post('/api/session')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        startTime: new Date().toISOString(),
-        endTime: new Date().toISOString(),
-        classId: 'classId',
-        professorId: 'professorId'
-      });
-
-    expect(response.status).toBe(400);
-    expect(response.body.error).toBe('Create session error');
-  });
-
-  test('deleteSession should return 204 if session is deleted', async () => {
-    (SessionService.deleteSession as jest.Mock).mockResolvedValue(undefined);
-
-    const response = await request(app)
-      .delete('/api/session/1')
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(204);
-  });
-
-  test('deleteSession should return 400 if an error occurs', async () => {
-    (SessionService.deleteSession as jest.Mock).mockRejectedValue(new Error('Delete session error'));
-
-    const response = await request(app)
-      .delete('/api/session/1')
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(400);
-    expect(response.body.error).toBe('Delete session error');
-  });
-
-  test('getSession should return 404 if session not found', async () => {
-
-    const response = await request(app)
-      .get('/api/session/1')
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(404);
-    expect(response.body.error).toBe('Session not found');
-  });
-
-  test('getSession should return 400 if an error occurs', async () => {
-    (SessionService.getSession as jest.Mock).mockRejectedValue(new Error('Get session error'));
-
-    const response = await request(app)
-      .get('/api/session/1')
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(400);
-    expect(response.body.error).toBe('Get session error');
-  });
-
-  test('updateSession should return 404 if session not found', async () => {
-
-    const response = await request(app)
-      .put('/api/session/1')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        startTime: new Date().toISOString(),
-        endTime: new Date().toISOString(),
-        classId: 'classId',
-        professorId: 'professorId'
-      });
-
-    expect(response.status).toBe(404);
-    expect(response.body.error).toBe('Session not found');
-  });
-
-  test('updateSession should return 400 if an error occurs', async () => {
-    (SessionService.updateSession as jest.Mock).mockRejectedValue(new Error('Update session error'));
-
-    const response = await request(app)
-      .put('/api/session/1')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        startTime: new Date().toISOString(),
-        endTime: new Date().toISOString(),
-        classId: 'classId',
-        professorId: 'professorId'
-      });
-
-    expect(response.status).toBe(400);
-    expect(response.body.error).toBe('Update session error');
-  });
-
-  test('getStudentsForSession should return 404 if no students found', async () => {
-    (SessionService.getStudentsForSession as jest.Mock).mockRejectedValue(new Error('No students found for this session'));
-
-    const response = await request(app)
-      .get('/api/session/1/students')
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(404);
-    expect(response.body.error).toBe('No students found for this session');
-  });
-
-  test('getStudentsForSession should return 400 if an error occurs', async () => {
-    (SessionService.getStudentsForSession as jest.Mock).mockRejectedValue(new Error('Get students error'));
-
-    const response = await request(app)
-      .get('/api/session/1/students')
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(400);
-    expect(response.body.error).toBe('Get students error');
-  });
-});
-
-
-**/
-import request from 'supertest';
-import express from 'express';
-import routes from '../src/routes/index';
-import { expect, test, describe, beforeAll } from '@jest/globals';
-import AuthService from '../src/services/auth';
-import SessionService from '../src/services/session';
+import DatabaseAccess from '../src/services/database';
 const app = express();
 app.use(express.json());
 app.use('/api', routes);
 
 describe('Session Routes', () => {
   let token: string;
+  let db: DatabaseAccess;
+
   beforeAll(async () => {
-    await AuthService.init();
+    AuthService.init();
+    db = await DatabaseAccess.getInstance();
+
+    await db.runWithNoReturned('DELETE FROM user');
+    await db.runWithNoReturned('DELETE FROM credential');
+
     await AuthService.register('admin', 'adminpass');
     token = await AuthService.login('admin', 'adminpass');
 
@@ -616,5 +285,95 @@ describe('Session Routes', () => {
 
     expect(response.status).toBe(404);
     expect(response.body.error).toBe('No students found for this session');
+  });
+
+  test('POST /api/session/:sessionId/attendance should return 200 and attendance details', async () => {
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone2' });
+
+    const sessionData = {
+      classId: classResponse.body.id,
+      startTime: mockStartTime,
+      endTime: mockEndTime,
+      professorId: 'fakeProfId',
+    };
+
+    const sessionResponse = await request(app)
+      .post('/api/session')
+      .set('Authorization', `Bearer ${token}`)
+      .send(sessionData);
+
+    const studentResponse = await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'John Doe',
+        image: 'path/to/image.jpg',
+      });
+
+    const attendanceData = {
+      studentId: studentResponse.body.id,
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .post(`/api/session/${sessionResponse.body.id}/attendance`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(attendanceData);
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.portait_url).toBe('www.test.com');
+  });
+
+  test('POST /api/session/:sessionId/attendance with invalid sessionId should return 400 and error details', async () => {
+    const attendanceData = {
+      studentId: 1,
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .post(`/api/session/${'invalidId'}/attendance`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(attendanceData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('POST /api/session/:sessionId/attendance with missing studentId should return 400 and error details', async () => {
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone2' });
+
+    const sessionData = {
+      classId: classResponse.body.id,
+      startTime: mockStartTime,
+      endTime: mockEndTime,
+      professorId: 'fakeProfId',
+    };
+
+    const sessionResponse = await request(app)
+      .post('/api/session')
+      .set('Authorization', `Bearer ${token}`)
+      .send(sessionData);
+
+    const attendanceData = {
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .post(`/api/session/${sessionResponse.body.id}/attendance`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(attendanceData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
   });
 });
