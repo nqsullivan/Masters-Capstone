@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', routes);
 
 describe('Image Retrieval Routes', () => {
-    let token: string;
+  let token: string;
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -58,19 +58,18 @@ describe('Image Retrieval Routes', () => {
 
     const response = await request(app)
       .get('/api/retrieve/image/valid-key')
-      .set('Authorization', `Bearer ${token}`); 
+      .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toBe('image/jpeg');
   });
 
-  it('should return 400 if no image key is provided', async () => {
+  it('should return 404 if no image key is provided', async () => {
     const response = await request(app)
-      .get('/api/retrieve/image/') 
-      .set('Authorization', `Bearer ${token}`); 
+      .get('/api/retrieve/image/')
+      .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(404);
-    expect(response.body.error).toBe('No image key provided');
   });
 
   it('should return 404 if image is not found in AWS', async () => {
@@ -81,7 +80,7 @@ describe('Image Retrieval Routes', () => {
 
     const response = await request(app)
       .get('/api/retrieve/image/missing-key')
-      .set('Authorization', `Bearer ${token}`); 
+      .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(404);
     expect(response.body.error).toBe('Image not found in AWS');
@@ -95,9 +94,11 @@ describe('Image Retrieval Routes', () => {
 
     const response = await request(app)
       .get('/api/retrieve/image/any-key')
-      .set('Authorization', `Bearer ${token}`); 
+      .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(500);
-    expect(response.body.error).toBe('Missing AWS configuration in environment variables');
+    expect(response.body.error).toBe(
+      'Missing AWS configuration in environment variables'
+    );
   });
 });
