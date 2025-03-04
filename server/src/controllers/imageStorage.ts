@@ -43,6 +43,7 @@ const retrieveImage = async (req: Request, res: Response, next: NextFunction) =>
        
         next();
     } catch (e: any) {
+        console.log(e.message);
         if (e.message === 'No image key provided') {
             res.status(400).json({ error: e.message });
         } else if (
