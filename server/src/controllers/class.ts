@@ -1,5 +1,5 @@
 import e, { Request, Response, NextFunction } from 'express';
-import ClassService from '../services/class.ts';
+import ClassService from '../services/class.js';
 
 const getClass = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
@@ -46,4 +46,20 @@ const deleteClass = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { getClass, createClass, updateClass, deleteClass };
+const getClassPage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const page: number = parseInt(req.query.page as string) || 1;
+  const size: number = parseInt(req.query.size as string) || 10;
+  try {
+    const classPage = await ClassService.getClassPage(page, size);
+    res.status(200).send(classPage);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+export { getClass, createClass, updateClass, deleteClass, getClassPage };

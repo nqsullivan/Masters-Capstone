@@ -1,0 +1,141 @@
+import e, { Request, Response, NextFunction } from 'express';
+import SessionService from '../services/session.js';
+const createSession = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { startTime, endTime, classId, professorId } = req.body;
+  try {
+    const newSession = await SessionService.createSession(
+      startTime,
+      endTime,
+      classId,
+      professorId
+    );
+    res.status(201).send(newSession);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+const deleteSession = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+  try {
+    await SessionService.deleteSession(id);
+    res.status(204).send();
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+const getSession = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  try {
+    const session = await SessionService.getSession(id);
+    if (session) {
+      const sessionWithStrings = {
+        ...session,
+        startTime: session.startTime.toISOString(),
+        endTime: session.endTime.toISOString(),
+      };
+      res.status(200).send(sessionWithStrings);
+    } else {
+      throw new Error('Session not found');
+    }
+    next();
+  } catch (e: any) {
+    if (e.message === 'Session not found') {
+      res.status(404).json({ error: e.message });
+    }
+  }
+};
+
+const updateSession = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+  const { startTime, endTime, classId, professorId } = req.body;
+  try {
+    const updatedSession = await SessionService.updateSession(
+      id,
+      startTime,
+      endTime,
+      classId,
+      professorId
+    );
+
+    if (updatedSession) {
+      const sessionWithStrings = {
+        ...updatedSession,
+        startTime: updatedSession.startTime,
+        endTime: updatedSession.endTime,
+      };
+      res.status(200).send(sessionWithStrings);
+    } else {
+      throw new Error('Session not found');
+    }
+    next();
+  } catch (e: any) {
+    if (e.message === 'Session not found') {
+      res.status(404).json({ error: e.message });
+    }
+  }
+};
+
+const getStudentsForSession = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { sessionId } = req.params;
+  try {
+    const studentIds = await SessionService.getStudentsForSession(sessionId);
+    if (studentIds) {
+      res.status(200).send(studentIds);
+    } else {
+      throw new Error('No students found for this session');
+    }
+    next();
+  } catch (e: any) {
+    if (e.message === 'No students found for this session') {
+      res.status(404).json({ error: e.message });
+    }
+  }
+};
+
+const addAttendanceRecord = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { sessionId } = req.params;
+  const { studentId, checkInTime, portraitUrl } = req.body;
+  try {
+    const attendance = await SessionService.addAttendanceRecord(
+      sessionId,
+      studentId,
+      checkInTime,
+      portraitUrl
+    );
+    res.status(201).send(attendance);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message }) && next(e);
+  }
+};
+
+export {
+  createSession,
+  deleteSession,
+  getSession,
+  updateSession,
+  getStudentsForSession,
+  addAttendanceRecord,
+};

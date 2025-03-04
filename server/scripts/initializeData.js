@@ -34,20 +34,20 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS student (id VARCHAR, name VARCHAR, class_id VARCHAR, image VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS student (id VARCHAR, name VARCHAR, image VARCHAR)'
     );
 
     const studentData = [
-      ['1', 'Student 1', '1', 'https://via.placeholder.com/150'],
-      ['2', 'Student 2', '1', 'https://via.placeholder.com/150'],
-      ['3', 'Student 3', '2', 'https://via.placeholder.com/150'],
-      ['4', 'Student 4', '2', 'https://via.placeholder.com/150'],
-      ['5', 'Student 5', '3', 'https://via.placeholder.com/150'],
-      ['6', 'Student 6', '3', 'https://via.placeholder.com/150'],
+      ['1', 'Student 1', 'https://via.placeholder.com/150'],
+      ['2', 'Student 2', 'https://via.placeholder.com/150'],
+      ['3', 'Student 3', 'https://via.placeholder.com/150'],
+      ['4', 'Student 4', 'https://via.placeholder.com/150'],
+      ['5', 'Student 5', 'https://via.placeholder.com/150'],
+      ['6', 'Student 6', 'https://via.placeholder.com/150'],
     ];
     for (const data of studentData) {
       await db.run(
-        'INSERT INTO student (id, name, class_id, image) VALUES (?, ?, ?, ?)',
+        'INSERT INTO student (id, name, image) VALUES (?, ?, ?)',
         data
       );
     }
@@ -72,36 +72,78 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS session (id VARCHAR, start_time DATETIME, end_time DATETIME, class_id VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS session (id VARCHAR, start_time DATETIME, end_time DATETIME, class_id VARCHAR, professor_id VARCHAR)'
     );
 
     const sessionData = [
-      ['1', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '1'],
-      ['2', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '2'],
-      ['3', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '3'],
+      ['1', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '1', '1'],
+      ['2', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '2', '2'],
+      ['3', '2021-01-01 08:00:00', '2021-01-01 10:00:00', '3', '3'],
     ];
     for (const data of sessionData) {
       await db.run(
-        'INSERT INTO session (id, start_time, end_time, class_id) VALUES (?, ?, ?, ?)',
+        'INSERT INTO session (id, start_time, end_time, class_id, professor_id) VALUES (?, ?, ?, ?, ?)',
         data
       );
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, student_id VARCHAR, session_id VARCHAR, check_in DATETIME, did_check_in BOOLEAN)'
+      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, student_id VARCHAR, session_id VARCHAR, check_in DATETIME, portait_url VARCHAR, portait_captured BOOLEAN)'
     );
 
     const attendanceData = [
-      ['1', '1', '1', '2021-01-01 08:00:00', true],
-      ['2', '2', '1', '2021-01-01 08:00:00', true],
-      ['3', '3', '2', '2021-01-01 08:00:00', true],
-      ['4', '4', '2', '2021-01-01 08:00:00', true],
-      ['5', '5', '3', '2021-01-01 08:00:00', true],
-      ['6', '6', '3', '2021-01-01 08:00:00', true],
+      [
+        '1',
+        '1',
+        '1',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '2',
+        '2',
+        '1',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '3',
+        '3',
+        '2',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '4',
+        '4',
+        '2',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '5',
+        '5',
+        '3',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '6',
+        '6',
+        '3',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
     ];
     for (const data of attendanceData) {
       await db.run(
-        'INSERT INTO attendance (id, student_id, session_id, check_in, did_check_in) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO attendance (id, student_id, session_id, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
         data
       );
     }

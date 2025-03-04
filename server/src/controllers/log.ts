@@ -1,6 +1,6 @@
-import e, { Request, Response, NextFunction } from 'express';
-import { CreateLogRequest } from '../models/logRequest';
-import LogService from '../services/log.ts';
+import { Request, Response, NextFunction } from 'express';
+import { CreateLogRequest } from '../models/logRequest.js';
+import LogService from '../services/log.js';
 
 const getLog = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
@@ -21,13 +21,9 @@ const createLog = async (req: Request, res: Response, next: NextFunction) => {
     entity_type,
     entity_id,
   };
-  try {
-    const newLog = await LogService.createLog(logRequest);
-    res.status(201).send(newLog);
-    next();
-  } catch (e: any) {
-    res.status(400).json({ error: e.message });
-  }
+  const newLog = await LogService.createLog(logRequest);
+  res.status(201).send(newLog);
+  next();
 };
 
 const deleteLog = async (req: Request, res: Response, next: NextFunction) => {
@@ -41,4 +37,20 @@ const deleteLog = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { getLog, createLog, deleteLog };
+const getLogsPaginated = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const page: number = parseInt(req.query.page as string) || 1;
+  const size: number = parseInt(req.query.size as string) || 10;
+  try {
+    const logPage = await LogService.getLogPage(page, size);
+    res.status(200).send(logPage);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+export { getLog, createLog, deleteLog, getLogsPaginated };

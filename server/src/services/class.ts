@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import DatabaseAccess from '../services/database.ts';
-import { Class } from '../models/class.ts';
+import DatabaseAccess from '../services/database.js';
+import { Class } from '../models/class.js';
+import { ClassPageResponse } from '../models/classPageResponse.js';
+import UtilService from './util.js';
 
 class ClassService {
   private db!: DatabaseAccess;
@@ -41,13 +43,10 @@ class ClassService {
 
   async updateClass(id: string, name: string): Promise<Class> {
     const existingClass = await this.getClass(id);
-    if (!existingClass) {
-      throw new Error(`Class with id '${id}' not found`);
-    }
 
     await this.db.runWithNoReturned(`UPDATE class SET name = ? WHERE id = ?`, [
       name,
-      id,
+      existingClass.id,
     ]);
 
     return { id, name };
@@ -55,11 +54,14 @@ class ClassService {
 
   async deleteClass(id: string): Promise<void> {
     const existingClass = await this.getClass(id);
-    if (!existingClass) {
-      throw new Error(`Class with id '${id}' not found`);
-    }
 
-    await this.db.runWithNoReturned(`DELETE FROM class WHERE id = ?`, [id]);
+    await this.db.runWithNoReturned(`DELETE FROM class WHERE id = ?`, [
+      existingClass.id,
+    ]);
+  }
+
+  async getClassPage(page: number, size: number): Promise<ClassPageResponse> {
+    return await UtilService.buildPageResponse<Class>(page, size, 'Class');
   }
 }
 

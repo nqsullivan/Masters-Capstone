@@ -1,5 +1,5 @@
-import AuthService from '../src/services/auth.ts';
-import DatabaseAccess from '../src/services/database.ts';
+import AuthService from '../src/services/auth.js';
+import DatabaseAccess from '../src/services/database.js';
 import { expect, test, describe, beforeAll } from '@jest/globals';
 
 describe('AuthService', () => {
@@ -20,6 +20,15 @@ describe('AuthService', () => {
     expect(newUser).toHaveProperty('username', 'newUser');
   });
 
+  test('should not register a user without a username', async () => {
+    try {
+      await AuthService.register('', 'newPassword');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(Error);
+      expect(error.message).toBe('Username and password are required');
+    }
+  });
+
   test('should not register a user with an existing username', async () => {
     try {
       await AuthService.register(testUser.username, 'newPassword');
@@ -38,6 +47,16 @@ describe('AuthService', () => {
   test('should not log in with incorrect credentials', async () => {
     try {
       const token = await AuthService.login(testUser.username, 'wrongPassword');
+      expect(token).toBeNull();
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(Error);
+      expect(error.message).toBe('Invalid credentials');
+    }
+  });
+
+  test('should not log in with a non-existent user', async () => {
+    try {
+      const token = await AuthService.login('nonExistentUser', 'password');
       expect(token).toBeNull();
     } catch (error: any) {
       expect(error).toBeInstanceOf(Error);

@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CreateLogRequest } from '../models/logRequest';
-import { Log } from '../models/log.ts';
-import DatabaseAccess from '../services/database.ts';
-import UserClassAssignmentService from '../services/UserClassAssignmentService.ts';
+import { CreateLogRequest } from '../models/logRequest.js';
+import { Log } from '../models/log.js';
+import { LogPageResponse } from '../models/logPageResponse.js';
+import DatabaseAccess from '../services/database.js';
+import UtilService from '../services/util.js';
 
 class LogService {
   private db!: DatabaseAccess;
@@ -34,9 +35,6 @@ class LogService {
   }
 
   async createLog(logDetails: CreateLogRequest): Promise<Log> {
-    const user = await UserClassAssignmentService.getProfessor(
-      logDetails.user_id
-    );
     const id = uuidv4();
     const currentDate = this.db.getCurrentDate();
 
@@ -65,10 +63,19 @@ class LogService {
 
   async deleteLog(id: string) {
     const existingLog = await this.getLog(id);
-    if (!existingLog) {
-      throw new Error(`Log with id '${id}' not found`);
-    }
     await this.db.runWithNoReturned(`DELETE FROM log WHERE id = ?`, [id]);
+  }
+
+  async getLogPage(page: number, size: number): Promise<LogPageResponse> {
+    const pageResponse = await UtilService.buildPageResponse<Log>(
+      page,
+      size,
+      'Log'
+    );
+    pageResponse.data.forEach((log) => {
+      log.timestamp = log.timestamp.toString();
+    });
+    return pageResponse;
   }
 }
 

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import StudentService from '../services/student.ts';
+import StudentService from '../services/student.js';
 
 const getStudent = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
@@ -16,9 +16,9 @@ const createStudent = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, class_id, image } = req.body;
+  const { name, image } = req.body;
   try {
-    const student = await StudentService.createStudent(name, class_id, image);
+    const student = await StudentService.createStudent(name, image || null);
     res.status(201).send(student);
   } catch (e: any) {
     res.status(404).json({ error: e.message });
@@ -31,14 +31,9 @@ const updateStudent = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-  const { name, class_id, image } = req.body;
+  const { name, image } = req.body;
   try {
-    const student = await StudentService.updateStudent(
-      id,
-      name,
-      class_id,
-      image
-    );
+    const student = await StudentService.updateStudent(id, name, image);
     res.status(200).send(student);
   } catch (e: any) {
     res.status(404).json({ error: e.message });
@@ -59,4 +54,26 @@ const deleteStudent = async (
   }
 };
 
-export { getStudent, createStudent, updateStudent, deleteStudent };
+const getStudentPage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const page: number = parseInt(req.query.page as string) || 1;
+  const size: number = parseInt(req.query.size as string) || 10;
+  try {
+    const studentPage = await StudentService.getStudentPage(page, size);
+    res.status(200).send(studentPage);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+export {
+  getStudent,
+  createStudent,
+  updateStudent,
+  deleteStudent,
+  getStudentPage,
+};

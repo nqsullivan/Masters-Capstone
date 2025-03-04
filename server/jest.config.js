@@ -1,12 +1,24 @@
 export default {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm',
+  extensionsToTreatAsEsm: ['.ts'],
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+      },
+    ],
+  },
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
   testEnvironment: 'node',
   testMatch: ['**/__tests__/**/*.test.ts'],
   collectCoverage: true,
   collectCoverageFrom: [
-    'controllers/**/*.ts',
-    'services/**/*.ts',
-    'routes/**/*.ts',
+    'src/controllers/**/*.ts',
+    'src/services/**/*.ts',
+    'src/routes/**/*.ts',
   ],
   setupFiles: ['./jest.setup.js'],
   coverageThreshold: {

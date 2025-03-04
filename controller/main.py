@@ -1,4 +1,22 @@
-from src.helloWorld import helloWorld
+from src.state_machine import StateMachine
+from src.controllers.nfc import NFCController
+from src.controllers.ultrasonic import UltrasonicController
+from src.controllers.camera import CameraController
+import time
 
-if __name__ == "__main__":
-    helloWorld()
+nfc = NFCController()
+camera = CameraController()
+sm = StateMachine(nfc, camera)
+ultrasonic = UltrasonicController(sm)
+
+nfc.start(sm)
+ultrasonic.start()
+
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    print("\nShutting down...")
+    nfc.stop()
+    ultrasonic.stop()
+    sm.stop()

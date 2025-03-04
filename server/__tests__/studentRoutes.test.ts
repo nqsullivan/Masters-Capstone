@@ -3,7 +3,7 @@ import express from 'express';
 import routes from '../src/routes/index';
 import DatabaseAccess from '../src/services/database';
 import AuthService from '../src/services/auth';
-import { expect, test, describe, beforeAll } from '@jest/globals';
+import { expect, test, describe, beforeAll, beforeEach } from '@jest/globals';
 
 const app = express();
 app.use(express.json());
@@ -17,7 +17,6 @@ describe('Student API', () => {
     AuthService.init();
     db = await DatabaseAccess.getInstance();
 
-    await db.runWithNoReturned('DELETE FROM student');
     await db.runWithNoReturned('DELETE FROM user');
     await db.runWithNoReturned('DELETE FROM credential');
 
@@ -29,19 +28,21 @@ describe('Student API', () => {
     }
   });
 
+  beforeEach(async () => {
+    await db.runWithNoReturned('DELETE FROM student');
+  });
+
   test('POST /api/student should create a student successfully', async () => {
     const response = await request(app)
       .post('/api/student')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'John Doe',
-        class_id: 'class123',
         image: 'path/to/image.jpg',
       });
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('name', 'John Doe');
-    expect(response.body).toHaveProperty('class_id', 'class123');
     expect(response.body).toHaveProperty('image', 'path/to/image.jpg');
   });
 
@@ -52,10 +53,7 @@ describe('Student API', () => {
       .send({});
 
     expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty(
-      'error',
-      'Name and class_id cannot be empty'
-    );
+    expect(response.body).toHaveProperty('error', 'Name cannot be empty');
   });
 
   test('GET /api/student/:id should return student details for a valid student ID', async () => {
@@ -64,7 +62,6 @@ describe('Student API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'John Doe',
-        class_id: 'class123',
         image: 'path/to/image.jpg',
       });
 
@@ -74,7 +71,6 @@ describe('Student API', () => {
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('name', 'John Doe');
-    expect(response.body).toHaveProperty('class_id', 'class123');
     expect(response.body).toHaveProperty('image', 'path/to/image.jpg');
   });
 
@@ -96,7 +92,6 @@ describe('Student API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'John Doe',
-        class_id: 'class123',
         image: 'path/to/image.jpg',
       });
 
@@ -105,13 +100,11 @@ describe('Student API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'Jane Doe',
-        class_id: 'class456',
         image: 'path/to/new_image.jpg',
       });
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('name', 'Jane Doe');
-    expect(response.body).toHaveProperty('class_id', 'class456');
     expect(response.body).toHaveProperty('image', 'path/to/new_image.jpg');
   });
 
@@ -121,7 +114,6 @@ describe('Student API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'Jane Doe',
-        class_id: 'class456',
         image: 'path/to/new_image.jpg',
       });
 
@@ -138,7 +130,6 @@ describe('Student API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'John Doe',
-        class_id: 'class123',
         image: 'path/to/image.jpg',
       });
 
@@ -160,5 +151,62 @@ describe('Student API', () => {
       'error',
       "Student with id 'invalidId' not found"
     );
+  });
+
+  test('GET /api/students should return 200 and 1 page of 2 students', async () => {
+    await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Student1',
+      });
+
+    await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Student2',
+      });
+
+    const response = await request(app)
+      .get(`/api/students`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('page', 1);
+    expect(response.body).toHaveProperty('page_size', 10);
+    expect(response.body).toHaveProperty('total_items', 2);
+    expect(response.body).toHaveProperty('total_pages', 1);
+    expect(response.body.data).toHaveLength(2);
+    expect(response.body.data[0]).toHaveProperty('name', 'Student1');
+    expect(response.body.data[1]).toHaveProperty('name', 'Student2');
+  });
+
+  test('GET /api/students?page=2&size=1 should return 200 and 1 page of 1 singular student', async () => {
+    await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Student1',
+      });
+
+    await request(app)
+      .post('/api/student')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Student2',
+      });
+
+    const response = await request(app)
+      .get(`/api/students?page=2&size=1`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('page', 2);
+    expect(response.body).toHaveProperty('page_size', 1);
+    expect(response.body).toHaveProperty('total_items', 2);
+    expect(response.body).toHaveProperty('total_pages', 2);
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data[0]).toHaveProperty('name', 'Student2');
   });
 });
