@@ -1,5 +1,6 @@
 import e, { Request, Response, NextFunction } from 'express';
 import SessionService from '../services/session.js';
+
 const createSession = async (
   req: Request,
   res: Response,
@@ -131,6 +132,8 @@ const addAttendanceRecord = async (
   }
 };
 
+import { validate as isValidUUID } from 'uuid';
+
 const deleteAttendanceRecord = async (
   req: Request,
   res: Response,
@@ -138,14 +141,19 @@ const deleteAttendanceRecord = async (
 ) => {
   const { attendanceId } = req.params;
 
+  if (!attendanceId || !isValidUUID(attendanceId)) {
+    res.status(400).json({ error: 'Invalid attendance ID' });
+    return;
+  }
+
   try {
     await SessionService.deleteAttendanceRecord(attendanceId);
-    res.status(204).send(); // 204 No Content means delete success
+    res.status(204).send();
   } catch (e: any) {
     if (e.message === 'Attendance record not found') {
       res.status(404).json({ error: e.message });
     } else {
-      res.status(400).json({ error: e.message });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 };

@@ -119,7 +119,6 @@ class SessionService {
     throw new Error('No students found for this session');
   }
 
-
   async deleteAttendanceRecord(attendanceId: string): Promise<void> {
     // check if there is a attendance record
     const result = await this.db.runAndReadAll<{ id: string }>(
@@ -136,7 +135,6 @@ class SessionService {
       attendanceId,
     ]);
   }
-
 
   async addAttendanceRecord(
     sessionId: string,

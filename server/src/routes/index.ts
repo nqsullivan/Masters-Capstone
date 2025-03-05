@@ -87,6 +87,6 @@ router.get('/logs', verifyToken, getLogsPaginated);
 
 router.post('/upload/image', verifyToken, upload.single('image'), uploadImage);
 
-router.delete('/attendance/:attendanceId', verifyToken, deleteAttendanceRecord);//delete router for attendance
+router.delete('/attendance/:attendanceId', verifyToken, deleteAttendanceRecord); //delete router for attendance
 
 export default router;
