@@ -1,4 +1,9 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
+import { Readable } from 'stream';
 
 class ImageStorage {
   private s3: S3Client;
@@ -42,6 +47,25 @@ class ImageStorage {
       const response = await this.s3.send(new PutObjectCommand(params));
       const fileUrl = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${params.Key}`;
       return { fileUrl, response };
+    } catch (e: any) {
+      console.log(e.message);
+    }
+  }
+
+  async downloadImageFromAWS(imageKey: string) {
+    const params = {
+      Bucket: this.bucketName,
+      Key: imageKey,
+    };
+
+    try {
+      const response = await this.s3.send(new GetObjectCommand(params));
+      const contentType = response.ContentType || 'png';
+      if (response.Body instanceof Readable) {
+        return { image: response.Body, contentType };
+      } else {
+        throw new Error('Unexpected response body type');
+      }
     } catch (e: any) {
       console.log(e.message);
     }

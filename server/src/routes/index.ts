@@ -40,7 +40,7 @@ import {
   getStudentPage,
 } from '../controllers/student.js';
 import upload from '../middleware/upload-middleware.js';
-import { uploadImage } from '../controllers/imageStorage.js';
+import { uploadImage, retrieveImage } from '../controllers/imageStorage.js';
 
 const router = express.Router();
 
@@ -84,6 +84,7 @@ router.post('/log', verifyToken, createLog);
 router.delete('/log/:id', verifyToken, deleteLog);
 router.get('/logs', verifyToken, getLogsPaginated);
 
-router.post('/upload/image', verifyToken, upload.single('image'), uploadImage);
+router.post('/image', verifyToken, upload.single('image'), uploadImage);
+router.get('/image/:imageKey', verifyToken, retrieveImage);
 
 export default router;
