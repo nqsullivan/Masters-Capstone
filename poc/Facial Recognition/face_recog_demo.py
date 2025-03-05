@@ -82,13 +82,15 @@ def compare_faces(embedding):
     return identity, min_distance
 
 
-def log_face(identity):
+def log_face(identity, distance):  # Modified: Added distance parameter
     """
     Log the recognized face identity along with a timestamp to the log file.
+    Now includes the face similarity score in the log entry.
     """
     try:
         timestamp = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
-        log_entry = f"{identity}, {timestamp}\n"
+        # Modified: Include similarity score in the log entry
+        log_entry = f"{identity} ({distance:.2f}), {timestamp}\n"
         with open(LOG_FILE, "a") as log_file:
             log_file.write(log_entry)
         print(f"Logged: {log_entry.strip()}")
@@ -204,7 +206,8 @@ def main():
                         seen_faces[identity] = time.time()
                         # Modified: Pass distance to capture_face function
                         capture_face(identity, frame, x, y, w, h, distance)
-                        log_face(identity)
+                        # Modified: Pass distance to log_face function
+                        log_face(identity, distance)
 
                     cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (0, 255, 0), 2)
                     cv2.putText(frame, f"{identity} ({distance:.2f})", (int(x), int(y - 10)),
