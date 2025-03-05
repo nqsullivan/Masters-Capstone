@@ -125,21 +125,24 @@ def resize_with_padding(image, target_size=(170, 240)):
     return padded_image
 
 
-def capture_face(identity, frame, x, y, w, h):
+def capture_face(identity, frame, x, y, w, h, distance):  # Modified: Added distance parameter
     """
     Capture and save the detected face image with a timestamp and identity label.
     The image is resized to a fixed dimension (170x240) before saving.
     """
     try:
         timestamp = datetime.now().strftime("%m%d%Y_%H%M%S")
-        filename = os.path.join(CAPTURED_PHOTO_DIR, f"{identity}_{timestamp}.jpg")
+        # Modified: Include similarity score in the filename
+        filename = os.path.join(CAPTURED_PHOTO_DIR, f"{identity} ({distance:.2f})_{timestamp}.jpg")
         face_crop = frame[int(y):int(h), int(x):int(w)]
 
         # Resize the face image to a fixed dimension (170x240) with padding
         resized_face = resize_with_padding(face_crop, target_size=(170, 240))  # Added resizing logic
 
         # Add text to the resized image
-        cv2.putText(resized_face, f"{identity}, {timestamp}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        # Modified: Overlay the recognized name with similarity score and timestamp
+        cv2.putText(resized_face, f"{identity} ({distance:.2f})", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(resized_face, f"{timestamp}", (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         # Save the resized image
         cv2.imwrite(filename, resized_face)
@@ -199,7 +202,8 @@ def main():
 
                     if identity not in seen_faces or time.time() - seen_faces[identity] > SESSION_DURATION:
                         seen_faces[identity] = time.time()
-                        capture_face(identity, frame, x, y, w, h)
+                        # Modified: Pass distance to capture_face function
+                        capture_face(identity, frame, x, y, w, h, distance)
                         log_face(identity)
 
                     cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (0, 255, 0), 2)
