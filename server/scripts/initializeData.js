@@ -88,20 +88,62 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, student_id VARCHAR, session_id VARCHAR, check_in DATETIME, did_check_in BOOLEAN)'
+      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, student_id VARCHAR, session_id VARCHAR, check_in DATETIME, portait_url VARCHAR, portait_captured BOOLEAN)'
     );
 
     const attendanceData = [
-      ['1', '1', '1', '2021-01-01 08:00:00', true],
-      ['2', '2', '1', '2021-01-01 08:00:00', true],
-      ['3', '3', '2', '2021-01-01 08:00:00', true],
-      ['4', '4', '2', '2021-01-01 08:00:00', true],
-      ['5', '5', '3', '2021-01-01 08:00:00', true],
-      ['6', '6', '3', '2021-01-01 08:00:00', true],
+      [
+        '1',
+        '1',
+        '1',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '2',
+        '2',
+        '1',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '3',
+        '3',
+        '2',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '4',
+        '4',
+        '2',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '5',
+        '5',
+        '3',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
+      [
+        '6',
+        '6',
+        '3',
+        '2021-01-01 08:00:00',
+        'https://via.placeholder.com/150',
+        true,
+      ],
     ];
     for (const data of attendanceData) {
       await db.run(
-        'INSERT INTO attendance (id, student_id, session_id, check_in, did_check_in) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO attendance (id, student_id, session_id, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
         data
       );
     }

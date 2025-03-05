@@ -6,6 +6,7 @@ import {
   getSession,
   updateSession,
   getStudentsForSession,
+  addAttendanceRecord,
 } from '../controllers/session.js';
 import {
   addStudentsToSession,
@@ -38,6 +39,8 @@ import {
   deleteStudent,
   getStudentPage,
 } from '../controllers/student.js';
+import upload from '../middleware/upload-middleware.js';
+import { uploadImage } from '../controllers/imageStorage.js';
 
 const router = express.Router();
 
@@ -68,6 +71,8 @@ router.delete(
   verifyToken,
   deleteStudentFromSession
 );
+router.post('/session/:sessionId/attendance', verifyToken, addAttendanceRecord);
+
 router.get('/student/:id', verifyToken, getStudent);
 router.get('/students', verifyToken, getStudentPage);
 router.post('/student', verifyToken, createStudent);
@@ -78,5 +83,7 @@ router.get('/log/:id', verifyToken, getLog);
 router.post('/log', verifyToken, createLog);
 router.delete('/log/:id', verifyToken, deleteLog);
 router.get('/logs', verifyToken, getLogsPaginated);
+
+router.post('/upload/image', verifyToken, upload.single('image'), uploadImage);
 
 export default router;
