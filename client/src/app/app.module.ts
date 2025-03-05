@@ -16,9 +16,9 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatLabel } from '@angular/material/form-field';
-
+import { MatDialogRef } from '@angular/material/dialog';
 @NgModule({
-  declarations: [AppComponent, HomeComponent, AboutComponent, ContactComponent, LoginPageComponent, LoginModalComponent, MatDialogModule],
+  declarations: [AppComponent, HomeComponent, AboutComponent, ContactComponent, LoginPageComponent, LoginModalComponent],
   imports: [
     BrowserModule,
     RouterModule.forRoot(routes),
@@ -30,7 +30,7 @@ import { MatLabel } from '@angular/material/form-field';
     MatInputModule,
   ],
   providers: [],
-  entryComponents:[MatDialogModule],
+  entryComponents:[LoginModalComponent],
   bootstrap: [AppComponent],
 
 })
