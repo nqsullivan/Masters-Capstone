@@ -48,7 +48,7 @@ describe('Image Upload Routes', () => {
 
   test('POST /upload/image should return 400 if no image file is provided', async () => {
     const response = await request(app)
-      .post('/api/upload/image')
+      .post('/api/image')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(400);
@@ -57,7 +57,7 @@ describe('Image Upload Routes', () => {
 
   test('POST /upload/image should return 201 and file URL if image upload is successful', async () => {
     const response = await request(app)
-      .post('/api/upload/image')
+      .post('/api/image')
       .set('Authorization', `Bearer ${token}`)
       .attach('image', Buffer.from('test-image-content'), 'test-image.jpg');
 

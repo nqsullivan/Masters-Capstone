@@ -57,7 +57,7 @@ describe('Image Retrieval Routes', () => {
     });
 
     const response = await request(app)
-      .get('/api/retrieve/image/valid-key')
+      .get('/api/image/valid-key')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
@@ -66,7 +66,7 @@ describe('Image Retrieval Routes', () => {
 
   it('should return 404 if no image key is provided', async () => {
     const response = await request(app)
-      .get('/api/retrieve/image/')
+      .get('/api/image/')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(404);
@@ -79,7 +79,7 @@ describe('Image Retrieval Routes', () => {
     });
 
     const response = await request(app)
-      .get('/api/retrieve/image/missing-key')
+      .get('/api/image/missing-key')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(404);
@@ -93,7 +93,7 @@ describe('Image Retrieval Routes', () => {
     process.env.BUCKET_NAME = '';
 
     const response = await request(app)
-      .get('/api/retrieve/image/any-key')
+      .get('/api/image/any-key')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(500);

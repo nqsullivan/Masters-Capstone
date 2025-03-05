@@ -84,7 +84,7 @@ router.post('/log', verifyToken, createLog);
 router.delete('/log/:id', verifyToken, deleteLog);
 router.get('/logs', verifyToken, getLogsPaginated);
 
-router.post('/upload/image', verifyToken, upload.single('image'), uploadImage);
-router.get('/retrieve/image/:imageKey', verifyToken, retrieveImage);
+router.post('/image', verifyToken, upload.single('image'), uploadImage);
+router.get('/image/:imageKey', verifyToken, retrieveImage);
 
 export default router;
