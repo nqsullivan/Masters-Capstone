@@ -143,21 +143,22 @@ const deleteAttendanceRecord = async (
 
   if (!attendanceId || !isValidUUID(attendanceId)) {
     res.status(400).json({ error: 'Invalid attendance ID' });
-    return;
+    return next();
   }
 
   try {
     await SessionService.deleteAttendanceRecord(attendanceId);
     res.status(204).send();
+    next();
   } catch (e: any) {
     if (e.message === 'Attendance record not found') {
       res.status(404).json({ error: e.message });
     } else {
       res.status(500).json({ error: 'Internal server error' });
     }
+    next(e);
   }
 };
-
 export {
   createSession,
   deleteSession,

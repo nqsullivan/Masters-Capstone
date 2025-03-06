@@ -83,7 +83,7 @@ describe('DELETE /attendance/:attendanceId', () => {
       .delete(`/api/attendance/${nonExistentAttendanceId}`)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(404);
     expect(response.body.error).toBe('Invalid attendance ID');
   });
 
@@ -96,5 +96,21 @@ describe('DELETE /attendance/:attendanceId', () => {
 
     expect(response.status).toBe(400);
     expect(response.body.error).toBe('Invalid attendance ID');
+
   });
+test('should return 500 if database throws an error', async () => {
+
+  const dbInstance = await DatabaseAccess.getInstance();
+
+
+  jest.spyOn(dbInstance, 'runWithNoReturned').mockRejectedValue(new Error('Database error'));
+
+  const response = await request(app)
+    .delete('/api/attendance/valid-id')
+    .set('Authorization', `Bearer ${token}`);
+
+  expect(response.status).toBe(500);
+  expect(response.body.error).toBe('Internal server error');
 });
+});
+
