@@ -81,33 +81,77 @@ def compare_faces(embedding):
 
     return identity, min_distance
 
-def log_face(identity):
+
+def log_face(identity, distance):  # Modified: Added distance parameter
     """
     Log the recognized face identity along with a timestamp to the log file.
+    Now includes the face similarity score in the log entry.
     """
     try:
         timestamp = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
-        log_entry = f"{identity}, {timestamp}\n"
+        # Modified: Include similarity score in the log entry
+        log_entry = f"{identity} ({distance:.2f}), {timestamp}\n"
         with open(LOG_FILE, "a") as log_file:
             log_file.write(log_entry)
         print(f"Logged: {log_entry.strip()}")
     except Exception as e:
         print(f"⚠️ Error logging face: {e}")
 
-def capture_face(identity, frame, x, y, w, h):
+
+def resize_with_padding(image, target_size=(170, 240)):
+    """
+    Resize the image to the target size while maintaining the aspect ratio.
+    Add padding (black borders) if necessary to avoid distortion.
+    """
+    h, w = image.shape[:2]
+    target_w, target_h = target_size
+
+    # Calculate the scaling factor and new dimensions
+    scale = min(target_w / w, target_h / h)
+    new_w = int(w * scale)
+    new_h = int(h * scale)
+
+    # Resize the image
+    resized_image = cv2.resize(image, (new_w, new_h))
+
+    # Create a blank canvas with the target size
+    padded_image = np.zeros((target_h, target_w, 3), dtype=np.uint8)
+
+    # Calculate padding offsets
+    x_offset = (target_w - new_w) // 2
+    y_offset = (target_h - new_h) // 2
+
+    # Place the resized image in the center of the canvas
+    padded_image[y_offset:y_offset + new_h, x_offset:x_offset + new_w] = resized_image
+
+    return padded_image
+
+
+def capture_face(identity, frame, x, y, w, h, distance):  # Modified: Added distance parameter
     """
     Capture and save the detected face image with a timestamp and identity label.
-    The image is saved in the `CAPTURED_PHOTO_DIR` directory.
+    The image is resized to a fixed dimension (170x240) before saving.
     """
     try:
         timestamp = datetime.now().strftime("%m%d%Y_%H%M%S")
-        filename = os.path.join(CAPTURED_PHOTO_DIR, f"{identity}_{timestamp}.jpg")
+        # Modified: Include similarity score in the filename
+        filename = os.path.join(CAPTURED_PHOTO_DIR, f"{identity} ({distance:.2f})_{timestamp}.jpg")
         face_crop = frame[int(y):int(h), int(x):int(w)]
-        cv2.putText(face_crop, f"{identity}, {timestamp}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        cv2.imwrite(filename, face_crop)
+
+        # Resize the face image to a fixed dimension (170x240) with padding
+        resized_face = resize_with_padding(face_crop, target_size=(170, 240))  # Added resizing logic
+
+        # Add text to the resized image
+        # Modified: Overlay the recognized name with similarity score and timestamp
+        cv2.putText(resized_face, f"{identity} ({distance:.2f})", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(resized_face, f"{timestamp}", (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        # Save the resized image
+        cv2.imwrite(filename, resized_face)
         print(f"Captured {filename}")
     except Exception as e:
         print(f"⚠️ Error capturing face: {e}")
+
 
 def reset_session():
     """
@@ -117,6 +161,7 @@ def reset_session():
     global seen_faces
     current_time = time.time()
     seen_faces = {k: v for k, v in seen_faces.items() if current_time - v < SESSION_DURATION}
+
 
 def main():
     """
@@ -159,8 +204,10 @@ def main():
 
                     if identity not in seen_faces or time.time() - seen_faces[identity] > SESSION_DURATION:
                         seen_faces[identity] = time.time()
-                        capture_face(identity, frame, x, y, w, h)
-                        log_face(identity)
+                        # Modified: Pass distance to capture_face function
+                        capture_face(identity, frame, x, y, w, h, distance)
+                        # Modified: Pass distance to log_face function
+                        log_face(identity, distance)
 
                     cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (0, 255, 0), 2)
                     cv2.putText(frame, f"{identity} ({distance:.2f})", (int(x), int(y - 10)),
