@@ -24,21 +24,6 @@ class UserClassAssignmentService {
     return result;
   }
 
-  async getClassesForProfessor(
-    username: string
-  ): Promise<UserClassAssignment[]> {
-    const user = await UserService.getUser(username);
-    const result = await this.db.runAndReadAll<UserClassAssignment>(
-      `SELECT uca.classId as id, c.name
-       FROM professor_class_lookup uca 
-       JOIN class c ON uca.classId = c.id 
-       WHERE uca.username = ?`,
-      [user.username]
-    );
-
-    return result;
-  }
-
   async assignProfessorToClass(
     username: string,
     classId: string

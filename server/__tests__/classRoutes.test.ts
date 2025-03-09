@@ -12,6 +12,8 @@ app.use('/api', routes);
 describe('Class API', () => {
   let token: string;
   let db: DatabaseAccess;
+  let class_id: string;
+  let professor_username = 'admin';
 
   beforeAll(async () => {
     AuthService.init();
@@ -26,6 +28,13 @@ describe('Class API', () => {
     if (!token) {
       throw new Error('Failed to generate admin token');
     }
+
+    const classResponse = await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'SER517 Capstone' });
+
+    class_id = classResponse.body.id;
   });
 
   beforeEach(async () => {
@@ -132,19 +141,29 @@ describe('Class API', () => {
   });
 
   test('GET /api/classes should return 200 and 1 page of 2 classes', async () => {
-    await request(app)
+    const classResponse1 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'SER517',
       });
 
-    await request(app)
+    const classResponse2 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'CSE546',
       });
+
+    await request(app)
+      .post('/api/class/assign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, class_id: classResponse1.body.id });
+
+    await request(app)
+      .post('/api/class/assign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, class_id: classResponse2.body.id });
 
     const response = await request(app)
       .get(`/api/classes`)
@@ -161,19 +180,29 @@ describe('Class API', () => {
   });
 
   test('GET /api/classes?page=2&size=1 should return 200 and 1 page of 1 singular class', async () => {
-    await request(app)
+    const classResponse1 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'SER517',
       });
 
-    await request(app)
+    const classResponse2 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'CSE546',
       });
+
+    await request(app)
+      .post('/api/class/assign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, class_id: classResponse1.body.id });
+
+    await request(app)
+      .post('/api/class/assign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, class_id: classResponse2.body.id });
 
     const response = await request(app)
       .get(`/api/classes?page=2&size=1`)

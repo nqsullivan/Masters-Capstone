@@ -91,34 +91,6 @@ describe('User-Class Assignment API', () => {
     );
   });
 
-  test('GET /api/professor/:username/classes should return assigned classes', async () => {
-    await request(app)
-      .post('/api/class/assign')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ username: professor_username, classId });
-
-    const response = await request(app)
-      .get(`/api/professor/${professor_username}/classes`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body.length).toBeGreaterThan(0);
-    expect(response.body[0]).toHaveProperty('id', classId);
-    expect(response.body[0]).toHaveProperty('name', 'SER517 Capstone');
-  });
-
-  test('GET /api/professor/:username/classes should return an error if user not found', async () => {
-    const response = await request(app)
-      .get(`/api/professor/invalid_username/classes`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(500);
-    expect(response.body).toHaveProperty(
-      'error',
-      "User with username 'invalid_username' not found"
-    );
-  });
-
   test('POST /api/class/unassign should unassign a professor from a class', async () => {
     const response = await request(app)
       .post('/api/class/unassign')
