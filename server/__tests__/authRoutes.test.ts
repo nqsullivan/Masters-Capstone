@@ -52,8 +52,9 @@ describe('Auth API', () => {
       .send({ username: 'testUser', password: 'testPass' });
 
     expect(response.status).toBe(200);
-    expect(typeof response.text).toBe('string');
-    expect(response.text.length).toBeGreaterThan(0);
+    expect(response.body).toHaveProperty('token');
+    expect(typeof response.body.token).toBe('string');
+    expect(response.body.token.length).toBeGreaterThan(0);
   });
 
   test('POST /api/login should return 401 for invalid credentials', async () => {
@@ -93,9 +94,11 @@ describe('Auth API', () => {
       .post('/api/login')
       .send({ username: 'testUser', password: 'testPass' });
 
+    const token = response.body.token;
+
     const req = {
       headers: {
-        authorization: `Bearer ${response.text}`,
+        authorization: `Bearer ${token}`,
       },
     } as express.Request;
     const res = {
