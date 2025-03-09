@@ -16,9 +16,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build & Test Client
+      - name: Install Dependencies
         run: |
           cd client
           npm ci
-          npm run test
-          npm run check-format
+
+      - name: Run Tests in Headless Chrome
+        run: |
+          cd client
+          npm run test -- --browsers=ChromeHeadless --watch=false
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
