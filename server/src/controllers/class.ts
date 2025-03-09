@@ -1,5 +1,6 @@
 import e, { Request, Response, NextFunction } from 'express';
 import ClassService from '../services/class.js';
+import AuthService from '../services/auth.js';
 
 const getClass = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
@@ -51,10 +52,19 @@ const getClassPage = async (
   res: Response,
   next: NextFunction
 ) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
   const page: number = parseInt(req.query.page as string) || 1;
   const size: number = parseInt(req.query.size as string) || 10;
   try {
-    const classPage = await ClassService.getClassPage(page, size);
+    const user = await AuthService.verifyToken(token);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const classPage = await ClassService.getClassPage(page, size, user.username);
     res.status(200).send(classPage);
     next();
   } catch (e: any) {
