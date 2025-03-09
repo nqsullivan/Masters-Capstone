@@ -1,19 +1,30 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed } from '@angular/core/testing';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { LoginComponent } from './login.component';
+import { AuthService } from '../services/auth.service';
+import { ApiService } from '../services/api.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
-  let fixture: ComponentFixture<LoginComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [LoginComponent],
-    }).compileComponents();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [LoginComponent, FormsModule, CommonModule],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        ApiService,
+        AuthService,
+      ],
+    });
 
-    fixture = TestBed.createComponent(LoginComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    component = TestBed.createComponent(LoginComponent).componentInstance;
   });
 
   it('should create', () => {
