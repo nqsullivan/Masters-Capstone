@@ -23,7 +23,7 @@ export interface AttendanceRecord {
   sessionId: string;
   checkIn: string;
   portaitUrl: string;
-  portait_captured: boolean;
+  portaitCaptured: boolean;
 }
 
 export interface DashboardData {

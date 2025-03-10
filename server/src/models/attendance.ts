@@ -4,5 +4,5 @@ export interface Attendance {
   sessionId: string;
   checkIn: string;
   portaitUrl: string;
-  portait_captured: boolean;
+  portaitCaptured: boolean;
 }

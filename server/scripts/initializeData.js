@@ -88,7 +88,7 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portaitUrl VARCHAR, portait_captured BOOLEAN)'
+      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portaitUrl VARCHAR, portaitCaptured BOOLEAN)'
     );
 
     const attendanceData = [
@@ -143,7 +143,7 @@ async function init() {
     ];
     for (const data of attendanceData) {
       await db.run(
-        'INSERT INTO attendance (id, studentId, sessionId, checkIn, portaitUrl, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO attendance (id, studentId, sessionId, checkIn, portaitUrl, portaitCaptured) VALUES (?, ?, ?, ?, ?, ?)',
         data
       );
     }
