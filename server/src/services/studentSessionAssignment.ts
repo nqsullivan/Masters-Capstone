@@ -28,19 +28,26 @@ class StudentSessionAssignmentService {
     }
 
     // Check if the student session pair already exists, and if not, add it
-    const existingAssignments: StudentSessionAssignment[] = await this.db.runAndReadAll(
-      `SELECT studentId, sessionId FROM student_session_lookup WHERE sessionId = ?`,
-      [session.id]
+    const existingAssignments: StudentSessionAssignment[] =
+      await this.db.runAndReadAll(
+        `SELECT studentId, sessionId FROM student_session_lookup WHERE sessionId = ?`,
+        [session.id]
+      );
+    const existingStudentIds = existingAssignments.map(
+      (assignment) => assignment.studentId
     );
-    const existingStudentIds = existingAssignments.map(assignment => assignment.studentId);
 
-    const newStudents = students.filter(student => !existingStudentIds.includes(student.id));
+    const newStudents = students.filter(
+      (student) => !existingStudentIds.includes(student.id)
+    );
 
     if (newStudents.length === 0) {
       throw new Error('All students are already assigned to this session');
     }
 
-    const values = newStudents.map(student => `('${student.id}', '${session.id}')`).join(', ');
+    const values = newStudents
+      .map((student) => `('${student.id}', '${session.id}')`)
+      .join(', ');
 
     await this.db.runWithNoReturned(
       `INSERT INTO student_session_lookup (studentId, sessionId) VALUES ${values}`

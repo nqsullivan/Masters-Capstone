@@ -48,7 +48,7 @@ class SessionService {
   async getSession(sessionId: string): Promise<{ [key: string]: any }> {
     const result = await this.db.runAndReadAll<{
       id: string;
-      startTime: string
+      startTime: string;
       endTime: string;
       classId: string;
       professorId: string;
