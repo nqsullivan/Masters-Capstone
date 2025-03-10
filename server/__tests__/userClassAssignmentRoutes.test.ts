@@ -103,7 +103,8 @@ describe('User-Class Assignment API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.length).toBeGreaterThan(0);
-    expect(response.body[0]).toHaveProperty('classId', classId);
+    expect(response.body[0]).toHaveProperty('id', classId);
+    expect(response.body[0]).toHaveProperty('name', 'SER517 Capstone');
   });
 
   test('GET /api/professor/:username/classes should return an error if user not found', async () => {
