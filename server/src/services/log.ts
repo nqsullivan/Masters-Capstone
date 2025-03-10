@@ -28,7 +28,7 @@ class LogService {
       // Work around since DuckDB stores timestamps as BIGINT which doesn't automatically serialize in Node
       return {
         ...log,
-        timestamp: log.timestamp.toString(),
+        timestamp: UtilService.formatDate(log.timestamp)
       };
     }
     throw new Error(`Log with id '${id}' not found`);
@@ -73,7 +73,7 @@ class LogService {
       'Log'
     );
     pageResponse.data.forEach((log) => {
-      log.timestamp = log.timestamp.toString();
+      log.timestamp = UtilService.formatDate(log.timestamp);
     });
     return pageResponse;
   }

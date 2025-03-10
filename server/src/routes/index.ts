@@ -18,6 +18,7 @@ import {
   updateClass,
   deleteClass,
   getClassPage,
+  getSessionsForClass,
 } from '../controllers/class.js';
 import {
   getProfessorsForClass,
@@ -52,6 +53,7 @@ router.get('/classes', verifyToken, getClassPage);
 router.post('/class', verifyToken, createClass);
 router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
+router.get(`/class/:class_id/sessions`, verifyToken, getSessionsForClass);
 router.get('/class/:class_id/professors', verifyToken, getProfessorsForClass);
 router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
 router.post('/class/assign', verifyToken, assignProfessorToClass);

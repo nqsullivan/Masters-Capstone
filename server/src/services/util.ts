@@ -39,6 +39,11 @@ class UtilService {
       data: pageData,
     };
   }
+
+  formatDate(date: string): string {
+    return date.toString();
+  }
+
 }
 
 export default new UtilService();

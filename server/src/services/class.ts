@@ -63,6 +63,20 @@ class ClassService {
   async getClassPage(page: number, size: number): Promise<ClassPageResponse> {
     return await UtilService.buildPageResponse<Class>(page, size, 'Class');
   }
+
+  async getSessionsForClass(classId: string): Promise<{ id: string, start_time: string, end_time: string, class_id: string, professor_id: string }[]> {
+    const result = await this.db.runAndReadAll<{ id: string, start_time: string, end_time: string, class_id: string, professor_id: string }>(
+      `SELECT id, start_time, end_time, class_id, professor_id FROM session WHERE class_id = ?`,
+      [classId]
+    );
+
+    for (const session of result) {
+      session.start_time = UtilService.formatDate(session.start_time);
+      session.end_time = UtilService.formatDate(session.end_time);
+    }
+
+    return result;
+  }
 }
 
 export default new ClassService();
