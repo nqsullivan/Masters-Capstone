@@ -153,4 +153,16 @@ describe('Student-Session Assignment API', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual([]);
   });
+
+  test('POST /api/session/:sessionId/students - Add student to session with empty studentIds array', async () => {
+    const response = await request(app)
+      .post(`/api/session/${sessionId}/students`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        studentIds: [],
+        sessionId,
+      });
+
+    expect(response.status).toBe(400);
+  });
 });

@@ -49,8 +49,8 @@ describe('Dashboard API', () => {
       classId
     );
     let session1 = await SessionService.createSession(
-      new Date().toISOString(),
-      new Date().toISOString(),
+      new Date().toISOString().split('.')[0] + 'Z',
+      new Date().toISOString().split('.')[0] + 'Z',
       classId,
       professor1.username
     );
@@ -58,13 +58,13 @@ describe('Dashboard API', () => {
     let attendance1 = await SessionService.addAttendanceRecord(
       sessionId,
       studentId1,
-      new Date().toISOString(),
+      new Date().toISOString().split('.')[0] + 'Z',
       'portrait.jpg'
     );
     let attendance2 = await SessionService.addAttendanceRecord(
       sessionId,
       studentId2,
-      new Date().toISOString(),
+      new Date().toISOString().split('.')[0] + 'Z',
       'portrait.jpg'
     );
 
