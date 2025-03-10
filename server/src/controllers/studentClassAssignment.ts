@@ -23,26 +23,6 @@ export const addStudentsToClass = async (
   }
 };
 
-export const deleteStudentFromClass = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { studentId, classId } = req.params;
-    await StudentClassAssignmentService.deleteStudentFromClass(
-      studentId,
-      classId
-    );
-
-    res.status(200).json({ message: 'Student removed from Class' });
-    next();
-  } catch (e: any) {
-    console.error(e);
-    res.status(400).json({ error: e.message });
-  }
-};
-
 export const getStudentsForClass = async (
   req: Request,
   res: Response,
