@@ -1,4 +1,4 @@
-name: Client Build & Test
+name: Client Build & Format Check
 
 on:
   pull_request:
