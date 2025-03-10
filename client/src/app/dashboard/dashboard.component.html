@@ -1,2 +1,67 @@
-<h1>Welcome to the Dashboard</h1>
-<p>This is the dashboard content.</p>
+<div class="dashboard-container">
+  <h1>Class Dashboard</h1>
+
+  <!-- Class Selection Dropdown -->
+  <label for="classSelect">Select Class:</label>
+  <select
+    id="classSelect"
+    [(ngModel)]="selectedClass"
+    (change)="onClassChange()"
+  >
+    <option *ngFor="let cls of classes" [value]="cls.id">{{ cls.name }}</option>
+  </select>
+
+  <div class="dashboard-widgets">
+    <!-- Pie Chart Widget -->
+    <div class="widget">
+      <h2>Last Class Attendance</h2>
+      <ngx-charts-pie-chart
+        [results]="lastClassAttendance"
+        [view]="[400, 300]"
+        [labels]="true"
+      ></ngx-charts-pie-chart>
+    </div>
+
+    <div class="widget">
+      <h2>Attendance Over Time</h2>
+      <ngx-charts-line-chart
+        [results]="attendanceOverTime"
+        [view]="[500, 300]"
+        [xAxis]="true"
+        [yAxis]="true"
+        [autoScale]="true"
+        [timeline]="true"
+      ></ngx-charts-line-chart>
+    </div>
+  </div>
+
+  <!-- Student List Table -->
+  <div class="widget student-stats">
+    <h2>Student Attendance Stats</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Total Classes</th>
+          <th>Classes Attended</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of studentList">
+          <td>{{ student.id }}</td>
+          <td>{{ student.name }}</td>
+          <td>{{ student.totalClasses }}</td>
+          <td>{{ student.classesAttended }}</td>
+          <td>
+            {{
+              (student.classesAttended / student.totalClasses) * 100
+                | number: '1.0-2'
+            }}%
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
