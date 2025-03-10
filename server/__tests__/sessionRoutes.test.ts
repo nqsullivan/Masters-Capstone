@@ -264,8 +264,8 @@ describe('Session Routes', () => {
     expect(response.body).toHaveProperty('studentId', studentResponse.id);
     expect(response.body).toHaveProperty('sessionId', sessionResponse.id);
     expect(response.body).toHaveProperty('checkIn', '2025-02-17T18:00:00.000Z');
-    expect(response.body).toHaveProperty('portaitUrl', 'www.test.com');
-    expect(response.body).toHaveProperty('portaitCaptured', true);
+    expect(response.body).toHaveProperty('portraitUrl', 'www.test.com');
+    expect(response.body).toHaveProperty('portraitCaptured', true);
   });
 
   test('POST /api/session/:sessionId/attendance with invalid sessionId should return 400 and error details', async () => {

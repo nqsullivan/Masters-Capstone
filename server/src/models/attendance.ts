@@ -3,6 +3,6 @@ export interface Attendance {
   studentId: string;
   sessionId: string;
   checkIn: string;
-  portaitUrl: string;
-  portaitCaptured: boolean;
+  portraitUrl: string;
+  portraitCaptured: boolean;
 }

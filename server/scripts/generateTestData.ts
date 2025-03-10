@@ -89,7 +89,7 @@ async function generateTestData() {
     for (const student of students) {
       if (randomBoolean()) {
         await db.runWithNoReturned(
-          `INSERT INTO attendance (id, studentId, sessionId, checkIn, portaitUrl, portaitCaptured) VALUES (?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO attendance (id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured) VALUES (?, ?, ?, ?, ?, ?)`,
           [uuidv4(), student.id, session.id, randomDate(), student.image, true]
         );
       }
