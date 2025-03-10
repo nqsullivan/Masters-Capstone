@@ -326,7 +326,7 @@ describe('Session Routes', () => {
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('id');
-    expect(response.body.portait_url).toBe('www.test.com');
+    expect(response.body.portaitUrl).toBe('www.test.com');
   });
 
   test('POST /api/session/:sessionId/attendance with invalid sessionId should return 400 and error details', async () => {

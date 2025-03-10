@@ -37,7 +37,7 @@ class DatabaseAccess {
       `CREATE TABLE IF NOT EXISTS session (id VARCHAR, startTime DATETIME, endTime DATETIME, classId VARCHAR, professorId VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, check_in DATETIME, portait_url VARCHAR, portait_captured BOOLEAN)`
+      `CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portaitUrl VARCHAR, portait_captured BOOLEAN)`
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS user (id VARCHAR, type VARCHAR, username VARCHAR, password VARCHAR)`

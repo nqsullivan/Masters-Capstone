@@ -140,7 +140,7 @@ class SessionService {
     const portraitCaptured = portraitUrl !== '';
 
     await this.db.runWithNoReturned(
-      'INSERT INTO attendance (id, studentId, sessionId, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO attendance (id, studentId, sessionId, checkIn, portaitUrl, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
       [id, student.id, session.id, checkInTime, portraitUrl, portraitCaptured]
     );
 
@@ -148,8 +148,8 @@ class SessionService {
       id,
       studentId: student.id,
       sessionId: session.id,
-      check_in: checkInTime,
-      portait_url: portraitUrl,
+      checkIn: checkInTime,
+      portaitUrl: portraitUrl,
       portait_captured: portraitCaptured,
     };
   }
@@ -163,11 +163,11 @@ class SessionService {
       id: string;
       studentId: string;
       sessionId: string;
-      check_in: string;
-      portait_url: string;
+      checkIn: string;
+      portaitUrl: string;
       portait_captured: boolean;
     }>(
-      `SELECT id, studentId, sessionId, check_in, portait_url, portait_captured FROM attendance WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
+      `SELECT id, studentId, sessionId, checkIn, portaitUrl, portait_captured FROM attendance WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
       [...sessionIds]
     );
 
@@ -176,8 +176,8 @@ class SessionService {
         id: row.id,
         studentId: row.studentId,
         sessionId: row.sessionId,
-        check_in: UtilService.formatDate(row.check_in),
-        portait_url: row.portait_url,
+        checkIn: UtilService.formatDate(row.checkIn),
+        portaitUrl: row.portaitUrl,
         portait_captured: row.portait_captured,
       };
 
