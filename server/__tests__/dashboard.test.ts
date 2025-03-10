@@ -111,5 +111,5 @@ describe('Dashboard API', () => {
 });
 
 function formatDateToSQL(dateString: string): string {
-  return dateString.replace('T', ' ').replace('Z', '').replace(/\.\d{2}$/, match => match + '0');
+  return dateString.replace('T', ' ').replace('Z', '');
 }
