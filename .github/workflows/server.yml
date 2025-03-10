@@ -7,7 +7,7 @@ on:
       - reopened
       - synchronize
     paths:
-      - 'server/**'
+      - "server/**"
 
 jobs:
   build-server:
@@ -20,5 +20,5 @@ jobs:
         run: |
           cd server
           npm ci
-          npm run check-format
           npm test
+          npm run check-format

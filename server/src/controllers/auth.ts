@@ -5,7 +5,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
   try {
     const token = await AuthService.login(username, password);
-    res.status(200).send(token);
+    res.status(200).json({ token });
     next();
   } catch (e: any) {
     res.status(401).json({ error: 'Invalid credentials' }) && next(e);

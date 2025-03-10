@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -9,12 +11,28 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username: string = '';
   password: string = '';
 
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/home']);
+    }
+  }
+
   onSubmit() {
-    console.log('Username:', this.username);
-    console.log('Password:', this.password);
+    this.authService
+      .login(this.username, this.password)
+      .subscribe((success) => {
+        if (success) {
+          this.router.navigate(['/home']);
+        }
+      });
   }
 }
