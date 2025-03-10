@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import DatabaseAccess from './database.js';
 import { User } from '../models/user.js';
+import UserService, { UserNotFoundError } from './user.js';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
@@ -21,37 +22,38 @@ class AuthService {
       throw new Error('Username and password are required');
     }
 
-    const existingUsers = await AuthService.db.runAndReadAll<{
-      username: string;
-    }>('SELECT username FROM user WHERE username = ?', [username]);
-
-    if (existingUsers.length > 0) {
+    let existingUser;
+    try {
+      existingUser = await UserService.getUser(username);
       throw new Error('Username already taken');
+    } catch (error) {
+      if (!(error instanceof UserNotFoundError)) {
+        throw error;
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await AuthService.db.runWithNoReturned(
-      'INSERT INTO user (username, type) VALUES (?, ?)',
-      [username, 'USER']
-    );
+    await UserService.insertUser({ username, type: 'USER' });
 
     await AuthService.db.runWithNoReturned(
       'INSERT INTO credential (username, hash) VALUES (?, ?)',
       [username, hashedPassword]
     );
 
-    return { username, password: hashedPassword, type: 'USER' };
+    return { username, type: 'USER' };
   }
 
   static async login(username: string, password: string): Promise<string> {
-    const user = await AuthService.db.runAndReadAll<{ username: string }>(
-      'SELECT username FROM user WHERE username = ?',
-      [username]
-    );
+    let user;
+    try {
+      user = await UserService.getUser(username);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        throw new Error('Invalid credentials');
+      }
 
-    if (user.length === 0) {
-      throw new Error('Invalid credentials');
+      throw error;
     }
 
     const credentials = await AuthService.db.runAndReadAll<{ hash: string }>(
@@ -65,7 +67,7 @@ class AuthService {
       throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ username: user[0].username }, SECRET_KEY, {
+    const token = jwt.sign({ username: user.username }, SECRET_KEY, {
       expiresIn: '1h',
     });
 
@@ -80,12 +82,7 @@ class AuthService {
         username: string;
       };
 
-      const users = await AuthService.db.runAndReadAll<Omit<User, 'password'>>(
-        'SELECT username, type FROM user WHERE username = ?',
-        [decodedToken.username]
-      );
-
-      return users.length > 0 ? users[0] : null;
+      return await UserService.getUser(decodedToken.username);
     } catch (e) {
       return null;
     }
