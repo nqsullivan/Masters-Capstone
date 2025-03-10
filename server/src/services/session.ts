@@ -3,6 +3,7 @@ import DatabaseAccess from '../services/database.js';
 import { Session } from '../models/session.js';
 import { Attendance } from '../models/attendance.js';
 import StudentService from './student.js';
+import UtilService from './util.js';
 
 class SessionService {
   private db!: DatabaseAccess;
@@ -155,35 +156,39 @@ class SessionService {
 
   async getAttendanceRecordsForSessions(
     sessionIds: string[]
-  ): Promise<Map<string, Attendance[]>> {
+  ): Promise<Record<string, Attendance[]>> {
     const attendanceRecords = new Map<string, Attendance[]>();
 
-    for (const sessionId of sessionIds) {
-      const result = await this.db.runAndReadAll<{
-        id: string;
-        studentId: string;
-        sessionId: string;
-        check_in: string;
-        portait_url: string;
-        portait_captured: boolean;
-      }>(
-        `SELECT id, studentId, sessionId, check_in, portait_url, portait_captured FROM attendance WHERE sessionId = ?`,
-        [sessionId]
-      );
+    const result = await this.db.runAndReadAll<{
+      id: string;
+      studentId: string;
+      sessionId: string;
+      check_in: string;
+      portait_url: string;
+      portait_captured: boolean;
+    }>(
+      `SELECT id, studentId, sessionId, check_in, portait_url, portait_captured FROM attendance WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
+      [...sessionIds]
+    );
 
-      const attendance: Attendance[] = result.map((row) => ({
+    result.forEach((row) => {
+      const attendance: Attendance = {
         id: row.id,
         studentId: row.studentId,
         sessionId: row.sessionId,
-        check_in: row.check_in,
+        check_in: UtilService.formatDate(row.check_in),
         portait_url: row.portait_url,
         portait_captured: row.portait_captured,
-      }));
+      };
 
-      attendanceRecords.set(sessionId, attendance);
-    }
+      if (attendanceRecords.has(row.sessionId)) {
+        attendanceRecords.get(row.sessionId)?.push(attendance);
+      } else {
+        attendanceRecords.set(row.sessionId, [attendance]);
+      }
+    });
 
-    return attendanceRecords;
+    return Object.fromEntries(attendanceRecords);
   }
 }
 

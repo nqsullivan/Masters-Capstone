@@ -20,7 +20,7 @@ export const buildDashboardData = async (
     await StudentClassAssignmentService.getStudentsForClass(classId);
   const students: Student[] = await StudentService.getStudents(studentIds);
   const sessions: Session[] = await ClassService.getSessionsForClass(classId);
-  const attendance: Map<string, Attendance[]> =
+  const attendance: Record<string, Attendance[]> =
     await SessionService.getAttendanceRecordsForSessions(
       sessions.map((session) => session.id)
     );

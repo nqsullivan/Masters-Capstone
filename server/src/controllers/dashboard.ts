@@ -10,9 +10,11 @@ const getDashboardData = async (
   const { classId } = req.params;
   try {
     const dashboardData: DashboardData = await buildDashboardData(classId);
+
     res.status(200).send(dashboardData);
     next();
   } catch (e: any) {
+    console.error(e);
     res.status(400).json({ error: e.message });
   }
 };

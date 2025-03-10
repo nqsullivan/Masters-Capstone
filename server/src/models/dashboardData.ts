@@ -8,5 +8,5 @@ export interface DashboardData {
   professors: string[];
   students: Student[];
   sessions: Session[];
-  attendance: Map<string, Attendance[]>; // sessionId -> Attendance[]
+  attendance: Record<string, Attendance[]>; // sessionId -> Attendance[]
 }
