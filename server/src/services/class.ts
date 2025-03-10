@@ -82,8 +82,8 @@ class ClassService {
     for (const session of result) {
       sessions.push({
         id: session.id,
-        startTime: new Date(UtilService.formatDate(session.startTime)),
-        endTime: new Date(UtilService.formatDate(session.endTime)),
+        startTime: UtilService.formatDate(session.startTime),
+        endTime: UtilService.formatDate(session.endTime),
         classId: session.classId,
         professorId: session.professorId,
       });

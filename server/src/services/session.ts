@@ -16,8 +16,8 @@ class SessionService {
     this.db = await DatabaseAccess.getInstance();
   }
   async createSession(
-    startTime: Date,
-    endTime: Date,
+    startTime: string,
+    endTime: string,
     classId: string,
     professorId: string
   ): Promise<Session> {
@@ -48,8 +48,8 @@ class SessionService {
   async getSession(sessionId: string): Promise<{ [key: string]: any }> {
     const result = await this.db.runAndReadAll<{
       id: string;
-      startTime: { micros: bigint };
-      endTime: { micros: bigint };
+      startTime: string
+      endTime: string;
       classId: string;
       professorId: string;
     }>(
@@ -58,22 +58,13 @@ class SessionService {
     );
 
     if (result.length > 0) {
-      const startTimeDuckDB = result[0].startTime.micros;
-      const endTimeDuckDB = result[0].endTime.micros;
-
-      const startTimeDate = Number(startTimeDuckDB) / 1000;
-      const endTimeDate = Number(endTimeDuckDB) / 1000;
-
-      // Create a Session object
-      const session = <Session>{
+      return {
         id: result[0].id,
-        startTime: new Date(startTimeDate),
-        endTime: new Date(endTimeDate),
+        startTime: UtilService.formatDate(result[0].startTime),
+        endTime: UtilService.formatDate(result[0].endTime),
         classId: result[0].classId,
         professorId: result[0].professorId,
       };
-
-      return session;
     }
     throw new Error('Session not found');
   }
@@ -90,8 +81,8 @@ class SessionService {
   }
   async updateSession(
     sessionId: string,
-    startTime: Date,
-    endTime: Date,
+    startTime: string,
+    endTime: string,
     classId: string,
     professorId: string
   ): Promise<Session> {
@@ -148,7 +139,7 @@ class SessionService {
       id,
       studentId: student.id,
       sessionId: session.id,
-      checkIn: checkInTime,
+      checkIn: UtilService.formatDate(checkInTime),
       portaitUrl: portraitUrl,
       portaitCaptured: portraitCaptured,
     };
