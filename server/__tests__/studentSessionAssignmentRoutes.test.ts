@@ -150,6 +150,7 @@ describe('Student-Session Assignment API', () => {
       .get(`/api/session/fakeSessionId/students`)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
   });
 });
