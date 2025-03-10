@@ -13,6 +13,10 @@ import {
   deleteStudentFromSession,
 } from '../controllers/studentSessionAssignment.js';
 import {
+  addStudentsToClass,
+  getStudentsForClass,
+} from '../controllers/studentClassAssignment.js';
+import {
   getClass,
   createClass,
   updateClass,
@@ -42,6 +46,7 @@ import {
 } from '../controllers/student.js';
 import upload from '../middleware/upload-middleware.js';
 import { uploadImage, retrieveImage } from '../controllers/imageStorage.js';
+import { getDashboardData } from '../controllers/dashboard.js';
 
 const router = express.Router();
 
@@ -53,11 +58,13 @@ router.get('/classes', verifyToken, getClassPage);
 router.post('/class', verifyToken, createClass);
 router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
-router.get(`/class/:class_id/sessions`, verifyToken, getSessionsForClass);
-router.get('/class/:class_id/professors', verifyToken, getProfessorsForClass);
+router.get(`/class/:classId/sessions`, verifyToken, getSessionsForClass);
+router.get('/class/:classId/professors', verifyToken, getProfessorsForClass);
 router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
 router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
+router.post('/class/:classId/students', verifyToken, addStudentsToClass);
+router.get('/class/:classId/students', verifyToken, getStudentsForClass);
 
 //classId, startTime, endTime, professorId
 router.post('/session', verifyToken, createSession);
@@ -88,5 +95,8 @@ router.get('/logs', verifyToken, getLogsPaginated);
 
 router.post('/image', verifyToken, upload.single('image'), uploadImage);
 router.get('/image/:imageKey', verifyToken, retrieveImage);
+
+// Dashboard
+router.get('/dashboard/:classId', verifyToken, getDashboardData);
 
 export default router;

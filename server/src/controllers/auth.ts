@@ -20,8 +20,6 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
   } catch (e: any) {
     const status = e.message === 'Username already taken' ? 400 : 500;
     res.status(status).json({ error: e.message });
-  } finally {
-    next();
   }
 };
 

@@ -37,7 +37,7 @@ class SessionService {
     const id = uuidv4();
 
     await this.db.runWithNoReturned(
-      `INSERT INTO session (id, start_time, end_time, class_id, professor_id) VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO session (id, startTime, endTime, classId, professorId) VALUES (?, ?, ?, ?, ?)`,
       [id, startTime, endTime, classId, professorId]
     );
 
@@ -47,18 +47,18 @@ class SessionService {
   async getSession(sessionId: string): Promise<{ [key: string]: any }> {
     const result = await this.db.runAndReadAll<{
       id: string;
-      start_time: { micros: bigint };
-      end_time: { micros: bigint };
-      class_id: string;
-      professor_id: string;
+      startTime: { micros: bigint };
+      endTime: { micros: bigint };
+      classId: string;
+      professorId: string;
     }>(
-      `SELECT id, start_time, end_time, class_id, professor_id FROM session WHERE id = ?`,
+      `SELECT id, startTime, endTime, classId, professorId FROM session WHERE id = ?`,
       [sessionId]
     );
 
     if (result.length > 0) {
-      const startTimeDuckDB = result[0].start_time.micros;
-      const endTimeDuckDB = result[0].end_time.micros;
+      const startTimeDuckDB = result[0].startTime.micros;
+      const endTimeDuckDB = result[0].endTime.micros;
 
       const startTimeDate = Number(startTimeDuckDB) / 1000;
       const endTimeDate = Number(endTimeDuckDB) / 1000;
@@ -68,8 +68,8 @@ class SessionService {
         id: result[0].id,
         startTime: new Date(startTimeDate),
         endTime: new Date(endTimeDate),
-        classId: result[0].class_id,
-        professorId: result[0].professor_id,
+        classId: result[0].classId,
+        professorId: result[0].professorId,
       };
 
       return session;
@@ -100,7 +100,7 @@ class SessionService {
     }
 
     await this.db.runWithNoReturned(
-      `UPDATE session SET start_time = ?, end_time = ?, class_id = ?, professor_id = ? WHERE id = ?`,
+      `UPDATE session SET startTime = ?, endTime = ?, classId = ?, professorId = ? WHERE id = ?`,
       [startTime, endTime, classId, professorId, sessionId]
     );
 
@@ -108,15 +108,16 @@ class SessionService {
   }
 
   async getStudentsForSession(sessionId: string): Promise<string[]> {
-    const result = await this.db.runAndReadAll<{ student_id: string }>(
-      `SELECT student_id FROM student_session_lookup WHERE session_id = ?`,
+    const result = await this.db.runAndReadAll<{ studentId: string }>(
+      `SELECT studentId FROM student_session_lookup WHERE sessionId = ?`,
       [sessionId]
     );
 
     if (result.length > 0) {
-      return result.map((row) => row.student_id);
+      return result.map((row) => row.studentId);
     }
-    throw new Error('No students found for this session');
+
+    return [];
   }
 
   async addAttendanceRecord(
@@ -138,18 +139,51 @@ class SessionService {
     const portraitCaptured = portraitUrl !== '';
 
     await this.db.runWithNoReturned(
-      'INSERT INTO attendance (id, student_id, session_id, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO attendance (id, studentId, sessionId, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
       [id, student.id, session.id, checkInTime, portraitUrl, portraitCaptured]
     );
 
     return {
       id,
-      student_id: student.id,
-      session_id: session.id,
+      studentId: student.id,
+      sessionId: session.id,
       check_in: checkInTime,
       portait_url: portraitUrl,
       portait_captured: portraitCaptured,
     };
+  }
+
+  async getAttendanceRecordsForSessions(
+    sessionIds: string[]
+  ): Promise<Map<string, Attendance[]>> {
+    const attendanceRecords = new Map<string, Attendance[]>();
+
+    for (const sessionId of sessionIds) {
+      const result = await this.db.runAndReadAll<{
+        id: string;
+        studentId: string;
+        sessionId: string;
+        check_in: string;
+        portait_url: string;
+        portait_captured: boolean;
+      }>(
+        `SELECT id, studentId, sessionId, check_in, portait_url, portait_captured FROM attendance WHERE sessionId = ?`,
+        [sessionId]
+      );
+
+      const attendance: Attendance[] = result.map((row) => ({
+        id: row.id,
+        studentId: row.studentId,
+        sessionId: row.sessionId,
+        check_in: row.check_in,
+        portait_url: row.portait_url,
+        portait_captured: row.portait_captured,
+      }));
+
+      attendanceRecords.set(sessionId, attendance);
+    }
+
+    return attendanceRecords;
   }
 }
 

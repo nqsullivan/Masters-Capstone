@@ -48,7 +48,7 @@ class ImageStorage {
       const fileUrl = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${params.Key}`;
       return { fileUrl, response };
     } catch (e: any) {
-      console.log(e.message);
+      console.error(e.message);
     }
   }
 
@@ -67,7 +67,7 @@ class ImageStorage {
         throw new Error('Unexpected response body type');
       }
     } catch (e: any) {
-      console.log(e.message);
+      console.error(e.message);
     }
   }
 }

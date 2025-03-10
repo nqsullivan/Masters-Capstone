@@ -33,9 +33,9 @@ class UtilService {
 
     return {
       page: page,
-      page_size: size,
-      total_items: totalCountLogs,
-      total_pages: totalPages,
+      pageSize: size,
+      totalItems: totalCountLogs,
+      totalPages: totalPages,
       data: pageData,
     };
   }
@@ -43,7 +43,6 @@ class UtilService {
   formatDate(date: string): string {
     return date.toString();
   }
-
 }
 
 export default new UtilService();

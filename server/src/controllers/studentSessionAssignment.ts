@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import StudentSessionAssignmentService from '../services/studentSessionAssignmentService.js';
+import StudentSessionAssignmentService from '../services/studentSessionAssignment.js';
 
 export const addStudentsToSession = async (
   req: Request,

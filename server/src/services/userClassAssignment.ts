@@ -1,6 +1,7 @@
 import DatabaseAccess from './database.js';
 import { UserClassAssignment } from '../models/userClassAssignment.js';
-import { User } from '../models/user.js';
+import UserService from './user.js';
+import ClassService from './class.js';
 
 class UserClassAssignmentService {
   private db!: DatabaseAccess;
@@ -13,44 +14,24 @@ class UserClassAssignmentService {
     this.db = await DatabaseAccess.getInstance();
   }
 
-  async getProfessorsForClass(
-    class_id: string
-  ): Promise<UserClassAssignment[]> {
-    const classObj = await this.db.runAndReadAll(
-      `SELECT id FROM class WHERE id = ?`,
-      [class_id]
-    );
-    if (classObj.length === 0) {
-      throw new Error(`Class with id '${class_id}' not found`);
-    }
-
+  async getProfessorsForClass(classId: string): Promise<UserClassAssignment[]> {
+    const classObj = await ClassService.getClass(classId);
     const result = await this.db.runAndReadAll<UserClassAssignment>(
-      `SELECT username FROM professor_class_lookup WHERE class_id = ?`,
-      [class_id]
+      `SELECT username FROM professor_class_lookup WHERE classId = ?`,
+      [classObj.id]
     );
 
     return result;
   }
 
-  async getProfessor(username: string): Promise<User> {
-    const user = await this.db.runAndReadAll<User>(
-      `SELECT username, password, type FROM user WHERE username = ?`,
-      [username]
-    );
-    if (user.length === 0) {
-      throw new Error(`User with username '${username}' not found`);
-    }
-    return user[0];
-  }
-
   async getClassesForProfessor(
     username: string
   ): Promise<UserClassAssignment[]> {
-    const user = await this.getProfessor(username);
+    const user = await UserService.getUser(username);
     const result = await this.db.runAndReadAll<UserClassAssignment>(
-      `SELECT uca.class_id, c.name
+      `SELECT uca.classId, c.name
        FROM professor_class_lookup uca 
-       JOIN class c ON uca.class_id = c.id 
+       JOIN class c ON uca.classId = c.id 
        WHERE uca.username = ?`,
       [user.username]
     );
@@ -60,43 +41,36 @@ class UserClassAssignmentService {
 
   async assignProfessorToClass(
     username: string,
-    class_id: string
+    classId: string
   ): Promise<UserClassAssignment> {
-    const user = await this.getProfessor(username);
-
-    const classObj = await this.db.runAndReadAll(
-      `SELECT id FROM class WHERE id = ?`,
-      [class_id]
-    );
-    if (classObj.length === 0) {
-      throw new Error(`Class with id '${class_id}' not found`);
-    }
+    const user = await UserService.getUser(username);
+    const classObj = await ClassService.getClass(classId);
 
     const existingAssignment = await this.db.runAndReadAll(
-      `SELECT username, class_id FROM professor_class_lookup WHERE username = ? AND class_id = ?`,
-      [username, class_id]
+      `SELECT username, classId FROM professor_class_lookup WHERE username = ? AND classId = ?`,
+      [user.username, classObj.id]
     );
     if (existingAssignment.length > 0) {
       throw new Error(
-        `User with username '${username}' is already assigned to class with id '${class_id}'`
+        `User with username '${user.username}' is already assigned to class with id '${classObj.id}'`
       );
     }
 
     await this.db.runWithNoReturned(
-      `INSERT INTO professor_class_lookup (username, class_id) VALUES (?, ?)`,
-      [username, class_id]
+      `INSERT INTO professor_class_lookup (username, classId) VALUES (?, ?)`,
+      [user.username, classObj.id]
     );
 
-    return { username, class_id };
+    return { username: user.username, classId: classObj.id };
   }
 
   async unassignProfessorFromClass(
     username: string,
-    class_id: string
+    classId: string
   ): Promise<void> {
     await this.db.runWithNoReturned(
-      `DELETE FROM professor_class_lookup WHERE username = ? AND class_id = ?`,
-      [username, class_id]
+      `DELETE FROM professor_class_lookup WHERE username = ? AND classId = ?`,
+      [username, classId]
     );
   }
 }

@@ -30,7 +30,10 @@ async function generateTestData() {
   ];
 
   for (const cls of classes) {
-    await db.runWithNoReturned(`INSERT INTO class (id, name) VALUES (?, ?)`, [cls.id, cls.name]);
+    await db.runWithNoReturned(`INSERT INTO class (id, name) VALUES (?, ?)`, [
+      cls.id,
+      cls.name,
+    ]);
   }
 
   // Create sample students
@@ -41,20 +44,19 @@ async function generateTestData() {
   }));
 
   for (const student of students) {
-    await db.runWithNoReturned(`INSERT INTO student (id, name, image) VALUES (?, ?, ?)`, [
-      student.id,
-      student.name,
-      student.image,
-    ]);
+    await db.runWithNoReturned(
+      `INSERT INTO student (id, name, image) VALUES (?, ?, ?)`,
+      [student.id, student.name, student.image]
+    );
   }
 
   // Assign students to classes
   for (const student of students) {
     const assignedClass = classes[Math.floor(Math.random() * classes.length)];
-    await db.runWithNoReturned(`INSERT INTO student_class_lookup (student_id, class_id) VALUES (?, ?)`, [
-      student.id,
-      assignedClass.id,
-    ]);
+    await db.runWithNoReturned(
+      `INSERT INTO student_class_lookup (studentId, classId) VALUES (?, ?)`,
+      [student.id, assignedClass.id]
+    );
   }
 
   // Create sessions for each class
@@ -63,15 +65,21 @@ async function generateTestData() {
     for (let i = 0; i < 5; i++) {
       const session = {
         id: uuidv4(),
-        start_time: randomDate(),
-        end_time: randomDate(),
-        class_id: cls.id,
-        professor_id: uuidv4(),
+        startTime: randomDate(),
+        endTime: randomDate(),
+        classId: cls.id,
+        professorId: uuidv4(),
       };
       sessions.push(session);
       await db.runWithNoReturned(
-        `INSERT INTO session (id, start_time, end_time, class_id, professor_id) VALUES (?, ?, ?, ?, ?)`,
-        [session.id, session.start_time, session.end_time, session.class_id, session.professor_id]
+        `INSERT INTO session (id, startTime, endTime, classId, professorId) VALUES (?, ?, ?, ?, ?)`,
+        [
+          session.id,
+          session.startTime,
+          session.endTime,
+          session.classId,
+          session.professorId,
+        ]
       );
     }
   }
@@ -81,7 +89,7 @@ async function generateTestData() {
     for (const student of students) {
       if (randomBoolean()) {
         await db.runWithNoReturned(
-          `INSERT INTO attendance (id, student_id, session_id, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO attendance (id, studentId, sessionId, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)`,
           [uuidv4(), student.id, session.id, randomDate(), student.image, true]
         );
       }
@@ -92,10 +100,10 @@ async function generateTestData() {
   const professors = [{ username: 'prof1' }, { username: 'prof2' }];
   for (const prof of professors) {
     const assignedClass = classes[Math.floor(Math.random() * classes.length)];
-    await db.runWithNoReturned(`INSERT INTO professor_class_lookup (username, class_id) VALUES (?, ?)`, [
-      prof.username,
-      assignedClass.id,
-    ]);
+    await db.runWithNoReturned(
+      `INSERT INTO professor_class_lookup (username, classId) VALUES (?, ?)`,
+      [prof.username, assignedClass.id]
+    );
   }
 
   // Create actual users for login
@@ -109,7 +117,7 @@ async function generateTestData() {
     try {
       await AuthService.register(user.username, user.password);
       console.log(`Created user: ${user.username} (${user.type})`);
-    } catch (error : any) {
+    } catch (error: any) {
       console.error(`Failed to create user ${user.username}:`, error.message);
     }
   }

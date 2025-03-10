@@ -1,4 +1,4 @@
-import DatabaseAccess from '../services/database.js';
+import DatabaseAccess from './database.js';
 import { StudentSessionAssignment } from '../models/studentSessionAssignment.js';
 
 class StudentSessionAssignmentService {
@@ -35,12 +35,12 @@ class StudentSessionAssignmentService {
       }
 
       const existingAssignment = await this.db.runAndReadAll(
-        `SELECT student_id, session_id FROM student_session_lookup WHERE student_id = ? AND session_id = ?`,
+        `SELECT studentId, sessionId FROM student_session_lookup WHERE studentId = ? AND sessionId = ?`,
         [studentId, sessionId]
       );
       if (existingAssignment.length == 0) {
         await this.db.runWithNoReturned(
-          `INSERT INTO student_session_lookup (student_id, session_id) VALUES (?, ?)`,
+          `INSERT INTO student_session_lookup (studentId, sessionId) VALUES (?, ?)`,
           [studentId, sessionId]
         );
       }
@@ -56,7 +56,7 @@ class StudentSessionAssignmentService {
     sessionId: string
   ): Promise<void> {
     const existingAssignment = await this.db.runAndReadAll(
-      `SELECT student_id, session_id FROM student_session_lookup WHERE student_id = ? AND session_id = ?`,
+      `SELECT studentId, sessionId FROM student_session_lookup WHERE studentId = ? AND sessionId = ?`,
       [studentId, sessionId]
     );
     if (existingAssignment.length === 0) {
@@ -66,7 +66,7 @@ class StudentSessionAssignmentService {
     }
 
     await this.db.runWithNoReturned(
-      `DELETE FROM student_session_lookup WHERE student_id = ? AND session_id = ?`,
+      `DELETE FROM student_session_lookup WHERE studentId = ? AND sessionId = ?`,
       [studentId, sessionId]
     );
   }

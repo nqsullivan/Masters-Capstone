@@ -18,7 +18,7 @@ class LogService {
 
   async getLog(id: string): Promise<Log> {
     const result = await this.db.runAndReadAll<Log>(
-      `SELECT id, timestamp, user_id, action, entity_type, entity_id FROM log WHERE id = ?`,
+      `SELECT id, timestamp, userId, action, entity_type, entityId FROM log WHERE id = ?`,
       [id]
     );
 
@@ -28,7 +28,7 @@ class LogService {
       // Work around since DuckDB stores timestamps as BIGINT which doesn't automatically serialize in Node
       return {
         ...log,
-        timestamp: UtilService.formatDate(log.timestamp)
+        timestamp: UtilService.formatDate(log.timestamp),
       };
     }
     throw new Error(`Log with id '${id}' not found`);
@@ -39,25 +39,25 @@ class LogService {
     const currentDate = this.db.getCurrentDate();
 
     const preparedStmt = await this.db.getPreparedStatementObject(
-      'INSERT INTO log (id, timestamp, user_id, action, entity_type, entity_id) VALUES ($1, $2, $3, $4, $5, $6)'
+      'INSERT INTO log (id, timestamp, userId, action, entity_type, entityId) VALUES ($1, $2, $3, $4, $5, $6)'
     );
 
     preparedStmt.bindVarchar(1, id);
     preparedStmt.bindTimestamp(2, currentDate);
-    preparedStmt.bindVarchar(3, logDetails.user_id);
+    preparedStmt.bindVarchar(3, logDetails.userId);
     preparedStmt.bindVarchar(4, logDetails.action);
     preparedStmt.bindVarchar(5, logDetails.entity_type);
-    preparedStmt.bindVarchar(6, logDetails.entity_id);
+    preparedStmt.bindVarchar(6, logDetails.entityId);
 
     await this.db.runPreparedStatement(preparedStmt);
 
     return {
       id: id,
       timestamp: currentDate.toString(),
-      user_id: logDetails.user_id,
+      userId: logDetails.userId,
       action: logDetails.action,
       entity_type: logDetails.entity_type,
-      entity_id: logDetails.entity_id,
+      entityId: logDetails.entityId,
     };
   }
 

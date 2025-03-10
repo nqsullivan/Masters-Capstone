@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import UserClassAssignmentService from '../services/userClassAssignment.js';
 import ClassService from '../services/class.js';
+import UserService from '../services/user.js';
 
 export const getProfessorsForClass = async (
   req: Request,
@@ -8,10 +9,10 @@ export const getProfessorsForClass = async (
   next: NextFunction
 ) => {
   try {
-    const { class_id } = req.params;
+    const { classId } = req.params;
 
     const professors =
-      await UserClassAssignmentService.getProfessorsForClass(class_id);
+      await UserClassAssignmentService.getProfessorsForClass(classId);
 
     res.status(200).json(professors);
     next();
@@ -44,11 +45,10 @@ export const assignProfessorToClass = async (
   next: NextFunction
 ) => {
   try {
-    const { username, class_id } = req.body;
-
+    const { username, classId } = req.body;
     const assignment = await UserClassAssignmentService.assignProfessorToClass(
       username,
-      class_id
+      classId
     );
 
     res.status(201).json(assignment);
@@ -64,10 +64,10 @@ export const unassignProfessorFromClass = async (
   next: NextFunction
 ) => {
   try {
-    const { username, class_id } = req.body;
+    const { username, classId } = req.body;
 
-    const professor = await UserClassAssignmentService.getProfessor(username);
-    const classObj = await ClassService.getClass(class_id);
+    const professor = await UserService.getUser(username);
+    const classObj = await ClassService.getClass(classId);
 
     await UserClassAssignmentService.unassignProfessorFromClass(
       professor.username,

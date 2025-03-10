@@ -174,9 +174,9 @@ describe('Student API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('page', 1);
-    expect(response.body).toHaveProperty('page_size', 10);
-    expect(response.body).toHaveProperty('total_items', 2);
-    expect(response.body).toHaveProperty('total_pages', 1);
+    expect(response.body).toHaveProperty('pageSize', 10);
+    expect(response.body).toHaveProperty('totalItems', 2);
+    expect(response.body).toHaveProperty('totalPages', 1);
     expect(response.body.data).toHaveLength(2);
     expect(response.body.data[0]).toHaveProperty('name', 'Student1');
     expect(response.body.data[1]).toHaveProperty('name', 'Student2');
@@ -203,9 +203,9 @@ describe('Student API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('page', 2);
-    expect(response.body).toHaveProperty('page_size', 1);
-    expect(response.body).toHaveProperty('total_items', 2);
-    expect(response.body).toHaveProperty('total_pages', 2);
+    expect(response.body).toHaveProperty('pageSize', 1);
+    expect(response.body).toHaveProperty('totalItems', 2);
+    expect(response.body).toHaveProperty('totalPages', 2);
     expect(response.body.data).toHaveLength(1);
     expect(response.body.data[0]).toHaveProperty('name', 'Student2');
   });
