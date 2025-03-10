@@ -1,5 +1,6 @@
-import e, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import SessionService from '../services/session.js';
+
 const createSession = async (
   req: Request,
   res: Response,
@@ -14,11 +15,13 @@ const createSession = async (
       professorId
     );
     res.status(201).send(newSession);
-    next();
   } catch (e: any) {
     res.status(400).json({ error: e.message });
+  } finally {
+    next();
   }
 };
+
 const deleteSession = async (
   req: Request,
   res: Response,
@@ -28,30 +31,31 @@ const deleteSession = async (
   try {
     await SessionService.deleteSession(id);
     res.status(204).send();
-    next();
   } catch (e: any) {
     res.status(400).json({ error: e.message });
+  } finally {
+    next();
   }
 };
+
 const getSession = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   try {
     const session = await SessionService.getSession(id);
     if (session) {
-      const sessionWithStrings = {
-        ...session,
-        startTime: session.startTime.toISOString(),
-        endTime: session.endTime.toISOString(),
-      };
-      res.status(200).send(sessionWithStrings);
+      res.status(200).send(session);
     } else {
       throw new Error('Session not found');
     }
-    next();
   } catch (e: any) {
     if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
+    } else {
+      console.error(e);
+      res.status(400).json({ error: e.message });
     }
+  } finally {
+    next();
   }
 };
 
@@ -70,7 +74,6 @@ const updateSession = async (
       classId,
       professorId
     );
-
     if (updatedSession) {
       const sessionWithStrings = {
         ...updatedSession,
@@ -81,11 +84,14 @@ const updateSession = async (
     } else {
       throw new Error('Session not found');
     }
-    next();
   } catch (e: any) {
     if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: e.message });
     }
+  } finally {
+    next();
   }
 };
 
@@ -100,17 +106,17 @@ const getStudentsForSession = async (
     if (studentIds) {
       res.status(200).send(studentIds);
     } else {
-      let session = await SessionService.getSession(sessionId);
+      const session = await SessionService.getSession(sessionId);
       if (!session) {
         throw new Error('Session not found');
       } else {
         res.status(200).send([]);
       }
     }
-    next();
   } catch (e: any) {
-    console.log(e);
     res.status(400).json({ error: e.message });
+  } finally {
+    next();
   }
 };
 
@@ -129,9 +135,10 @@ const addAttendanceRecord = async (
       portraitUrl
     );
     res.status(201).send(attendance);
-    next();
   } catch (e: any) {
-    res.status(400).json({ error: e.message }) && next(e);
+    res.status(400).json({ error: e.message });
+  } finally {
+    next();
   }
 };
 

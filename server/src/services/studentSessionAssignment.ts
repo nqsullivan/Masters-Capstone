@@ -1,5 +1,7 @@
 import DatabaseAccess from './database.js';
 import { StudentSessionAssignment } from '../models/studentSessionAssignment.js';
+import SessionService from './session.js';
+import StudentService from './student.js';
 
 class StudentSessionAssignmentService {
   private db!: DatabaseAccess;
@@ -16,36 +18,36 @@ class StudentSessionAssignmentService {
     studentIds: string[],
     sessionId: string
   ): Promise<StudentSessionAssignment[]> {
-    const session = await this.db.runAndReadAll(
-      `SELECT id FROM session WHERE id = ?`,
-      [sessionId]
-    );
-    if (session.length === 0) {
-      throw new Error(`Session with id '${sessionId}' not found`);
-    }
+    const session = await SessionService.getSession(sessionId);
 
     const assignments: StudentSessionAssignment[] = [];
-    for (const studentId of studentIds) {
-      const student = await this.db.runAndReadAll(
-        `SELECT id FROM student WHERE id = ?`,
-        [studentId]
-      );
-      if (student.length === 0) {
-        throw new Error(`Student with id '${studentId}' not found`);
-      }
+    const students = await StudentService.getStudents(studentIds);
 
-      const existingAssignment = await this.db.runAndReadAll(
-        `SELECT studentId, sessionId FROM student_session_lookup WHERE studentId = ? AND sessionId = ?`,
-        [studentId, sessionId]
-      );
-      if (existingAssignment.length == 0) {
-        await this.db.runWithNoReturned(
-          `INSERT INTO student_session_lookup (studentId, sessionId) VALUES (?, ?)`,
-          [studentId, sessionId]
-        );
-      }
+    if (students.length === 0) {
+      throw new Error('No students found');
+    }
 
-      assignments.push({ studentId, sessionId });
+    // Check if the student session pair already exists, and if not, add it
+    const existingAssignments: StudentSessionAssignment[] = await this.db.runAndReadAll(
+      `SELECT studentId, sessionId FROM student_session_lookup WHERE sessionId = ?`,
+      [session.id]
+    );
+    const existingStudentIds = existingAssignments.map(assignment => assignment.studentId);
+
+    const newStudents = students.filter(student => !existingStudentIds.includes(student.id));
+
+    if (newStudents.length === 0) {
+      throw new Error('All students are already assigned to this session');
+    }
+
+    const values = newStudents.map(student => `('${student.id}', '${session.id}')`).join(', ');
+
+    await this.db.runWithNoReturned(
+      `INSERT INTO student_session_lookup (studentId, sessionId) VALUES ${values}`
+    );
+
+    for (const student of newStudents) {
+      assignments.push({ studentId: student.id, sessionId: session.id });
     }
 
     return assignments;
