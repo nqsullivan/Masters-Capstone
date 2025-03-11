@@ -62,7 +62,7 @@ class ClassService {
   }
 
   async getClassPage(page: number, size: number, username: string): Promise<ClassPageResponse> {
-    const whereClause = `where id in (select class_id from professor_class_lookup where username = '${username}')`
+    const whereClause = `where id in (select classId from professor_class_lookup where username = '${username}')`;
     return await UtilService.buildPageResponse<Class>(page, size, 'Class', whereClause);
   }
 

@@ -59,7 +59,6 @@ router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
 router.get(`/class/:classId/sessions`, verifyToken, getSessionsForClass);
 router.get('/class/:classId/professors', verifyToken, getProfessorsForClass);
-router.get('/class/:class_id/professors', verifyToken, getProfessorsForClass);
 router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 router.post('/class/:classId/students', verifyToken, addStudentsToClass);
