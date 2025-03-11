@@ -159,6 +159,33 @@ describe('Session Routes', () => {
     expect(getResponse.body).toEqual([student1.id, student2.id]);
   });
 
+  test('GET /session/:sessionId/students with invalid sessionId should return 400 and error details', async () => {
+    const response = await request(app)
+      .get(`/api/session/invalidSessionId/students`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('GET /session/:sessionId/students should return 200 and empty array if no students are assigned', async () => {
+    const classResponse = await ClassService.createClass('SER517 Capstone6');
+    const createResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classResponse.id,
+      'fakeProfId'
+    );
+    const sessionId = createResponse.id;
+
+    const response = await request(app)
+      .get(`/api/session/${sessionId}/students`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
   test('POST /session should return 400 if required fields are missing', async () => {
     const response = await request(app)
       .post('/api/session')
@@ -190,15 +217,6 @@ describe('Session Routes', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(404);
-  });
-
-  test('GET /session/:sessionId/students should return 200 if no students found', async () => {
-    const response = await request(app)
-      .get('/api/session/fakeSessionId/students')
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
   });
 
   test('createSession should return 400 if an error occurs', async () => {
@@ -384,6 +402,29 @@ describe('Session Routes', () => {
       .put(`/api/session/${sessionResponse.id}/attendance/1`)
       .set('Authorization', `Bearer ${token}`)
       .send(updatedAttendanceData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('POST /api/session/:sessionId/attendance without attendanceId and checkIn should return 400 and error details', async () => {
+    const classResponse = await ClassService.createClass('SER517 Capstone2');
+    const sessionResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classResponse.id,
+      'fakeProfId'
+    );
+
+    const attendanceData = {
+      studentId: 1,
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .post(`/api/session/${sessionResponse.id}/attendance`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(attendanceData);
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('error');

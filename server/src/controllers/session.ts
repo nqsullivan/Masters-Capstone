@@ -103,18 +103,18 @@ const getStudentsForSession = async (
   const { sessionId } = req.params;
   try {
     const studentIds = await SessionService.getStudentsForSession(sessionId);
-    if (studentIds) {
+    if (studentIds.length > 0) {
       res.status(200).send(studentIds);
     } else {
-      const session = await SessionService.getSession(sessionId);
-      if (!session) {
-        throw new Error('Session not found');
-      } else {
-        res.status(200).send([]);
-      }
+      await SessionService.getSession(sessionId);
+      res.status(200).send([]);
     }
   } catch (e: any) {
-    res.status(400).json({ error: e.message });
+    if (e.message === 'Session not found') {
+      res.status(404).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: e.message });
+    }
   } finally {
     next();
   }
