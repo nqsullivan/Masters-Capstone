@@ -33,3 +33,7 @@ export interface DashboardData {
   sessions: Session[];
   attendance: Map<string, AttendanceRecord[]>; // sessionId -> AttendanceRecord[]
 }
+
+export interface ClassListData {
+  classes: Class[];
+}
