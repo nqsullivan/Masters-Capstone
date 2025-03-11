@@ -26,7 +26,6 @@ import {
 } from '../controllers/class.js';
 import {
   getProfessorsForClass,
-  getClassesForProfessor,
   assignProfessorToClass,
   unassignProfessorFromClass,
 } from '../controllers/userClassAssignment.js';
@@ -60,7 +59,6 @@ router.put('/class/:id', verifyToken, updateClass);
 router.delete('/class/:id', verifyToken, deleteClass);
 router.get(`/class/:classId/sessions`, verifyToken, getSessionsForClass);
 router.get('/class/:classId/professors', verifyToken, getProfessorsForClass);
-router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
 router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 router.post('/class/:classId/students', verifyToken, addStudentsToClass);

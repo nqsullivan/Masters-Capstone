@@ -21,24 +21,6 @@ export const getProfessorsForClass = async (
   }
 };
 
-export const getClassesForProfessor = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { username } = req.params;
-
-    const classes =
-      await UserClassAssignmentService.getClassesForProfessor(username);
-
-    res.status(200).json(classes);
-    next();
-  } catch (e: any) {
-    res.status(500).json({ error: e.message });
-  }
-};
-
 export const assignProfessorToClass = async (
   req: Request,
   res: Response,
