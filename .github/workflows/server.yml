@@ -8,6 +8,7 @@ on:
       - synchronize
     paths:
       - "server/**"
+      - ".github/workflows/server.yml"
 
 jobs:
   build-server:

@@ -8,6 +8,7 @@ on:
       - synchronize
     paths:
       - 'client/**'
+      - '.github/workflows/client.yml'
 
 jobs:
   build-client:

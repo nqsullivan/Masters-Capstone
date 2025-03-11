@@ -8,6 +8,7 @@ on:
       - synchronize
     paths:
       - "controller/**"
+      - ".github/workflows/controller.yml"
 
 jobs:
   build-controller:
