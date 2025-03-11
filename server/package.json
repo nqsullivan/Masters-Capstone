@@ -13,7 +13,8 @@
     "test": "jest --coverage",
     "check-format": "prettier --check .",
     "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky; fi",
-    "init-data": "node scripts/initializeData.js"
+    "init-data": "node scripts/initializeData.js",
+    "generate-test-data": "node dist/server/scripts/generateTestData.js"
   },
   "keywords": [],
   "author": "",

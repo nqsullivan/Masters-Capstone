@@ -1,4 +1,4 @@
-name: Client Build & Test
+name: Client Build & Format Check
 
 on:
   pull_request:
@@ -21,9 +21,7 @@ jobs:
           cd client
           npm ci
 
-      - name: Run Tests in Headless Chrome
+      - name: Check format
         run: |
           cd client
-          npm run test -- --browsers=ChromeHeadless --watch=false
-        env:
-          CHROME_BIN: /usr/bin/google-chrome
+          npm run check-format

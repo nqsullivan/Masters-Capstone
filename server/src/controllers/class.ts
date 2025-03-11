@@ -62,4 +62,26 @@ const getClassPage = async (
   }
 };
 
-export { getClass, createClass, updateClass, deleteClass, getClassPage };
+const getSessionsForClass = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { classId } = req.params;
+  try {
+    const sessions = await ClassService.getSessionsForClass(classId);
+    res.status(200).send(sessions);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+export {
+  getClass,
+  createClass,
+  updateClass,
+  deleteClass,
+  getClassPage,
+  getSessionsForClass,
+};

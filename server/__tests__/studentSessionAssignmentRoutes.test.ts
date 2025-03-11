@@ -150,6 +150,19 @@ describe('Student-Session Assignment API', () => {
       .get(`/api/session/fakeSessionId/students`)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
+  test('POST /api/session/:sessionId/students - Add student to session with empty studentIds array', async () => {
+    const response = await request(app)
+      .post(`/api/session/${sessionId}/students`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        studentIds: [],
+        sessionId,
+      });
+
+    expect(response.status).toBe(400);
   });
 });

@@ -14,12 +14,12 @@ const getLog = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const createLog = async (req: Request, res: Response, next: NextFunction) => {
-  const { user_id, action, entity_type, entity_id } = req.body;
+  const { userId, action, entity_type, entityId } = req.body;
   const logRequest: CreateLogRequest = {
-    user_id,
+    userId,
     action,
     entity_type,
-    entity_id,
+    entityId,
   };
   const newLog = await LogService.createLog(logRequest);
   res.status(201).send(newLog);

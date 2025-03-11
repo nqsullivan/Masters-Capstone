@@ -1,6 +1,6 @@
 export interface CreateLogRequest {
-  user_id: string;
+  userId: string;
   action: string;
   entity_type: string;
-  entity_id: string;
+  entityId: string;
 }

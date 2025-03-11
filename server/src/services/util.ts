@@ -33,11 +33,15 @@ class UtilService {
 
     return {
       page: page,
-      page_size: size,
-      total_items: totalCountLogs,
-      total_pages: totalPages,
+      pageSize: size,
+      totalItems: totalCountLogs,
+      totalPages: totalPages,
       data: pageData,
     };
+  }
+
+  formatDate(date: string): string {
+    return date.toString();
   }
 }
 

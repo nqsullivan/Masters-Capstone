@@ -14,7 +14,7 @@ describe('User-Class Assignment API', () => {
   let db: DatabaseAccess;
   const professor_username = 'professor1';
   const professor_password = 'password';
-  let class_id: string;
+  let classId: string;
 
   beforeAll(async () => {
     AuthService.init();
@@ -50,28 +50,28 @@ describe('User-Class Assignment API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'SER517 Capstone' });
 
-    class_id = classResponse.body.id;
+    classId = classResponse.body.id;
   });
 
   test('POST /api/class/assign should assign a professor to a class', async () => {
     const response = await request(app)
       .post('/api/class/assign')
       .set('Authorization', `Bearer ${token}`)
-      .send({ username: professor_username, class_id });
+      .send({ username: professor_username, classId });
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('username', professor_username);
-    expect(response.body).toHaveProperty('class_id', class_id);
+    expect(response.body).toHaveProperty('classId', classId);
   });
 
   test('GET /api/class/:classId/professors should return assigned professors', async () => {
     await request(app)
       .post('/api/class/assign')
       .set('Authorization', `Bearer ${token}`)
-      .send({ username: professor_username, class_id });
+      .send({ username: professor_username, classId });
 
     const response = await request(app)
-      .get(`/api/class/${class_id}/professors`)
+      .get(`/api/class/${classId}/professors`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
@@ -81,13 +81,13 @@ describe('User-Class Assignment API', () => {
 
   test('GET /api/class/:classId/professors should return an error if class not found', async () => {
     const response = await request(app)
-      .get(`/api/class/invalid_class_id/professors`)
+      .get(`/api/class/invalid_classId/professors`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(500);
     expect(response.body).toHaveProperty(
       'error',
-      "Class with id 'invalid_class_id' not found"
+      "Class with id 'invalid_classId' not found"
     );
   });
 
@@ -95,7 +95,7 @@ describe('User-Class Assignment API', () => {
     await request(app)
       .post('/api/class/assign')
       .set('Authorization', `Bearer ${token}`)
-      .send({ username: professor_username, class_id });
+      .send({ username: professor_username, classId });
 
     const response = await request(app)
       .get(`/api/professor/${professor_username}/classes`)
@@ -103,7 +103,8 @@ describe('User-Class Assignment API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.length).toBeGreaterThan(0);
-    expect(response.body[0]).toHaveProperty('class_id', class_id);
+    expect(response.body[0]).toHaveProperty('id', classId);
+    expect(response.body[0]).toHaveProperty('name', 'SER517 Capstone');
   });
 
   test('GET /api/professor/:username/classes should return an error if user not found', async () => {
@@ -122,7 +123,7 @@ describe('User-Class Assignment API', () => {
     const response = await request(app)
       .post('/api/class/unassign')
       .set('Authorization', `Bearer ${token}`)
-      .send({ username: professor_username, class_id });
+      .send({ username: professor_username, classId });
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty(
@@ -135,7 +136,7 @@ describe('User-Class Assignment API', () => {
     const response = await request(app)
       .post('/api/class/unassign')
       .set('Authorization', `Bearer ${token}`)
-      .send({ username: 'invalid_username', class_id });
+      .send({ username: 'invalid_username', classId });
 
     expect(response.status).toBe(500);
     expect(response.body).toHaveProperty(
@@ -148,12 +149,12 @@ describe('User-Class Assignment API', () => {
     const response = await request(app)
       .post('/api/class/unassign')
       .set('Authorization', `Bearer ${token}`)
-      .send({ username: professor_username, class_id: 'invalid_class_id' });
+      .send({ username: professor_username, classId: 'invalid_classId' });
 
     expect(response.status).toBe(500);
     expect(response.body).toHaveProperty(
       'error',
-      "Class with id 'invalid_class_id' not found"
+      "Class with id 'invalid_classId' not found"
     );
   });
 });

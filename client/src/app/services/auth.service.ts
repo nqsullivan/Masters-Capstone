@@ -7,7 +7,7 @@ import { ApiService } from './api.service';
   providedIn: 'root',
 })
 export class AuthService {
-  private tokenKey = 'auth_token';
+  private tokenKey = '';
 
   constructor(private apiService: ApiService) {}
 
@@ -18,6 +18,7 @@ export class AuthService {
         map((data) => {
           if (data.token) {
             localStorage.setItem(this.tokenKey, data.token);
+            localStorage.setItem('username', username);
             return true;
           }
           return false;
@@ -31,6 +32,10 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  getUsername(): string | null {
+    return localStorage.getItem('username');
   }
 
   isLoggedIn(): boolean {
