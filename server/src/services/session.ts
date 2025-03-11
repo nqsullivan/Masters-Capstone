@@ -238,12 +238,9 @@ class SessionService {
 
   async deleteAttendanceRecord(attendanceId: string): Promise<void> {
     const existingAttendance = await this.getAttendanceRecord(attendanceId);
-    if (!existingAttendance) {
-      throw new Error('Attendance record not found');
-    }
 
     await this.db.runWithNoReturned(`DELETE FROM attendance WHERE id = ?`, [
-      attendanceId,
+      existingAttendance.id,
     ]);
   }
 }
