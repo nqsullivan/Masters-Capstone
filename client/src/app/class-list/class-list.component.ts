@@ -8,7 +8,8 @@ import {MatSort, MatSortModule} from '@angular/material/sort';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import { ClassListService } from './class-list.service';
+import { ApiService } from '../services/api.service';
+import { Class } from '../models/models';
 
 export interface UserData {
   id: string;
@@ -62,18 +63,24 @@ const NAMES: string[] = [
 export class ClassListComponent implements AfterViewInit {
   displayedColumns: string[] = ['id', 'name', 'progress', 'fruit'];
   dataSource: MatTableDataSource<UserData>;
+  classes: Class[] = [];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private classListService: ClassListService) {
+  constructor(private apiService: ApiService) {
     // Create 100 users
     const users = Array.from({length: 100}, (_, k) => createNewUser(k + 1));
 
     // Assign the data to the data source for the table to render
     this.dataSource = new MatTableDataSource(users);
 
-    console.log(this.classListService.getList());
+    this.apiService
+      .get<{ data: Class[] }>('classes')
+      .subscribe((data) => {
+        console.log(data.data);
+        this.classes = data.data;
+      });
   }
 
   ngAfterViewInit() {
