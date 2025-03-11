@@ -7,6 +7,8 @@ import {
   updateSession,
   getStudentsForSession,
   addAttendanceRecord,
+  modifyAttendanceRecord,
+  deleteAttendanceRecord,
 } from '../controllers/session.js';
 import {
   addStudentsToSession,
@@ -35,7 +37,6 @@ import {
   deleteLog,
   getLogsPaginated,
 } from '../controllers/log.js';
-
 import {
   getStudent,
   createStudent,
@@ -49,9 +50,11 @@ import { getDashboardData } from '../controllers/dashboard.js';
 
 const router = express.Router();
 
+// Auth routes
 router.post('/login', login);
 router.post('/register', register);
 
+// Class routes
 router.get('/class/:id', verifyToken, getClass);
 router.get('/classes', verifyToken, getClassPage);
 router.post('/class', verifyToken, createClass);
@@ -64,14 +67,15 @@ router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 router.post('/class/:classId/students', verifyToken, addStudentsToClass);
 router.get('/class/:classId/students', verifyToken, getStudentsForClass);
 
-//classId, startTime, endTime, professorId
+// Professor routes
+router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
+
+// Session routes
 router.post('/session', verifyToken, createSession);
 router.delete('/session/:id', verifyToken, deleteSession);
 router.get('/session/:id', verifyToken, getSession);
 router.put('/session/:id', verifyToken, updateSession);
 router.get('/session/:sessionId/students', verifyToken, getStudentsForSession);
-
-//studentId, sessionId
 router.post('/session/:sessionId/students', verifyToken, addStudentsToSession);
 router.delete(
   '/session/:sessionId/students/:studentId',
@@ -79,22 +83,35 @@ router.delete(
   deleteStudentFromSession
 );
 router.post('/session/:sessionId/attendance', verifyToken, addAttendanceRecord);
+router.put(
+  '/session/:sessionId/attendance/:attendanceId',
+  verifyToken,
+  modifyAttendanceRecord
+);
+router.delete(
+  '/session/:sessionId/attendance/:attendanceId',
+  verifyToken,
+  deleteAttendanceRecord
+);
 
+// Student routes
 router.get('/student/:id', verifyToken, getStudent);
 router.get('/students', verifyToken, getStudentPage);
 router.post('/student', verifyToken, createStudent);
 router.put('/student/:id', verifyToken, updateStudent);
 router.delete('/student/:id', verifyToken, deleteStudent);
 
+// Log routes
 router.get('/log/:id', verifyToken, getLog);
 router.post('/log', verifyToken, createLog);
 router.delete('/log/:id', verifyToken, deleteLog);
 router.get('/logs', verifyToken, getLogsPaginated);
 
+// Image routes
 router.post('/image', verifyToken, upload.single('image'), uploadImage);
 router.get('/image/:imageKey', verifyToken, retrieveImage);
 
-// Dashboard
+// Dashboard routes
 router.get('/dashboard/:classId', verifyToken, getDashboardData);
 
 export default router;

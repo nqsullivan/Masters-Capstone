@@ -181,6 +181,68 @@ class SessionService {
 
     return Object.fromEntries(attendanceRecords);
   }
+
+  async modifyAttendanceRecord(
+    attendanceId: string,
+    checkInTime: string,
+    portraitUrl: string
+  ): Promise<Attendance> {
+    if (!attendanceId || !checkInTime) {
+      throw new Error('attendanceId, and checkInTime fields are required');
+    }
+
+    const attendance = await this.getAttendanceRecord(attendanceId);
+    portraitUrl = portraitUrl || '';
+    const portraitCaptured = portraitUrl !== '';
+
+    await this.db.runWithNoReturned(
+      'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ? WHERE id = ?',
+      [checkInTime, portraitUrl, portraitCaptured, attendanceId]
+    );
+
+    return {
+      id: attendance.id,
+      studentId: attendance.studentId,
+      sessionId: attendance.sessionId,
+      checkIn: UtilService.formatDate(checkInTime),
+      portraitUrl: portraitUrl,
+      portraitCaptured: portraitCaptured,
+    };
+  }
+
+  async getAttendanceRecord(attendanceId: string): Promise<Attendance> {
+    const result = await this.db.runAndReadAll<{
+      id: string;
+      studentId: string;
+      sessionId: string;
+      checkIn: string;
+      portraitUrl: string;
+      portraitCaptured: boolean;
+    }>(
+      `SELECT id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured FROM attendance WHERE id = ?`,
+      [attendanceId]
+    );
+
+    if (result.length > 0) {
+      return {
+        id: result[0].id,
+        studentId: result[0].studentId,
+        sessionId: result[0].sessionId,
+        checkIn: UtilService.formatDate(result[0].checkIn),
+        portraitUrl: result[0].portraitUrl,
+        portraitCaptured: result[0].portraitCaptured,
+      };
+    }
+    throw new Error('Attendance record not found');
+  }
+
+  async deleteAttendanceRecord(attendanceId: string): Promise<void> {
+    const existingAttendance = await this.getAttendanceRecord(attendanceId);
+
+    await this.db.runWithNoReturned(`DELETE FROM attendance WHERE id = ?`, [
+      existingAttendance.id,
+    ]);
+  }
 }
 
 export default new SessionService();
