@@ -48,13 +48,11 @@ export class DashboardComponent implements OnInit {
     }
 
     this.apiService
-      .get<Class[]>(`professor/${username}/classes`)
+      .get<{data: Class[]}>(`classes`)
       .subscribe((data) => {
-        this.classes = data;
-        if (this.classes.length > 0) {
-          this.selectedClass = this.classes[0].id;
-          this.loadDashboardData();
-        }
+        this.classes = data.data;
+        this.selectedClass = this.classes[0].id;
+        this.loadDashboardData();
       });
   }
 
