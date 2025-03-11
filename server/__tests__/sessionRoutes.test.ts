@@ -306,4 +306,144 @@ describe('Session Routes', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('error');
   });
+
+  test('PUT /api/session/:sessionId/attendance/:attendanceId should return 200 and updated attendance details', async () => {
+    const classResponse = await ClassService.createClass('SER517 Capstone2');
+
+    const sessionResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classResponse.id,
+      'fakeProfId'
+    );
+
+    const studentResponse = await StudentService.createStudent(
+      'John Doe',
+      'path/to/image.jpg'
+    );
+
+    const attendanceResponse = await SessionService.addAttendanceRecord(
+      sessionResponse.id,
+      studentResponse.id,
+      '2025-02-17T18:00:00.000Z',
+      'www.test.com'
+    );
+
+    const updatedAttendanceData = {
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .put(
+        `/api/session/${sessionResponse.id}/attendance/${attendanceResponse.id}`
+      )
+      .set('Authorization', `Bearer ${token}`)
+      .send(updatedAttendanceData);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body).toHaveProperty('studentId', studentResponse.id);
+    expect(response.body).toHaveProperty('sessionId', sessionResponse.id);
+    expect(response.body).toHaveProperty('checkIn', '2025-02-17T18:00:00.000Z');
+    expect(response.body).toHaveProperty('portraitUrl', 'www.test.com');
+    expect(response.body).toHaveProperty('portraitCaptured', true);
+  });
+
+  test('PUT /api/session/:sessionId/attendance/:attendanceId with invalid sessionId should return 400 and error details', async () => {
+    const updatedAttendanceData = {
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .put(`/api/session/${'invalidId'}/attendance/1`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(updatedAttendanceData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('PUT /api/session/:sessionId/attendance/:attendanceId with invalid attendanceId should return 400 and error details', async () => {
+    const classResponse = await ClassService.createClass('SER517 Capstone2');
+
+    const sessionResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classResponse.id,
+      'fakeProfId'
+    );
+
+    const updatedAttendanceData = {
+      checkInTime: '2025-02-17T18:00:00.000Z',
+      portraitUrl: 'www.test.com',
+    };
+
+    const response = await request(app)
+      .put(`/api/session/${sessionResponse.id}/attendance/1`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(updatedAttendanceData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('DELETE /api/session/:sessionId/attendance/:attendanceId should return 204', async () => {
+    const classResponse = await ClassService.createClass('SER517 Capstone2');
+
+    const sessionResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classResponse.id,
+      'fakeProfId'
+    );
+
+    const studentResponse = await StudentService.createStudent(
+      'John Doe',
+      'path/to/image.jpg'
+    );
+
+    const attendanceResponse = await SessionService.addAttendanceRecord(
+      sessionResponse.id,
+      studentResponse.id,
+      '2025-02-17T18:00:00.000Z',
+      'www.test.com'
+    );
+
+    const response = await request(app)
+      .delete(
+        `/api/session/${sessionResponse.id}/attendance/${attendanceResponse.id}`
+      )
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(204);
+  });
+
+  test('DELETE /api/session/:sessionId/attendance/:attendanceId with invalid sessionId should return 400 and error details', async () => {
+    const response = await request(app)
+      .delete(`/api/session/${'invalidId'}/attendance/1`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('DELETE /api/session/:sessionId/attendance/:attendanceId with invalid attendanceId should return 400 and error details', async () => {
+    const classResponse = await ClassService.createClass('SER517 Capstone2');
+
+    const sessionResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classResponse.id,
+      'fakeProfId'
+    );
+
+    const response = await request(app)
+      .delete(`/api/session/${sessionResponse.id}/attendance/1`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
+  });
 });

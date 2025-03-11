@@ -7,6 +7,8 @@ import {
   updateSession,
   getStudentsForSession,
   addAttendanceRecord,
+  modifyAttendanceRecord,
+  deleteAttendanceRecord,
 } from '../controllers/session.js';
 import {
   addStudentsToSession,
@@ -82,6 +84,8 @@ router.delete(
   deleteStudentFromSession
 );
 router.post('/session/:sessionId/attendance', verifyToken, addAttendanceRecord);
+router.put('/session/:sessionId/attendance/:attendanceId', verifyToken, modifyAttendanceRecord);
+router.delete('/session/:sessionId/attendance/:attendanceId', verifyToken, deleteAttendanceRecord);
 
 // Student routes
 router.get('/student/:id', verifyToken, getStudent);
