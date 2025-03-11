@@ -61,9 +61,18 @@ class ClassService {
     ]);
   }
 
-  async getClassPage(page: number, size: number, username: string): Promise<ClassPageResponse> {
+  async getClassPage(
+    page: number,
+    size: number,
+    username: string
+  ): Promise<ClassPageResponse> {
     const whereClause = `where id in (select classId from professor_class_lookup where username = '${username}')`;
-    return await UtilService.buildPageResponse<Class>(page, size, 'Class', whereClause);
+    return await UtilService.buildPageResponse<Class>(
+      page,
+      size,
+      'Class',
+      whereClause
+    );
   }
 
   async getSessionsForClass(classId: string): Promise<Session[]> {

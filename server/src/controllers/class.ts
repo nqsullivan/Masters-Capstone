@@ -64,7 +64,11 @@ const getClassPage = async (
     if (!user) {
       throw new Error('User not found');
     }
-    const classPage = await ClassService.getClassPage(page, size, user.username);
+    const classPage = await ClassService.getClassPage(
+      page,
+      size,
+      user.username
+    );
     res.status(200).send(classPage);
     next();
   } catch (e: any) {

@@ -11,7 +11,12 @@ class UtilService {
     this.db = await DatabaseAccess.getInstance();
   }
 
-  async buildPageResponse<T>(page: number, size: number, tableName: string, optWhereClause: string = '') {
+  async buildPageResponse<T>(
+    page: number,
+    size: number,
+    tableName: string,
+    optWhereClause: string = ''
+  ) {
     if (size > 100) {
       size = 100;
     }
