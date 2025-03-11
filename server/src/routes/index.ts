@@ -84,8 +84,16 @@ router.delete(
   deleteStudentFromSession
 );
 router.post('/session/:sessionId/attendance', verifyToken, addAttendanceRecord);
-router.put('/session/:sessionId/attendance/:attendanceId', verifyToken, modifyAttendanceRecord);
-router.delete('/session/:sessionId/attendance/:attendanceId', verifyToken, deleteAttendanceRecord);
+router.put(
+  '/session/:sessionId/attendance/:attendanceId',
+  verifyToken,
+  modifyAttendanceRecord
+);
+router.delete(
+  '/session/:sessionId/attendance/:attendanceId',
+  verifyToken,
+  deleteAttendanceRecord
+);
 
 // Student routes
 router.get('/student/:id', verifyToken, getStudent);

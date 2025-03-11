@@ -188,9 +188,7 @@ class SessionService {
     portraitUrl: string
   ): Promise<Attendance> {
     if (!attendanceId || !checkInTime) {
-      throw new Error(
-        'attendanceId, and checkInTime fields are required'
-      );
+      throw new Error('attendanceId, and checkInTime fields are required');
     }
 
     const attendance = await this.getAttendanceRecord(attendanceId);
