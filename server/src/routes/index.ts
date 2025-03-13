@@ -68,7 +68,7 @@ router.post('/class/:classId/students', verifyToken, addStudentsToClass);
 router.get('/class/:classId/students', verifyToken, getStudentsForClass);
 
 // Professor routes
-router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
+//router.get('/professor/:username/classes', verifyToken, getClassesForProfessor);
 
 // Session routes
 router.post('/session', verifyToken, createSession);
