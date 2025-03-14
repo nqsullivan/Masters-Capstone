@@ -70,7 +70,7 @@ describe('AuthService', () => {
       throw new Error('Token not generated');
     }
 
-    const verifiedUser = await AuthService.verifyToken(token);
+    const verifiedUser = await AuthService.getUser(token);
     expect(verifiedUser).toBeDefined();
     expect(verifiedUser?.username).toBe(testUser.username);
   });
