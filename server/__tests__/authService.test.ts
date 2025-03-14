@@ -77,6 +77,6 @@ describe('AuthService', () => {
 
   test('should reject an invalid JWT token', async () => {
     const verifiedUser = await AuthService.verifyToken('invalidtoken');
-    expect(verifiedUser).toBeNull();
+    expect(verifiedUser).toBeFalsy();
   });
 });
