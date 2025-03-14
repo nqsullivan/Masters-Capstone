@@ -1,35 +1,96 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-class-dashboard',
   templateUrl: './individualClass.component.html',
   styleUrls: ['./individualClass.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, RouterModule],
 })
-
 export class IndividualClassComponent {
-    sessionInfo = {
-        id: '12345',
-        startTime: '10:00 AM',
-        endTime: '12:00 PM',
-        professorId: '67890'
-    };
+  sessionInfo: Array<{
+    id: string;
+    startTime: string;
+    endTime: string;
+    professorId: string;
+  }> = [];
 
-    students = [
-        { name: 'John Doe', id: '1' },
-        { name: 'Jane Smith', id: '2' },
-        { name: 'Alice Johnson', id: '3' }
-    ];
+  students = [
+    { name: 'John Doe', id: '1' },
+    { name: 'Jane Smith', id: '2' },
+    { name: 'Alice Johnson', id: '3' },
+  ];
 
-    classId: string | null = null;
+  classId: string | null = null;
+  className: string | null = null;
+  constructor(
+    private route: ActivatedRoute,
+    private http: HttpClient
+  ) {}
 
-    constructor(private route: ActivatedRoute) {}
-  
-    ngOnInit(): void {
-      this.route.paramMap.subscribe(params => {
-        this.classId = params.get('id');
-      });
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params) => {
+      this.classId = params.get('id');
+    });
+    if (this.classId) {
+      this.getClassInfo(this.classId);
+      this.getAllSessions(this.classId);
+      this.getStudetsFromClass(this.classId);
     }
+  }
+
+  getClassInfo(classId: string): void {
+    this.http
+      .get<{
+        id: String;
+        name: string;
+      }>(`http://localhost:3000/class/${classId}`)
+      .subscribe((response) => {
+        this.className = response.name;
+      });
+  }
+
+  getAllSessions(classId: string): void {
+    this.http
+      .get<
+        Array<{
+          id: string;
+          startTime: string;
+          endTime: string;
+          classId: string;
+          professorId: string;
+        }>
+      >(`http://localhost:3000/class/${classId}/sessions`)
+      .subscribe((response) => {
+        this.sessionInfo = response;
+      });
+  }
+
+  getStudetsFromClass(classId: string): void {
+    this.students = [];
+    var studentIds: Array<{ id: string }> = [];
+    this.http
+      .get<
+        Array<{ id: string }>
+      >(`http://localhost:3000/class/${classId}/students`)
+      .subscribe((response) => {
+        studentIds = response;
+
+        // Get student info
+        for (let studentId of studentIds) {
+          console.log(studentId);
+          this.http
+            .get<{
+              name: string;
+              id: string;
+            }>(`http://localhost:3000/student/${studentId}`)
+            .subscribe((response) => {
+              this.students.push(response);
+            });
+        }
+      });
+  }
 }
