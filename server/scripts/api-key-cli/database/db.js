@@ -22,7 +22,9 @@ await executeSchema();
 
 export const runQuery = async (query, params = []) => {
   const connection = await instance.connect();
-  const result = await (await connection.runAndReadAll(query, params)).getRowObjects();
+  const result = await (
+    await connection.runAndReadAll(query, params)
+  ).getRowObjects();
   connection.close();
   return result;
 };
