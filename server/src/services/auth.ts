@@ -94,6 +94,18 @@ class AuthService {
       return result.length > 0;
     }
   }
+
+  static async getUser(token: string): Promise<Omit<User, 'password'> | null> {
+    try {
+      const decodedToken = jwt.verify(token, SECRET_KEY) as {
+        username: string;
+      };
+
+      return await UserService.getUser(decodedToken.username);
+    } catch (e) {
+      return null;
+    }
+  }
 }
 
 export default AuthService;
