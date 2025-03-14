@@ -74,17 +74,24 @@ class AuthService {
     return token;
   }
 
-  static async verifyToken(
-    token: string
-  ): Promise<Omit<User, 'password'> | null> {
-    try {
-      const decodedToken = jwt.verify(token, SECRET_KEY) as {
-        username: string;
-      };
+  static async verifyToken(token: string): Promise<boolean> {
+    const db = await DatabaseAccess.getInstance();
+    const isJwt = token.split('.').length === 3;
 
-      return await UserService.getUser(decodedToken.username);
-    } catch (e) {
-      return null;
+    if (isJwt) {
+      try {
+        jwt.verify(token, SECRET_KEY);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    } else {
+      const result = await db.runAndReadAll<{ key: string }>(
+        'SELECT key FROM api_keys WHERE key = ?',
+        [token]
+      );
+
+      return result.length > 0;
     }
   }
 }
