@@ -54,6 +54,19 @@ class DatabaseAccess {
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS student_session_lookup (studentId VARCHAR, sessionId VARCHAR)`
     );
+    await this.connection.run(
+      `CREATE SEQUENCE IF NOT EXISTS api_keys_id_seq START 1`
+    );
+    await this.connection.run(
+      `CREATE TABLE IF NOT EXISTS api_keys (
+        id BIGINT DEFAULT NEXTVAL('api_keys_id_seq') PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL,
+        key TEXT UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '90 days'),
+        is_revoked BOOLEAN DEFAULT FALSE
+      )`
+    );
 
     console.log('Database connected');
   }
