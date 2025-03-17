@@ -150,8 +150,8 @@ describe('Student-Session Assignment API', () => {
       .get(`/api/session/fakeSessionId/students`)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
+    expect(response.status).toBe(404);
+    expect(response.body.error).toBe('Session not found');
   });
 
   test('POST /api/session/:sessionId/students - Add student to session with empty studentIds array', async () => {
