@@ -68,7 +68,7 @@ class StudentService {
     ]);
     // Delete all student_session_lookup entries for this student
     await this.db.runWithNoReturned(
-      `DELETE FROM student_session_lookup WHERE student_id = ?`,
+      `DELETE FROM student_session_lookup WHERE studentId = ?`,
       [existingStudent.id]
     );
   }
@@ -78,6 +78,20 @@ class StudentService {
     size: number
   ): Promise<StudentPageResponse> {
     return await UtilService.buildPageResponse<Student>(page, size, 'Student');
+  }
+
+  async getStudents(studentIds: string[]): Promise<Student[]> {
+    if (studentIds.length === 0) {
+      return [];
+    }
+
+    const students: Student[] = [];
+    for (const studentId of studentIds) {
+      const student = await this.getStudent(studentId);
+      students.push(student);
+    }
+
+    return students;
   }
 }
 

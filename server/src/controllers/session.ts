@@ -1,4 +1,4 @@
-import e, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import SessionService from '../services/session.js';
 
 const createSession = async (
@@ -15,11 +15,13 @@ const createSession = async (
       professorId
     );
     res.status(201).send(newSession);
-    next();
   } catch (e: any) {
     res.status(400).json({ error: e.message });
+  } finally {
+    next();
   }
 };
+
 const deleteSession = async (
   req: Request,
   res: Response,
@@ -29,30 +31,31 @@ const deleteSession = async (
   try {
     await SessionService.deleteSession(id);
     res.status(204).send();
-    next();
   } catch (e: any) {
     res.status(400).json({ error: e.message });
+  } finally {
+    next();
   }
 };
+
 const getSession = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   try {
     const session = await SessionService.getSession(id);
     if (session) {
-      const sessionWithStrings = {
-        ...session,
-        startTime: session.startTime.toISOString(),
-        endTime: session.endTime.toISOString(),
-      };
-      res.status(200).send(sessionWithStrings);
+      res.status(200).send(session);
     } else {
       throw new Error('Session not found');
     }
-    next();
   } catch (e: any) {
     if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
+    } else {
+      console.error(e);
+      res.status(400).json({ error: e.message });
     }
+  } finally {
+    next();
   }
 };
 
@@ -71,7 +74,6 @@ const updateSession = async (
       classId,
       professorId
     );
-
     if (updatedSession) {
       const sessionWithStrings = {
         ...updatedSession,
@@ -82,11 +84,14 @@ const updateSession = async (
     } else {
       throw new Error('Session not found');
     }
-    next();
   } catch (e: any) {
     if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: e.message });
     }
+  } finally {
+    next();
   }
 };
 
@@ -98,16 +103,20 @@ const getStudentsForSession = async (
   const { sessionId } = req.params;
   try {
     const studentIds = await SessionService.getStudentsForSession(sessionId);
-    if (studentIds) {
+    if (studentIds.length > 0) {
       res.status(200).send(studentIds);
     } else {
-      throw new Error('No students found for this session');
+      await SessionService.getSession(sessionId);
+      res.status(200).send([]);
     }
-    next();
   } catch (e: any) {
-    if (e.message === 'No students found for this session') {
+    if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: e.message });
     }
+  } finally {
+    next();
   }
 };
 
@@ -126,39 +135,50 @@ const addAttendanceRecord = async (
       portraitUrl
     );
     res.status(201).send(attendance);
-    next();
   } catch (e: any) {
-    res.status(400).json({ error: e.message }) && next(e);
+    res.status(400).json({ error: e.message });
+  } finally {
+    next();
   }
 };
 
-import { validate as isValidUUID } from 'uuid';
+const modifyAttendanceRecord = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { sessionId, attendanceId } = req.params;
+  const { checkInTime, portraitUrl } = req.body;
+  try {
+    const attendance = await SessionService.modifyAttendanceRecord(
+      attendanceId,
+      checkInTime,
+      portraitUrl
+    );
+    res.status(200).send(attendance);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  } finally {
+    next();
+  }
+};
 
 const deleteAttendanceRecord = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { attendanceId } = req.params;
-
-  if (!attendanceId || !isValidUUID(attendanceId)) {
-    res.status(400).json({ error: 'Invalid attendance ID' });
-    return next();
-  }
-
+  const { sessionId, attendanceId } = req.params;
   try {
     await SessionService.deleteAttendanceRecord(attendanceId);
     res.status(204).send();
-    next();
   } catch (e: any) {
-    if (e.message === 'Attendance record not found') {
-      res.status(404).json({ error: e.message });
-    } else {
-      res.status(500).json({ error: 'Internal server error' });
-    }
-    next(e);
+    res.status(400).json({ error: e.message });
+  } finally {
+    next();
   }
 };
+
 export {
   createSession,
   deleteSession,
@@ -166,5 +186,6 @@ export {
   updateSession,
   getStudentsForSession,
   addAttendanceRecord,
+  modifyAttendanceRecord,
   deleteAttendanceRecord,
 };

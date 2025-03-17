@@ -5,7 +5,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
   try {
     const token = await AuthService.login(username, password);
-    res.status(200).send(token);
+    res.status(200).json({ token });
     next();
   } catch (e: any) {
     res.status(401).json({ error: 'Invalid credentials' }) && next(e);
@@ -20,8 +20,6 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
   } catch (e: any) {
     const status = e.message === 'Username already taken' ? 400 : 500;
     res.status(status).json({ error: e.message });
-  } finally {
-    next();
   }
 };
 
@@ -31,8 +29,9 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  const user = await AuthService.verifyToken(token);
-  if (!user) {
+
+  const isValid = await AuthService.verifyToken(token);
+  if (!isValid) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }

@@ -12,6 +12,7 @@ app.use('/api', routes);
 describe('Class API', () => {
   let token: string;
   let db: DatabaseAccess;
+  let professor_username = 'admin';
 
   beforeAll(async () => {
     AuthService.init();
@@ -132,19 +133,29 @@ describe('Class API', () => {
   });
 
   test('GET /api/classes should return 200 and 1 page of 2 classes', async () => {
-    await request(app)
+    const classResponse1 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'SER517',
       });
 
-    await request(app)
+    const classResponse2 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'CSE546',
       });
+
+    await request(app)
+      .post('/api/class/assign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, classId: classResponse1.body.id });
+
+    await request(app)
+      .post('/api/class/assign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, classId: classResponse2.body.id });
 
     const response = await request(app)
       .get(`/api/classes`)
@@ -152,28 +163,38 @@ describe('Class API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('page', 1);
-    expect(response.body).toHaveProperty('page_size', 10);
-    expect(response.body).toHaveProperty('total_items', 2);
-    expect(response.body).toHaveProperty('total_pages', 1);
+    expect(response.body).toHaveProperty('pageSize', 10);
+    expect(response.body).toHaveProperty('totalItems', 2);
+    expect(response.body).toHaveProperty('totalPages', 1);
     expect(response.body.data).toHaveLength(2);
     expect(response.body.data[0]).toHaveProperty('name', 'SER517');
     expect(response.body.data[1]).toHaveProperty('name', 'CSE546');
   });
 
   test('GET /api/classes?page=2&size=1 should return 200 and 1 page of 1 singular class', async () => {
-    await request(app)
+    const classResponse1 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'SER517',
       });
 
-    await request(app)
+    const classResponse2 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'CSE546',
       });
+
+    await request(app)
+      .post('/api/class/assign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, classId: classResponse1.body.id });
+
+    await request(app)
+      .post('/api/class/assign')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: professor_username, classId: classResponse2.body.id });
 
     const response = await request(app)
       .get(`/api/classes?page=2&size=1`)
@@ -181,9 +202,9 @@ describe('Class API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('page', 2);
-    expect(response.body).toHaveProperty('page_size', 1);
-    expect(response.body).toHaveProperty('total_items', 2);
-    expect(response.body).toHaveProperty('total_pages', 2);
+    expect(response.body).toHaveProperty('pageSize', 1);
+    expect(response.body).toHaveProperty('totalItems', 2);
+    expect(response.body).toHaveProperty('totalPages', 2);
     expect(response.body.data).toHaveLength(1);
     expect(response.body.data[0]).toHaveProperty('name', 'CSE546');
   });

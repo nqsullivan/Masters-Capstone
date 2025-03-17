@@ -38,10 +38,10 @@ describe('Log API', () => {
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        user_id: 'admin',
+        userId: 'admin',
         action: 'LOGIN',
         entity_type: 'USER',
-        entity_id: 'admin',
+        entityId: 'admin',
       });
 
     expect(response.body).toHaveProperty('action', 'LOGIN');
@@ -53,10 +53,10 @@ describe('Log API', () => {
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        user_id: 'admin',
+        userId: 'admin',
         action: 'SCAN',
         entity_type: 'USER',
-        entity_id: 'admin',
+        entityId: 'admin',
       });
 
     const response = await request(app)
@@ -84,10 +84,10 @@ describe('Log API', () => {
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        user_id: 'admin',
+        userId: 'admin',
         action: 'LOGIN',
         entity_type: 'SESSION',
-        entity_id: 'admin',
+        entityId: 'admin',
       });
 
     const response = await request(app)
@@ -114,20 +114,20 @@ describe('Log API', () => {
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        user_id: 'admin',
+        userId: 'admin',
         action: 'SCAN',
         entity_type: 'USER',
-        entity_id: 'admin',
+        entityId: 'admin',
       });
 
     await request(app)
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        user_id: 'admin',
+        userId: 'admin',
         action: 'LOGIN',
         entity_type: 'USER',
-        entity_id: 'admin',
+        entityId: 'admin',
       });
 
     const response = await request(app)
@@ -136,9 +136,9 @@ describe('Log API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('page', 1);
-    expect(response.body).toHaveProperty('page_size', 10);
-    expect(response.body).toHaveProperty('total_items', 2);
-    expect(response.body).toHaveProperty('total_pages', 1);
+    expect(response.body).toHaveProperty('pageSize', 10);
+    expect(response.body).toHaveProperty('totalItems', 2);
+    expect(response.body).toHaveProperty('totalPages', 1);
     expect(response.body.data).toHaveLength(2);
     expect(response.body.data[0]).toHaveProperty('action', 'SCAN');
     expect(response.body.data[1]).toHaveProperty('action', 'LOGIN');
@@ -149,20 +149,20 @@ describe('Log API', () => {
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        user_id: 'admin',
+        userId: 'admin',
         action: 'SCAN',
         entity_type: 'USER',
-        entity_id: 'admin',
+        entityId: 'admin',
       });
 
     await request(app)
       .post('/api/log')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        user_id: 'admin',
+        userId: 'admin',
         action: 'LOGIN',
         entity_type: 'USER',
-        entity_id: 'admin',
+        entityId: 'admin',
       });
 
     const response = await request(app)
@@ -171,9 +171,9 @@ describe('Log API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('page', 2);
-    expect(response.body).toHaveProperty('page_size', 1);
-    expect(response.body).toHaveProperty('total_items', 2);
-    expect(response.body).toHaveProperty('total_pages', 2);
+    expect(response.body).toHaveProperty('pageSize', 1);
+    expect(response.body).toHaveProperty('totalItems', 2);
+    expect(response.body).toHaveProperty('totalPages', 2);
     expect(response.body.data).toHaveLength(1);
     expect(response.body.data[0]).toHaveProperty('action', 'LOGIN');
   });

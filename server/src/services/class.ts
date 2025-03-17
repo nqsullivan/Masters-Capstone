@@ -3,6 +3,7 @@ import DatabaseAccess from '../services/database.js';
 import { Class } from '../models/class.js';
 import { ClassPageResponse } from '../models/classPageResponse.js';
 import UtilService from './util.js';
+import { Session } from '../models/session.js';
 
 class ClassService {
   private db!: DatabaseAccess;
@@ -60,8 +61,45 @@ class ClassService {
     ]);
   }
 
-  async getClassPage(page: number, size: number): Promise<ClassPageResponse> {
-    return await UtilService.buildPageResponse<Class>(page, size, 'Class');
+  async getClassPage(
+    page: number,
+    size: number,
+    username: string
+  ): Promise<ClassPageResponse> {
+    const whereClause = `where id in (select classId from professor_class_lookup where username = '${username}')`;
+    return await UtilService.buildPageResponse<Class>(
+      page,
+      size,
+      'Class',
+      whereClause
+    );
+  }
+
+  async getSessionsForClass(classId: string): Promise<Session[]> {
+    const result = await this.db.runAndReadAll<{
+      id: string;
+      startTime: string;
+      endTime: string;
+      classId: string;
+      professorId: string;
+    }>(
+      `SELECT id, startTime, endTime, classId, professorId FROM session WHERE classId = ?`,
+      [classId]
+    );
+
+    let sessions: Session[] = [];
+
+    for (const session of result) {
+      sessions.push({
+        id: session.id,
+        startTime: UtilService.formatDate(session.startTime),
+        endTime: UtilService.formatDate(session.endTime),
+        classId: session.classId,
+        professorId: session.professorId,
+      });
+    }
+
+    return sessions;
   }
 }
 

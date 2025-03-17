@@ -11,7 +11,12 @@ class UtilService {
     this.db = await DatabaseAccess.getInstance();
   }
 
-  async buildPageResponse<T>(page: number, size: number, tableName: string) {
+  async buildPageResponse<T>(
+    page: number,
+    size: number,
+    tableName: string,
+    optWhereClause: string = ''
+  ) {
     if (size > 100) {
       size = 100;
     }
@@ -19,12 +24,12 @@ class UtilService {
     const offset = (page - 1) * size;
 
     const pageData = await this.db.runAndReadAll<T>(
-      `SELECT * from ${tableName} LIMIT ? OFFSET ?`,
+      `SELECT * from ${tableName} ${optWhereClause} LIMIT ? OFFSET ?`,
       [size, offset]
     );
 
     const countResponse = await this.db.runAndReadAll(
-      `SELECT count(id) from ${tableName}`
+      `SELECT count(id) from ${tableName} ${optWhereClause}`
     );
 
     const totalCountObj = countResponse[0] as any;
@@ -33,11 +38,15 @@ class UtilService {
 
     return {
       page: page,
-      page_size: size,
-      total_items: totalCountLogs,
-      total_pages: totalPages,
+      pageSize: size,
+      totalItems: totalCountLogs,
+      totalPages: totalPages,
       data: pageData,
     };
+  }
+
+  formatDate(date: string): string {
+    return date.toString();
   }
 }
 

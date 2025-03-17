@@ -53,7 +53,7 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS student_class_lookup (student_id VARCHAR, class_id VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS student_class_lookup (studentId VARCHAR, classId VARCHAR)'
     );
 
     const studentClassData = [
@@ -66,13 +66,13 @@ async function init() {
     ];
     for (const data of studentClassData) {
       await db.run(
-        'INSERT INTO student_class_lookup (student_id, class_id) VALUES (?, ?)',
+        'INSERT INTO student_class_lookup (studentId, classId) VALUES (?, ?)',
         data
       );
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS session (id VARCHAR, start_time DATETIME, end_time DATETIME, class_id VARCHAR, professor_id VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS session (id VARCHAR, startTime DATETIME, endTime DATETIME, classId VARCHAR, professorId VARCHAR)'
     );
 
     const sessionData = [
@@ -82,13 +82,13 @@ async function init() {
     ];
     for (const data of sessionData) {
       await db.run(
-        'INSERT INTO session (id, start_time, end_time, class_id, professor_id) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO session (id, startTime, endTime, classId, professorId) VALUES (?, ?, ?, ?, ?)',
         data
       );
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, student_id VARCHAR, session_id VARCHAR, check_in DATETIME, portait_url VARCHAR, portait_captured BOOLEAN)'
+      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portraitUrl VARCHAR, portraitCaptured BOOLEAN)'
     );
 
     const attendanceData = [
@@ -143,7 +143,7 @@ async function init() {
     ];
     for (const data of attendanceData) {
       await db.run(
-        'INSERT INTO attendance (id, student_id, session_id, check_in, portait_url, portait_captured) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO attendance (id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured) VALUES (?, ?, ?, ?, ?, ?)',
         data
       );
     }
@@ -165,7 +165,7 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS professor_class_lookup (username VARCHAR, class_id VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS professor_class_lookup (username VARCHAR, classId VARCHAR)'
     );
 
     const professorClassData = [
@@ -175,13 +175,13 @@ async function init() {
     ];
     for (const data of professorClassData) {
       await db.run(
-        'INSERT INTO professor_class_lookup (username, class_id) VALUES (?, ?)',
+        'INSERT INTO professor_class_lookup (username, classId) VALUES (?, ?)',
         data
       );
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, user_id VARCHAR, action VARCHAR, entity_type VARCHAR, entity_id VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, userId VARCHAR, action VARCHAR, entity_type VARCHAR, entityId VARCHAR)'
     );
 
     const logData = [
@@ -191,7 +191,7 @@ async function init() {
     ];
     for (const data of logData) {
       await db.run(
-        'INSERT INTO log (id, timestamp, user_id, action, entity_type, entity_id) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO log (id, timestamp, userId, action, entity_type, entityId) VALUES (?, ?, ?, ?, ?, ?)',
         data
       );
     }

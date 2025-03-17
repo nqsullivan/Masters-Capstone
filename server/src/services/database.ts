@@ -31,28 +31,41 @@ class DatabaseAccess {
       `CREATE TABLE IF NOT EXISTS student (id VARCHAR, name VARCHAR, image VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS student_class_lookup (student_id VARCHAR, class_id VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS student_class_lookup (studentId VARCHAR, classId VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS session (id VARCHAR, start_time DATETIME, end_time DATETIME, class_id VARCHAR, professor_id VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS session (id VARCHAR, startTime DATETIME, endTime DATETIME, classId VARCHAR, professorId VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, student_id VARCHAR, session_id VARCHAR, check_in DATETIME, portait_url VARCHAR, portait_captured BOOLEAN)`
+      `CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portraitUrl VARCHAR, portraitCaptured BOOLEAN)`
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS user (id VARCHAR, type VARCHAR, username VARCHAR, password VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS professor_class_lookup (username VARCHAR, class_id VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS professor_class_lookup (username VARCHAR, classId VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, user_id VARCHAR, action VARCHAR, entity_type VARCHAR, entity_id VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, userId VARCHAR, action VARCHAR, entity_type VARCHAR, entityId VARCHAR)`
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS credential (username VARCHAR, hash VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS student_session_lookup (student_id VARCHAR, session_id VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS student_session_lookup (studentId VARCHAR, sessionId VARCHAR)`
+    );
+    await this.connection.run(
+      `CREATE SEQUENCE IF NOT EXISTS api_keys_id_seq START 1`
+    );
+    await this.connection.run(
+      `CREATE TABLE IF NOT EXISTS api_keys (
+        id BIGINT DEFAULT NEXTVAL('api_keys_id_seq') PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL,
+        key TEXT UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '90 days'),
+        is_revoked BOOLEAN DEFAULT FALSE
+      )`
     );
 
     console.log('Database connected');
