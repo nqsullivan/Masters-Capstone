@@ -29,8 +29,9 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  const user = await AuthService.verifyToken(token);
-  if (!user) {
+
+  const isValid = await AuthService.verifyToken(token);
+  if (!isValid) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
