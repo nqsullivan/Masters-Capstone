@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ApiService } from '../services/api.service';
 import { Class } from '../models/models';
+import { RouterModule } from '@angular/router';
 
 export interface ClassListData {
   id: string;
@@ -29,6 +30,7 @@ export interface ClassListData {
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    RouterModule
   ],
 })
 export class ClassListComponent {
