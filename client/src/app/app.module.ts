@@ -23,7 +23,7 @@ import { routes } from './app.routes';
     AboutComponent,
     ContactComponent,
     LoginComponent,
-    ClassListComponent
+    ClassListComponent,
   ],
   imports: [
     BrowserModule,

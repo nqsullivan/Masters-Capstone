@@ -2,13 +2,14 @@
  * Sourced from https://material.angular.io/components/table/examples
  */
 
-import {AfterViewInit, Component, ViewChild} from '@angular/core';
-import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
-import {MatSort, MatSortModule} from '@angular/material/sort';
-import {MatTableDataSource, MatTableModule} from '@angular/material/table';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import { ClassListService } from './class-list.service';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ApiService } from '../services/api.service';
+import { Class } from '../models/models';
 
 export interface UserData {
   id: string;
@@ -57,23 +58,33 @@ const NAMES: string[] = [
   selector: 'app-class-list',
   styleUrl: './class-list.component.css',
   templateUrl: './class-list.component.html',
-  imports: [MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatPaginatorModule],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+  ],
 })
 export class ClassListComponent implements AfterViewInit {
   displayedColumns: string[] = ['id', 'name', 'progress', 'fruit'];
   dataSource: MatTableDataSource<UserData>;
+  classes: Class[] = [];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private classListService: ClassListService) {
+  constructor(private apiService: ApiService) {
     // Create 100 users
-    const users = Array.from({length: 100}, (_, k) => createNewUser(k + 1));
+    const users = Array.from({ length: 100 }, (_, k) => createNewUser(k + 1));
 
     // Assign the data to the data source for the table to render
     this.dataSource = new MatTableDataSource(users);
 
-    console.log(this.classListService.getList());
+    this.apiService.get<{ data: Class[] }>('classes').subscribe((data) => {
+      console.log(data.data);
+      this.classes = data.data;
+    });
   }
 
   ngAfterViewInit() {

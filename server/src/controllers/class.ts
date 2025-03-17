@@ -60,7 +60,7 @@ const getClassPage = async (
   const page: number = parseInt(req.query.page as string) || 1;
   const size: number = parseInt(req.query.size as string) || 10;
   try {
-    const user = await AuthService.verifyToken(token);
+    const user = await AuthService.getUser(token);
     if (!user) {
       throw new Error('User not found');
     }

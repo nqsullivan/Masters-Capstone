@@ -29,4 +29,6 @@ export default {
       lines: 80,
     },
   },
+  cache: true,
+  maxWorkers: '50%',
 };
