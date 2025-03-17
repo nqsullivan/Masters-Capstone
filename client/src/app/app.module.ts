@@ -9,6 +9,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AboutComponent } from './about/about.component';
 import { ContactComponent } from './contact/contact.component';
 import { LoginComponent } from './login/login.component';
+import { AttendanceComponent } from './attendance/attendance.component';
 
 import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
