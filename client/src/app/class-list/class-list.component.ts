@@ -30,7 +30,7 @@ export interface ClassListData {
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-    RouterModule
+    RouterModule,
   ],
 })
 export class ClassListComponent {
