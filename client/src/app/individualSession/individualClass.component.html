@@ -1,0 +1,54 @@
+<div class="dashboard-container">
+  <h1>Class: {{ className }}</h1>
+
+  <div class="dashboard-widgets">
+    <div class="widget">
+      <h2>Session Information</h2>
+      <p *ngIf="!sessionInfo">Select a class to view session details.</p>
+      <div *ngIf="sessionInfo && sessionInfo.length">
+        <table class="refined-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Professor ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let session of sessionInfo">
+              <td>
+                <a [routerLink]="['/session', session.id]">{{ session.id }}</a>
+              </td>
+              <td>{{ session.startTime }}</td>
+              <td>{{ session.endTime }}</td>
+              <td>{{ session.professorId }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="widget">
+      <h2>Student Enrolled</h2>
+      <p *ngIf="!students.length">No students found for this class.</p>
+      <div class="student-stats" *ngIf="students.length"></div>
+      <table class="refined-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of students">
+            <td>
+              <a [routerLink]="['/student', student.id]">{{ student.name }}</a>
+            </td>
+            <td>{{ student.id }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
