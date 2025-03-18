@@ -29,7 +29,6 @@ export class IndividualClassComponent {
   className: string | null = null;
   constructor(
     private route: ActivatedRoute,
-    private http: HttpClient,
     private apiService: ApiService
   ) {}
 
