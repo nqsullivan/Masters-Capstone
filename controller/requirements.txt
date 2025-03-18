@@ -3,3 +3,5 @@ RPi.GPIO
 adafruit-circuitpython-pn532
 transitions
 black
+requests
+dotenv
