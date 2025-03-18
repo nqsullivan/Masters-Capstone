@@ -47,15 +47,11 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    this.apiService
-      .get<Class[]>(`professor/${username}/classes`)
-      .subscribe((data) => {
-        this.classes = data;
-        if (this.classes.length > 0) {
-          this.selectedClass = this.classes[0].id;
-          this.loadDashboardData();
-        }
-      });
+    this.apiService.get<{ data: Class[] }>(`classes`).subscribe((data) => {
+      this.classes = data.data;
+      this.selectedClass = this.classes[0].id;
+      this.loadDashboardData();
+    });
   }
 
   loadDashboardData(): void {
