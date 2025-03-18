@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-class-dashboard',
@@ -28,7 +29,8 @@ export class IndividualClassComponent {
   className: string | null = null;
   constructor(
     private route: ActivatedRoute,
-    private http: HttpClient
+    private http: HttpClient,
+    private apiService: ApiService
   ) {}
 
   ngOnInit(): void {
@@ -43,18 +45,24 @@ export class IndividualClassComponent {
   }
 
   getClassInfo(classId: string): void {
-    this.http
-      .get<{
-        id: String;
-        name: string;
-      }>(`http://localhost:3000/class/${classId}`)
+    /*this.http
+        .get<{
+            id: String;
+            name: string;
+        }>(`http://localhost:3000/class/${classId}`)
+        .subscribe((response) => {
+            this.className = response.name;
+        });*/
+
+    this.apiService
+      .get<{ id: string; name: string }>(`class/${classId}`)
       .subscribe((response) => {
         this.className = response.name;
       });
   }
 
   getAllSessions(classId: string): void {
-    this.http
+    this.apiService
       .get<
         Array<{
           id: string;
@@ -63,7 +71,7 @@ export class IndividualClassComponent {
           classId: string;
           professorId: string;
         }>
-      >(`http://localhost:3000/class/${classId}/sessions`)
+      >(`class/${classId}/sessions`)
       .subscribe((response) => {
         this.sessionInfo = response;
       });
@@ -72,21 +80,18 @@ export class IndividualClassComponent {
   getStudetsFromClass(classId: string): void {
     this.students = [];
     var studentIds: Array<{ id: string }> = [];
-    this.http
-      .get<
-        Array<{ id: string }>
-      >(`http://localhost:3000/class/${classId}/students`)
+
+    this.apiService
+      .get<Array<{ id: string }>>(`class/${classId}/students`)
       .subscribe((response) => {
         studentIds = response;
 
         // Get student info
         for (let studentId of studentIds) {
           console.log(studentId);
-          this.http
-            .get<{
-              name: string;
-              id: string;
-            }>(`http://localhost:3000/student/${studentId}`)
+
+          this.apiService
+            .get<{ name: string; id: string }>(`student/${studentId}`)
             .subscribe((response) => {
               this.students.push(response);
             });
