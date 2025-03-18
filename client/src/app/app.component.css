@@ -42,6 +42,10 @@
   color: #1abc9c;
 }
 
+.sidebar h3 {
+  margin-top: 500px;
+}
+
 .main-content {
   flex-grow: 1;
   padding: 20px;
