@@ -45,15 +45,6 @@ export class IndividualClassComponent {
   }
 
   getClassInfo(classId: string): void {
-    /*this.http
-        .get<{
-            id: String;
-            name: string;
-        }>(`http://localhost:3000/class/${classId}`)
-        .subscribe((response) => {
-            this.className = response.name;
-        });*/
-
     this.apiService
       .get<{ id: string; name: string }>(`class/${classId}`)
       .subscribe((response) => {

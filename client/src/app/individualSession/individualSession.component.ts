@@ -7,17 +7,26 @@ import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-class-dashboard',
-  templateUrl: './individualClass.component.html',
-  styleUrls: ['./individualClass.component.css'],
+  templateUrl: './individualSession.component.html',
+  styleUrls: ['./individualSession.component.css'],
   imports: [CommonModule, RouterModule],
 })
-export class IndividualClassComponent {
-  sessionInfo: Array<{
+export class IndividualSessionComponent {
+  sessionInfo: {
     id: string;
     startTime: string;
     endTime: string;
+    classId: string;
     professorId: string;
-  }> = [];
+    className: string;
+  } = {
+    id: '',
+    startTime: '',
+    endTime: '',
+    classId: '',
+    professorId: '',
+    className: '',
+  };
 
   students = [
     { name: 'John Doe', id: '1' },
@@ -25,7 +34,7 @@ export class IndividualClassComponent {
     { name: 'Alice Johnson', id: '3' },
   ];
 
-  classId: string | null = null;
+  sessionId: string | null = null;
   className: string | null = null;
   constructor(
     private route: ActivatedRoute,
@@ -35,52 +44,48 @@ export class IndividualClassComponent {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      this.classId = params.get('id');
+      this.sessionId = params.get('id');
     });
-    if (this.classId) {
-      this.getClassInfo(this.classId);
-      this.getAllSessions(this.classId);
-      this.getStudetsFromClass(this.classId);
+    if (this.sessionId) {
+      this.getSessionInfo(this.sessionId);
+      this.getStudentsFromSession(this.sessionId);
     }
   }
-
-  getClassInfo(classId: string): void {
+  getSessionInfo(sessionId: string): void {
     this.apiService
-      .get<{ id: string; name: string }>(`class/${classId}`)
+      .get<{
+        id: string;
+        startTime: string;
+        endTime: string;
+        classId: string;
+        professorId: string;
+      }>(`session/${sessionId}`)
       .subscribe((response) => {
-        this.className = response.name;
+        this.sessionInfo.id = response.id;
+        this.sessionInfo.startTime = response.startTime;
+        this.sessionInfo.endTime = response.endTime;
+        this.sessionInfo.professorId = response.professorId;
+        this.sessionInfo.classId = response.classId;
+
+        this.apiService
+          .get<{ id: string; name: string }>(`class/${response.classId}`)
+          .subscribe((response) => {
+            this.sessionInfo.className = response.name;
+          });
       });
   }
 
-  getAllSessions(classId: string): void {
-    this.apiService
-      .get<
-        Array<{
-          id: string;
-          startTime: string;
-          endTime: string;
-          classId: string;
-          professorId: string;
-        }>
-      >(`class/${classId}/sessions`)
-      .subscribe((response) => {
-        this.sessionInfo = response;
-      });
-  }
-
-  getStudetsFromClass(classId: string): void {
+  getStudentsFromSession(sessionId: string): void {
     this.students = [];
     var studentIds: Array<{ id: string }> = [];
 
     this.apiService
-      .get<Array<{ id: string }>>(`class/${classId}/students`)
+      .get<Array<{ id: string }>>(`session/${sessionId}/students`)
       .subscribe((response) => {
         studentIds = response;
 
         // Get student info
         for (let studentId of studentIds) {
-          console.log(studentId);
-
           this.apiService
             .get<{ name: string; id: string }>(`student/${studentId}`)
             .subscribe((response) => {
