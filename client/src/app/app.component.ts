@@ -34,4 +34,9 @@ export class AppComponent implements DoCheck {
       this.welcomeMessage = `Hello, ${this.authService.getUsername()}`;
     }
   }
+
+  logout(): void {
+    this.welcomeMessage = null;
+    this.authService.logout();
+  }
 }
