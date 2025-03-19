@@ -1,6 +1,6 @@
 <div class="container">
   <div class="sidebar">
-    <h2>Sidebar</h2>
+    <h2>MAFIA Attendance</h2>
     <ul>
       <li>
         <a
@@ -20,14 +20,6 @@
       </li>
       <li>
         <a
-          routerLink="/about"
-          routerLinkActive="active"
-          ariaCurrentWhenActive="page"
-          >About
-        </a>
-      </li>
-      <li>
-        <a
           routerLink="/contact"
           routerLinkActive="active"
           ariaCurrentWhenActive="page"
@@ -37,6 +29,13 @@
     </ul>
     <div>
       <h3>{{ welcomeMessage }}</h3>
+      <button
+        (click)="logout()"
+        routerLink="/login"
+        [hidden]="welcomeMessage === null"
+      >
+        LOGOUT
+      </button>
     </div>
   </div>
 
