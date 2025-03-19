@@ -1,4 +1,11 @@
-# precompute_embeddings.py (Revised to produce 512-d embeddings via facenet_pytorch)
+"""
+Precomputes 512-d face embeddings for pre-registered student images.
+Images that do not exist or where no face is detected are skipped.
+Embeddings are saved as 'embeddings.npy' in the 'precomputed_data' directory,
+so that real-time recognition can load them without re-computation on each run,
+saving real-time computing resources.
+Run this script manually when new student images are added.
+"""
 
 import os
 import numpy as np
