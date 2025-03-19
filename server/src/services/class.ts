@@ -39,7 +39,7 @@ class ClassService {
       [id, name]
     );
 
-    return { id, name };
+    return { id, name, roomNumber: null, startTime: null, endTime: null };
   }
 
   async updateClass(id: string, name: string): Promise<Class> {
@@ -50,7 +50,7 @@ class ClassService {
       existingClass.id,
     ]);
 
-    return { id, name };
+    return { id, name, roomNumber: null, startTime: null, endTime: null };
   }
 
   async deleteClass(id: string): Promise<void> {
@@ -100,6 +100,29 @@ class ClassService {
     }
 
     return sessions;
+  }
+
+  async getSchedulesForRoomNumber(roomNumber: string): Promise<Class[]> {
+    const result = await this.db.runAndReadAll<Class>(
+      `SELECT id, name, roomNumber, startTime, endTime FROM class WHERE roomNumber = ?`,
+      [roomNumber]
+    );
+
+    let classes: Class[] = [];
+    for (const cls of result) {
+      classes.push({
+        id: cls.id,
+        name: cls.name,
+        roomNumber: cls.roomNumber,
+        startTime: UtilService.formatDate(cls.startTime || ''),
+        endTime: UtilService.formatDate(cls.endTime || ''),
+      });
+    }
+
+    if (classes.length > 0) {
+      return classes;
+    }
+    throw new Error(`Class with roomNumber '${roomNumber}' not found`);
   }
 }
 

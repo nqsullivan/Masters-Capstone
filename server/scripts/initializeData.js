@@ -22,15 +22,20 @@ async function init() {
   const db = await instance.connect();
 
   try {
-    await db.run('CREATE TABLE IF NOT EXISTS class (id VARCHAR, name VARCHAR)');
+    await db.run(
+      'CREATE TABLE IF NOT EXISTS class (id VARCHAR, name VARCHAR, roomNumber VARCHAR, startTime TIME, endTime TIME)'
+    );
 
     const classData = [
-      ['1', 'Class 1'],
-      ['2', 'Class 2'],
-      ['3', 'Class 3'],
+      ['1', 'Class 1', 'SAN101', '10:00:00', '11:15:00'],
+      ['2', 'Class 2', 'PRLTA103', '10:00:00', '11:15:00'],
+      ['3', 'Class 3', 'PICHO105', '10:00:00', '11:15:00'],
     ];
     for (const data of classData) {
-      await db.run('INSERT INTO class (id, name) VALUES (?, ?)', data);
+      await db.run(
+        'INSERT INTO class (id, name, roomNumber, startTime, endTime) VALUES (?, ?, ?, ?, ?)',
+        data
+      );
     }
 
     await db.run(

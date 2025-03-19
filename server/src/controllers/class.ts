@@ -91,6 +91,21 @@ const getSessionsForClass = async (
   }
 };
 
+const getSchedulesForRoomNumber = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { roomNumber } = req.params;
+  try {
+    const sessions = await ClassService.getSchedulesForRoomNumber(roomNumber);
+    res.status(200).send(sessions);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
 export {
   getClass,
   createClass,
@@ -98,4 +113,5 @@ export {
   deleteClass,
   getClassPage,
   getSessionsForClass,
+  getSchedulesForRoomNumber,
 };
