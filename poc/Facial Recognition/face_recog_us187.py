@@ -1,3 +1,11 @@
+"""
+US_187_Still Image Facial Recognition
+-#195 Take a picture
+-#196 Run facial recognition on the picture
+By combining precomputed embeddings, trigger-based capturing, and delayed/on-demand recognition,
+significantly reduces real-time computational demands while preserving robust face recognition.
+"""
+
 import cv2
 import os
 import time
