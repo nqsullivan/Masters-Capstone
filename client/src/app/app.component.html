@@ -29,6 +29,13 @@
     </ul>
     <div>
       <h3>{{ welcomeMessage }}</h3>
+      <button
+        (click)="logout()"
+        routerLink="/login"
+        [hidden]="welcomeMessage === null"
+      >
+        LOGOUT
+      </button>
     </div>
   </div>
 
