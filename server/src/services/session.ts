@@ -243,8 +243,6 @@ class SessionService {
       existingAttendance.id,
     ]);
   }
-
-
 }
 
 export default new SessionService();

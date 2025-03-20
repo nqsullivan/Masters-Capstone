@@ -9,7 +9,7 @@ import {
   addAttendanceRecord,
   modifyAttendanceRecord,
   deleteAttendanceRecord,
-  getAttendanceRecords
+  getAttendanceRecords,
 } from '../controllers/session.js';
 import {
   addStudentsToSession,

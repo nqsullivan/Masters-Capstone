@@ -190,7 +190,8 @@ const getAttendanceRecords = async (
 ) => {
   const { sessionId } = req.params;
   try {
-    const attendanceRecords = await SessionService.getAttendanceRecordsForSessions([sessionId]);
+    const attendanceRecords =
+      await SessionService.getAttendanceRecordsForSessions([sessionId]);
     res.status(200).send(attendanceRecords);
   } catch (e: any) {
     res.status(400).json({ error: e.message });
