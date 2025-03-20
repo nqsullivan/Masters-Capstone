@@ -18,7 +18,7 @@ class LoggingService:
             "entityId": entity_id,
         }
         try:
-            response = self.api_service.post("/logs", json=log_entry)
+            response = self.api_service.post("/log", json=log_entry)
             return response.status_code, response.json()
         except Exception as e:
             print(f"Logging failed: {e}")
