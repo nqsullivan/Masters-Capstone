@@ -27,12 +27,6 @@ export class IndividualSessionComponent {
     className: '',
   };
 
-  students = [
-    { name: 'John Doe', id: '1' },
-    { name: 'Jane Smith', id: '2' },
-    { name: 'Alice Johnson', id: '3' },
-  ];
-
   attendances = [{ id: '1', studentId: '1', studentName: 'John Doe' }];
 
   sessionId: string | null = null;
@@ -48,7 +42,6 @@ export class IndividualSessionComponent {
     });
     if (this.sessionId) {
       this.getSessionInfo(this.sessionId);
-      this.getStudentsFromSession(this.sessionId);
       this.getAttendances(this.sessionId);
     }
   }
@@ -73,26 +66,6 @@ export class IndividualSessionComponent {
           .subscribe((response) => {
             this.sessionInfo.className = response.name;
           });
-      });
-  }
-
-  getStudentsFromSession(sessionId: string): void {
-    this.students = [];
-    var studentIds: Array<{ id: string }> = [];
-
-    this.apiService
-      .get<Array<{ id: string }>>(`session/${sessionId}/students`)
-      .subscribe((response) => {
-        studentIds = response;
-
-        // Get student info
-        for (let studentId of studentIds) {
-          this.apiService
-            .get<{ name: string; id: string }>(`student/${studentId}`)
-            .subscribe((response) => {
-              this.students.push(response);
-            });
-        }
       });
   }
 
