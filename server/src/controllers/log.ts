@@ -21,9 +21,13 @@ const createLog = async (req: Request, res: Response, next: NextFunction) => {
     entity_type,
     entityId,
   };
-  const newLog = await LogService.createLog(logRequest);
-  res.status(201).send(newLog);
-  next();
+  try {
+    const newLog = await LogService.createLog(logRequest);
+    res.status(201).send(newLog);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
 };
 
 const deleteLog = async (req: Request, res: Response, next: NextFunction) => {
