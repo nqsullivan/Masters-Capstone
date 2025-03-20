@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
@@ -34,11 +33,12 @@ export class IndividualSessionComponent {
     { name: 'Alice Johnson', id: '3' },
   ];
 
+  attendances = [{ id: '1', studentId: '1', studentName: 'John Doe' }];
+
   sessionId: string | null = null;
   className: string | null = null;
   constructor(
     private route: ActivatedRoute,
-    private http: HttpClient,
     private apiService: ApiService
   ) {}
 
@@ -49,6 +49,7 @@ export class IndividualSessionComponent {
     if (this.sessionId) {
       this.getSessionInfo(this.sessionId);
       this.getStudentsFromSession(this.sessionId);
+      this.getAttendances(this.sessionId);
     }
   }
   getSessionInfo(sessionId: string): void {
@@ -91,6 +92,36 @@ export class IndividualSessionComponent {
             .subscribe((response) => {
               this.students.push(response);
             });
+        }
+      });
+  }
+
+  getAttendances(sessionId: string): void {
+    this.attendances = [];
+    this.apiService
+      .get<{
+        [key: string]: Array<{
+          id: string;
+          studentId: string;
+          sessionId: string;
+          checkIn: string;
+          portraitUrl: string;
+          portraitCaptured: boolean;
+        }>;
+      }>(`session/${sessionId}/attendance`)
+      .subscribe((response) => {
+        for (let entry of response[sessionId]) {
+          let attendanceRecord = {
+            id: entry.id,
+            studentId: entry.studentId,
+            studentName: '',
+          };
+          this.apiService
+            .get<{ name: string; id: string }>(`student/${entry.studentId}`)
+            .subscribe((response) => {
+              attendanceRecord['studentName'] = response.name;
+            });
+          this.attendances.push(attendanceRecord);
         }
       });
   }
