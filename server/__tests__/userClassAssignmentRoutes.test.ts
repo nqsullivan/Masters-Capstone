@@ -48,7 +48,7 @@ describe('User-Class Assignment API', () => {
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone' });
+      .send({ name: 'SER517 Capstone', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00' });
 
     classId = classResponse.body.id;
   });

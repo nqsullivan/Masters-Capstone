@@ -18,6 +18,7 @@ app.use('/api', routes);
 describe('Session Routes', () => {
   let token: string;
   let db: DatabaseAccess;
+  let classId: string;
 
   beforeAll(async () => {
     AuthService.init();
@@ -32,16 +33,18 @@ describe('Session Routes', () => {
     if (!token) {
       throw new Error('Failed to generate admin token');
     }
+    const classResponse = await ClassService.createClass('SER517 Capstone2', 'PRLTA201','10:00:00','11:15:00');
+    classId = classResponse.id;
   });
 
   const mockStartTime = new Date('2025-01-01T10:00:00Z').toISOString();
   const mockEndTime = new Date('2025-01-01T11:00:00Z').toISOString();
 
   test('POST /session should create a new session', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
+    
 
     const sessionData = {
-      classId: classResponse.id,
+      classId: classId,
       startTime: mockStartTime,
       endTime: mockEndTime,
       professorId: 'fakeProfId',
@@ -57,11 +60,10 @@ describe('Session Routes', () => {
   });
 
   test('DELETE /session/:id should delete a session', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
     const sessionId = createResponse.id;
@@ -84,11 +86,10 @@ describe('Session Routes', () => {
   });
 
   test('GET /session/:id should return a session by id', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone3');
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
     const sessionId = createResponse.id;
@@ -102,11 +103,10 @@ describe('Session Routes', () => {
   });
 
   test('PUT /session/:id should update a session', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
     const sessionId = createResponse.id;
@@ -114,7 +114,7 @@ describe('Session Routes', () => {
     const updatedSessionData = {
       startTime: new Date('2026-01-01T12:00:00Z'),
       endTime: new Date('2026-01-01T13:00:00Z'),
-      classId: classResponse.id,
+      classId: classId,
       professorId: 'fakeProfId',
     };
 
@@ -127,12 +127,10 @@ describe('Session Routes', () => {
   });
 
   test('GET /session/:sessionId/students should return students for a session', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone4');
-
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
     const sessionId = createResponse.id;
@@ -169,11 +167,10 @@ describe('Session Routes', () => {
   });
 
   test('GET /session/:sessionId/students should return 200 and empty array if no students are assigned', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone6');
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
     const sessionId = createResponse.id;
@@ -234,11 +231,10 @@ describe('Session Routes', () => {
   });
 
   test('GET /session/:sessionId/students should return 404 if no students found', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone5');
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
     const sessionId = createResponse.id;
@@ -252,12 +248,10 @@ describe('Session Routes', () => {
   });
 
   test('POST /api/session/:sessionId/attendance should return 200 and attendance details', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
-
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
 
@@ -303,11 +297,10 @@ describe('Session Routes', () => {
   });
 
   test('POST /api/session/:sessionId/attendance with missing studentId should return 400 and error details', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
 
@@ -326,12 +319,10 @@ describe('Session Routes', () => {
   });
 
   test('PUT /api/session/:sessionId/attendance/:attendanceId should return 200 and updated attendance details', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
-
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
 
@@ -384,12 +375,10 @@ describe('Session Routes', () => {
   });
 
   test('PUT /api/session/:sessionId/attendance/:attendanceId with invalid attendanceId should return 400 and error details', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
-
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
 
@@ -408,11 +397,10 @@ describe('Session Routes', () => {
   });
 
   test('POST /api/session/:sessionId/attendance without attendanceId and checkIn should return 400 and error details', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
 
@@ -431,12 +419,10 @@ describe('Session Routes', () => {
   });
 
   test('DELETE /api/session/:sessionId/attendance/:attendanceId should return 204', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
-
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
 
@@ -471,12 +457,10 @@ describe('Session Routes', () => {
   });
 
   test('DELETE /api/session/:sessionId/attendance/:attendanceId with invalid attendanceId should return 400 and error details', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
-
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
 

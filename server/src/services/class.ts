@@ -18,28 +18,34 @@ class ClassService {
 
   async getClass(id: string): Promise<Class> {
     const result = await this.db.runAndReadAll<Class>(
-      `SELECT id, name FROM class WHERE id = ?`,
+      `SELECT id, name, roomNumber, startTime, endTime FROM class WHERE id = ?`,
       [id]
     );
 
     if (result.length > 0) {
-      return result[0];
+      return {
+        id: id,
+        name: result[0].name,
+        roomNumber: result[0].roomNumber,
+        startTime: UtilService.formatDate(result[0].startTime),
+        endTime: UtilService.formatDate(result[0].endTime)
+      }
     }
     throw new Error(`Class with id '${id}' not found`);
   }
 
-  async createClass(name: string): Promise<Class> {
+  async createClass(name: string, roomNumber: string, startTime: string, endTime: string): Promise<Class> {
     if (!name) {
       throw new Error('Name cannot be empty');
     }
 
     const id = uuidv4();
     await this.db.runWithNoReturned(
-      `INSERT INTO class (id, name) VALUES (?, ?)`,
-      [id, name]
+      `INSERT INTO class (id, name, roomNumber, startTime, endTime) VALUES (?, ?, ?, ?, ?)`,
+      [id, name, roomNumber, startTime, endTime ]
     );
 
-    return { id, name, roomNumber: null, startTime: null, endTime: null };
+    return { id, name, roomNumber, startTime, endTime };
   }
 
   async updateClass(id: string, name: string): Promise<Class> {
@@ -50,7 +56,7 @@ class ClassService {
       existingClass.id,
     ]);
 
-    return { id, name, roomNumber: null, startTime: null, endTime: null };
+    return { id, name, roomNumber: existingClass.roomNumber, startTime: existingClass.startTime, endTime: existingClass.endTime };
   }
 
   async deleteClass(id: string): Promise<void> {
@@ -67,12 +73,17 @@ class ClassService {
     username: string
   ): Promise<ClassPageResponse> {
     const whereClause = `where id in (select classId from professor_class_lookup where username = '${username}')`;
-    return await UtilService.buildPageResponse<Class>(
+    let pageResponse = await UtilService.buildPageResponse<Class>(
       page,
       size,
       'Class',
       whereClause
     );
+    pageResponse.data.forEach(page => {
+      page.startTime = UtilService.formatDate(page.startTime)
+      page.endTime = UtilService.formatDate(page.endTime)
+    })
+    return pageResponse
   }
 
   async getSessionsForClass(classId: string): Promise<Session[]> {
@@ -114,8 +125,8 @@ class ClassService {
         id: cls.id,
         name: cls.name,
         roomNumber: cls.roomNumber,
-        startTime: UtilService.formatDate(cls.startTime || ''),
-        endTime: UtilService.formatDate(cls.endTime || ''),
+        startTime: UtilService.formatDate(cls.startTime),
+        endTime: UtilService.formatDate(cls.endTime),
       });
     }
 

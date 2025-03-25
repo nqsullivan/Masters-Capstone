@@ -22,7 +22,7 @@ describe('Dashboard API', () => {
   let studentId2: string = '';
 
   beforeAll(async () => {
-    let classResult = await ClassService.createClass('Test Class');
+    let classResult = await ClassService.createClass('Test Class','PRLTA201', '10:00:00', '11:15:00');
     classId = classResult.id;
     let professor1 = await UserService.insertUser({
       username: 'professor1',
