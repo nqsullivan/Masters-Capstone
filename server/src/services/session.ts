@@ -19,9 +19,8 @@ class SessionService {
     startTime: string,
     endTime: string,
     classId: string,
-    professorId: string
   ): Promise<Session> {
-    if (!classId || !startTime || !endTime || !professorId) {
+    if (!classId || !startTime || !endTime) {
       throw new Error('All fields are required');
     }
 
@@ -38,11 +37,11 @@ class SessionService {
     const id = uuidv4();
 
     await this.db.runWithNoReturned(
-      `INSERT INTO session (id, startTime, endTime, classId, professorId) VALUES (?, ?, ?, ?, ?)`,
-      [id, startTime, endTime, classId, professorId]
+      `INSERT INTO session (id, startTime, endTime, classId) VALUES (?, ?, ?, ?)`,
+      [id, startTime, endTime, classId]
     );
 
-    return { id, startTime, endTime, classId, professorId };
+    return { id, startTime, endTime, classId };
   }
 
   async getSession(sessionId: string): Promise<{ [key: string]: any }> {
@@ -84,7 +83,6 @@ class SessionService {
     startTime: string,
     endTime: string,
     classId: string,
-    professorId: string
   ): Promise<Session> {
     const existingSession = await this.getSession(sessionId);
     if (!existingSession) {
@@ -92,24 +90,11 @@ class SessionService {
     }
 
     await this.db.runWithNoReturned(
-      `UPDATE session SET startTime = ?, endTime = ?, classId = ?, professorId = ? WHERE id = ?`,
-      [startTime, endTime, classId, professorId, sessionId]
+      `UPDATE session SET startTime = ?, endTime = ?, classId = ?,  WHERE id = ?`,
+      [startTime, endTime, classId, sessionId]
     );
 
-    return { id: sessionId, startTime, endTime, classId, professorId };
-  }
-
-  async getStudentsForSession(sessionId: string): Promise<string[]> {
-    const result = await this.db.runAndReadAll<{ studentId: string }>(
-      `SELECT studentId FROM student_session_lookup WHERE sessionId = ?`,
-      [sessionId]
-    );
-
-    if (result.length > 0) {
-      return result.map((row) => row.studentId);
-    }
-
-    return [];
+    return { id: sessionId, startTime, endTime, classId };
   }
 
   async addAttendanceRecord(

@@ -103,9 +103,8 @@ class ClassService {
       startTime: string;
       endTime: string;
       classId: string;
-      professorId: string;
     }>(
-      `SELECT id, startTime, endTime, classId, professorId FROM session WHERE classId = ?`,
+      `SELECT id, startTime, endTime, classId FROM session WHERE classId = ?`,
       [classId]
     );
 
@@ -116,8 +115,7 @@ class ClassService {
         id: session.id,
         startTime: UtilService.formatDate(session.startTime),
         endTime: UtilService.formatDate(session.endTime),
-        classId: session.classId,
-        professorId: session.professorId,
+        classId: session.classId
       });
     }
 

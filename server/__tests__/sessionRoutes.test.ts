@@ -50,7 +50,6 @@ describe('Session Routes', () => {
       classId: classId,
       startTime: mockStartTime,
       endTime: mockEndTime,
-      professorId: 'fakeProfId',
     };
 
     const response = await request(app)
@@ -66,8 +65,7 @@ describe('Session Routes', () => {
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
     const sessionId = createResponse.id;
 
@@ -93,7 +91,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
     const sessionId = createResponse.id;
 
@@ -110,7 +108,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
     const sessionId = createResponse.id;
 
@@ -118,7 +116,6 @@ describe('Session Routes', () => {
       startTime: new Date('2026-01-01T12:00:00Z'),
       endTime: new Date('2026-01-01T13:00:00Z'),
       classId: classId,
-      professorId: 'fakeProfId',
     };
 
     const updateResponse = await request(app)
@@ -134,7 +131,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
     const sessionId = createResponse.id;
 
@@ -174,7 +171,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
     const sessionId = createResponse.id;
 
@@ -200,7 +197,6 @@ describe('Session Routes', () => {
       startTime: new Date('2026-01-01T12:00:00Z'),
       endTime: new Date('2026-01-01T13:00:00Z'),
       classId: 'fakeClassId',
-      professorId: 'fakeProfId',
     };
 
     const response = await request(app)
@@ -238,7 +234,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
     const sessionId = createResponse.id;
 
@@ -255,7 +251,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
 
     const studentResponse = await StudentService.createStudent(
@@ -304,7 +300,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
 
     const attendanceData = {
@@ -326,7 +322,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
 
     const studentResponse = await StudentService.createStudent(
@@ -382,7 +378,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
 
     const updatedAttendanceData = {
@@ -404,7 +400,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
 
     const attendanceData = {
@@ -426,7 +422,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
 
     const studentResponse = await StudentService.createStudent(
@@ -464,7 +460,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
 
     const response = await request(app)
@@ -480,7 +476,7 @@ describe('Session Routes', () => {
       mockStartTime,
       mockEndTime,
       classId,
-      'fakeProfId'
+      
     );
 
     const studentResponse = await StudentService.createStudent(
