@@ -476,11 +476,10 @@ describe('Session Routes', () => {
   });
 
   test('GET /session/:sessionId/attendance should return 200 and attendance records', async () => {
-    const classResponse = await ClassService.createClass('SER517 Capstone2');
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classResponse.id,
+      classId,
       'fakeProfId'
     );
 
