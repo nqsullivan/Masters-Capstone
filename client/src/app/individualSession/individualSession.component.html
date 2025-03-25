@@ -17,7 +17,11 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ sessionInfo.className }}</td>
+            <td>
+              <a [routerLink]="['/class', sessionInfo.classId]">{{
+                sessionInfo.className
+              }}</a>
+            </td>
             <td>{{ sessionInfo.startTime }}</td>
             <td>{{ sessionInfo.endTime }}</td>
             <td>{{ sessionInfo.professorId }}</td>
@@ -36,7 +40,6 @@
         <thead>
           <tr>
             <th>Record ID</th>
-            <th>Student ID</th>
             <th>Student Name</th>
           </tr>
         </thead>
@@ -47,8 +50,11 @@
                 attendance.id
               }}</a>
             </td>
-            <td>{{ attendance.studentId }}</td>
-            <td>{{ attendance.studentName }}</td>
+            <td>
+              <a [routerLink]="['/student', attendance.studentId]">{{
+                attendance.studentName
+              }}</a>
+            </td>
           </tr>
         </tbody>
       </table>
