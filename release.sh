@@ -31,7 +31,7 @@ build_and_copy "server" "npm run build" "npm ci" "dist/server" "../release"
 
 rsync -a --delete controller/ "$release_dir/controller" --exclude=".git"
 
-tar -czf release/release.tar.gz -C release .
+tar --no-xattrs -czf release/release.tar.gz -C release .
 
 if [ -z "$RPI_HOST" ]; then
     read -p "Enter Raspberry Pi hostname (or IP): " RPI_HOST
