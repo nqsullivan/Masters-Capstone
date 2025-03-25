@@ -474,4 +474,32 @@ describe('Session Routes', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('error');
   });
+
+  test('GET /session/:sessionId/attendance should return 200 and attendance records', async () => {
+    const classResponse = await ClassService.createClass('SER517 Capstone2');
+    const sessionResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classResponse.id,
+      'fakeProfId'
+    );
+
+    const studentResponse = await StudentService.createStudent(
+      'fake student',
+      'fake_image_path'
+    );
+
+    await SessionService.addAttendanceRecord(
+      sessionResponse.id,
+      studentResponse.id,
+      '2021-02-17T18:00:00.000Z',
+      'fake url'
+    );
+
+    const response = await request(app)
+      .get(`/api/session/${sessionResponse.id}/attendance`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+  });
 });

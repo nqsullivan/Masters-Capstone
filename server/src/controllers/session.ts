@@ -127,6 +127,10 @@ const addAttendanceRecord = async (
 ) => {
   const { sessionId } = req.params;
   const { studentId, checkInTime, portraitUrl } = req.body;
+  console.log('sessionId', sessionId);
+  console.log('studentId', studentId);
+  console.log('checkInTime', checkInTime);
+  console.log('portraitUrl', portraitUrl);
   try {
     const attendance = await SessionService.addAttendanceRecord(
       sessionId,
@@ -179,6 +183,23 @@ const deleteAttendanceRecord = async (
   }
 };
 
+const getAttendanceRecords = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { sessionId } = req.params;
+  try {
+    const attendanceRecords =
+      await SessionService.getAttendanceRecordsForSessions([sessionId]);
+    res.status(200).send(attendanceRecords);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  } finally {
+    next();
+  }
+};
+
 export {
   createSession,
   deleteSession,
@@ -188,4 +209,5 @@ export {
   addAttendanceRecord,
   modifyAttendanceRecord,
   deleteAttendanceRecord,
+  getAttendanceRecords,
 };

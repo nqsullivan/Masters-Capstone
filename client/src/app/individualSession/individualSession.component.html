@@ -1,0 +1,57 @@
+<div class="dashboard-container">
+  <h1>Session {{ sessionInfo.id }}</h1>
+
+  <div class="dashboard-widgets">
+    <div class="widget">
+      <h2>Session Information</h2>
+      <p *ngIf="!sessionInfo">Select a class to view session details.</p>
+      <div *ngIf="sessionInfo"></div>
+      <table class="refined-table">
+        <thead>
+          <tr>
+            <th>Class Name</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Professor ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ sessionInfo.className }}</td>
+            <td>{{ sessionInfo.startTime }}</td>
+            <td>{{ sessionInfo.endTime }}</td>
+            <td>{{ sessionInfo.professorId }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="widget">
+      <h2>Attendance Record</h2>
+      <p *ngIf="!attendances.length">
+        No attendance records found for this class.
+      </p>
+      <div class="student-stats" *ngIf="attendances.length"></div>
+      <table class="refined-table">
+        <thead>
+          <tr>
+            <th>Record ID</th>
+            <th>Student ID</th>
+            <th>Student Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let attendance of attendances">
+            <td>
+              <a [routerLink]="['/attendance', attendance.id]">{{
+                attendance.id
+              }}</a>
+            </td>
+            <td>{{ attendance.studentId }}</td>
+            <td>{{ attendance.studentName }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
