@@ -40,7 +40,14 @@ describe('Student-Class Assignment API', () => {
     }
 
     // Create a class
-    classId = (await ClassService.createClass(className, roomNumber, mockStartTime, mockEndTime)).id;
+    classId = (
+      await ClassService.createClass(
+        className,
+        roomNumber,
+        mockStartTime,
+        mockEndTime
+      )
+    ).id;
 
     // Create students
     await db.runWithNoReturned(

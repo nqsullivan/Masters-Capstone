@@ -33,7 +33,12 @@ describe('Session Routes', () => {
     if (!token) {
       throw new Error('Failed to generate admin token');
     }
-    const classResponse = await ClassService.createClass('SER517 Capstone2', 'PRLTA201','10:00:00','11:15:00');
+    const classResponse = await ClassService.createClass(
+      'SER517 Capstone2',
+      'PRLTA201',
+      '10:00:00',
+      '11:15:00'
+    );
     classId = classResponse.id;
   });
 
@@ -41,8 +46,6 @@ describe('Session Routes', () => {
   const mockEndTime = new Date('2025-01-01T11:00:00Z').toISOString();
 
   test('POST /session should create a new session', async () => {
-    
-
     const sessionData = {
       classId: classId,
       startTime: mockStartTime,

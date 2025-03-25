@@ -16,7 +16,12 @@ const getClass = async (req: Request, res: Response, next: NextFunction) => {
 const createClass = async (req: Request, res: Response, next: NextFunction) => {
   const { name, roomNumber, startTime, endTime } = req.body;
   try {
-    const newClass = await ClassService.createClass(name, roomNumber, startTime, endTime);
+    const newClass = await ClassService.createClass(
+      name,
+      roomNumber,
+      startTime,
+      endTime
+    );
     res.status(201).send(newClass);
     next();
   } catch (e: any) {

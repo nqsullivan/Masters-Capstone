@@ -28,13 +28,18 @@ class ClassService {
         name: result[0].name,
         roomNumber: result[0].roomNumber,
         startTime: UtilService.formatDate(result[0].startTime),
-        endTime: UtilService.formatDate(result[0].endTime)
-      }
+        endTime: UtilService.formatDate(result[0].endTime),
+      };
     }
     throw new Error(`Class with id '${id}' not found`);
   }
 
-  async createClass(name: string, roomNumber: string, startTime: string, endTime: string): Promise<Class> {
+  async createClass(
+    name: string,
+    roomNumber: string,
+    startTime: string,
+    endTime: string
+  ): Promise<Class> {
     if (!name) {
       throw new Error('Name cannot be empty');
     }
@@ -42,7 +47,7 @@ class ClassService {
     const id = uuidv4();
     await this.db.runWithNoReturned(
       `INSERT INTO class (id, name, roomNumber, startTime, endTime) VALUES (?, ?, ?, ?, ?)`,
-      [id, name, roomNumber, startTime, endTime ]
+      [id, name, roomNumber, startTime, endTime]
     );
 
     return { id, name, roomNumber, startTime, endTime };
@@ -56,7 +61,13 @@ class ClassService {
       existingClass.id,
     ]);
 
-    return { id, name, roomNumber: existingClass.roomNumber, startTime: existingClass.startTime, endTime: existingClass.endTime };
+    return {
+      id,
+      name,
+      roomNumber: existingClass.roomNumber,
+      startTime: existingClass.startTime,
+      endTime: existingClass.endTime,
+    };
   }
 
   async deleteClass(id: string): Promise<void> {
@@ -79,11 +90,11 @@ class ClassService {
       'Class',
       whereClause
     );
-    pageResponse.data.forEach(page => {
-      page.startTime = UtilService.formatDate(page.startTime)
-      page.endTime = UtilService.formatDate(page.endTime)
-    })
-    return pageResponse
+    pageResponse.data.forEach((page) => {
+      page.startTime = UtilService.formatDate(page.startTime);
+      page.endTime = UtilService.formatDate(page.endTime);
+    });
+    return pageResponse;
   }
 
   async getSessionsForClass(classId: string): Promise<Session[]> {

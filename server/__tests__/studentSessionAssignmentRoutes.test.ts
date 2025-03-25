@@ -27,7 +27,12 @@ describe('Student-Session Assignment API', () => {
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00' });
+      .send({
+        name: 'SER517 Capstone',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
+      });
 
     classId1 = classResponse.body.id;
     const sessionResponse = await request(app)

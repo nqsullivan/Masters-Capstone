@@ -37,7 +37,12 @@ describe('Class API', () => {
     const response = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00'});
+      .send({
+        name: 'SER517 Capstone',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
+      });
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('name', 'SER517 Capstone');
@@ -57,7 +62,12 @@ describe('Class API', () => {
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00' });
+      .send({
+        name: 'SER517 Capstone',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
+      });
 
     const response = await request(app)
       .get(`/api/class/${classResponse.body.id}`)
@@ -83,7 +93,12 @@ describe('Class API', () => {
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00' });
+      .send({
+        name: 'SER517 Capstone',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
+      });
 
     const response = await request(app)
       .put(`/api/class/${classResponse.body.id}`)
@@ -111,7 +126,12 @@ describe('Class API', () => {
     const classResponse = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00' });
+      .send({
+        name: 'SER517 Capstone',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
+      });
 
     const response = await request(app)
       .delete(`/api/class/${classResponse.body.id}`)
@@ -137,14 +157,20 @@ describe('Class API', () => {
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        name: 'SER517', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00'
+        name: 'SER517',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
       });
 
     const classResponse2 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        name: 'CSE546', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00'
+        name: 'CSE546',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
       });
 
     await request(app)
@@ -176,14 +202,20 @@ describe('Class API', () => {
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        name: 'SER517', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00'
+        name: 'SER517',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
       });
 
     const classResponse2 = await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        name: 'CSE546', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00'
+        name: 'CSE546',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
       });
 
     await request(app)
@@ -209,41 +241,61 @@ describe('Class API', () => {
     expect(response.body.data[0]).toHaveProperty('name', 'CSE546');
   });
 
-  test('GET api/schedule with existing roomNumber should return all classes for that roomNumber', async ()=> {
+  test('GET api/schedule with existing roomNumber should return all classes for that roomNumber', async () => {
     await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00'});
-    
-    await request(app)
-      .post('/api/class')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER540 Embedded Systems', roomNumber: 'PRLTA201', startTime: '11:30:00', endTime: '12:45:00'});
+      .send({
+        name: 'SER517 Capstone',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
+      });
 
-      const response = await request(app)
+    await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'SER540 Embedded Systems',
+        roomNumber: 'PRLTA201',
+        startTime: '11:30:00',
+        endTime: '12:45:00',
+      });
+
+    const response = await request(app)
       .get(`/api/schedule/PRLTA201`)
       .set('Authorization', `Bearer ${token}`);
 
-      expect(response.status).toBe(200);
-      expect(response.body[0]).toHaveProperty('name', 'SER517 Capstone');
-      expect(response.body[1]).toHaveProperty('name', 'SER540 Embedded Systems');
+    expect(response.status).toBe(200);
+    expect(response.body[0]).toHaveProperty('name', 'SER517 Capstone');
+    expect(response.body[1]).toHaveProperty('name', 'SER540 Embedded Systems');
   });
 
-  test('GET api/schedule with non-existent roomNumber should return no classes for that roomNumber', async ()=> {
+  test('GET api/schedule with non-existent roomNumber should return no classes for that roomNumber', async () => {
     await request(app)
       .post('/api/class')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER517 Capstone', roomNumber: 'PRLTA201', startTime: '10:00:00', endTime: '11:15:00'});
-    
-    await request(app)
-      .post('/api/class')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'SER540 Embedded Systems', roomNumber: 'PRLTA201', startTime: '11:30:00', endTime: '12:45:00'});
+      .send({
+        name: 'SER517 Capstone',
+        roomNumber: 'PRLTA201',
+        startTime: '10:00:00',
+        endTime: '11:15:00',
+      });
 
-      const response = await request(app)
+    await request(app)
+      .post('/api/class')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'SER540 Embedded Systems',
+        roomNumber: 'PRLTA201',
+        startTime: '11:30:00',
+        endTime: '12:45:00',
+      });
+
+    const response = await request(app)
       .get(`/api/schedule/SANTAN500`)
       .set('Authorization', `Bearer ${token}`);
 
-      expect(response.status).toBe(400);
+    expect(response.status).toBe(400);
   });
 });
