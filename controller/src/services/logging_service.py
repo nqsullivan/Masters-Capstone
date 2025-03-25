@@ -15,7 +15,7 @@ class LoggingService:
             "entityId": entityId,
         }
         try:
-            return self.api_service.post("/log", json=log_entry)
+            return self.api_service.post("/log", json=log_entry).json()
         except Exception as e:
             print(f"Logging failed: {e}")
             return None, None

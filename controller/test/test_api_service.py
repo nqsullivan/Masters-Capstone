@@ -32,12 +32,12 @@ class TestAPIService(unittest.TestCase):
         mock_response.json.return_value = {"message": "created"}
         mock_post.return_value = mock_response
 
-        response = self.api_service.post("test-endpoint", data={"key": "value"})
+        response = self.api_service.post("test-endpoint", json={"key": "value"})
         self.assertEqual(response, {"message": "created"})
         mock_post.assert_called_once_with(
             f"{self.base_url}/test-endpoint",
             headers=self.api_service.headers,
-            data={"key": "value"},
+            json={"key": "value"},
         )
 
     @patch("requests.put")
@@ -47,12 +47,12 @@ class TestAPIService(unittest.TestCase):
         mock_response.json.return_value = {"message": "updated"}
         mock_put.return_value = mock_response
 
-        response = self.api_service.put("test-endpoint", data={"key": "value"})
+        response = self.api_service.put("test-endpoint", json={"key": "value"})
         self.assertEqual(response, {"message": "updated"})
         mock_put.assert_called_once_with(
             f"{self.base_url}/test-endpoint",
             headers=self.api_service.headers,
-            data={"key": "value"},
+            json={"key": "value"},
         )
 
     @patch("requests.delete")
@@ -87,7 +87,7 @@ class TestAPIService(unittest.TestCase):
         mock_post.return_value = mock_response
 
         with self.assertRaises(requests.HTTPError):
-            self.api_service.post("test-endpoint", data={"key": "value"})
+            self.api_service.post("test-endpoint", json={"key": "value"})
 
 
 if __name__ == "__main__":
