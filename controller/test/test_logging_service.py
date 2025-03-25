@@ -23,9 +23,9 @@ class TestLoggingService(unittest.TestCase):
 
         status_code, response_json = self.logging_service.log(
             action="TEST_ACTION",
-            user_id="user123",
-            entity_type="TestEntity",
-            entity_id="entity123",
+            userId="user123",
+            entityType="TestEntity",
+            entityId="entity123",
         )
 
         self.assertEqual(status_code, 200)
@@ -50,9 +50,9 @@ class TestLoggingService(unittest.TestCase):
 
         status_code, response_json = self.logging_service.log(
             action="TEST_ACTION",
-            user_id="user123",
-            entity_type="TestEntity",
-            entity_id="entity123",
+            userId="user123",
+            entityType="TestEntity",
+            entityId="entity123",
         )
 
         self.assertIsNone(status_code)
@@ -77,9 +77,9 @@ class TestLoggingService(unittest.TestCase):
 
         status_code, response_json = self.logging_service.log(
             action="TEST_ACTION",
-            user_id="user123",
-            entity_type="TestEntity",
-            entity_id="entity123",
+            userId="user123",
+            entityType="TestEntity",
+            entityId="entity123",
         )
 
         self.assertIsNone(status_code)

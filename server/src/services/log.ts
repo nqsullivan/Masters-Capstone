@@ -18,7 +18,7 @@ class LogService {
 
   async getLog(id: string): Promise<Log> {
     const result = await this.db.runAndReadAll<Log>(
-      `SELECT id, timestamp, userId, action, entity_type, entityId FROM log WHERE id = ?`,
+      `SELECT id, timestamp, userId, action, entityType, entityId FROM log WHERE id = ?`,
       [id]
     );
 
@@ -39,14 +39,14 @@ class LogService {
     const currentDate = this.db.getCurrentDate();
 
     const preparedStmt = await this.db.getPreparedStatementObject(
-      'INSERT INTO log (id, timestamp, userId, action, entity_type, entityId) VALUES ($1, $2, $3, $4, $5, $6)'
+      'INSERT INTO log (id, timestamp, userId, action, entityType, entityId) VALUES ($1, $2, $3, $4, $5, $6)'
     );
 
     preparedStmt.bindVarchar(1, id);
     preparedStmt.bindTimestamp(2, currentDate);
     preparedStmt.bindVarchar(3, logDetails.userId);
     preparedStmt.bindVarchar(4, logDetails.action);
-    preparedStmt.bindVarchar(5, logDetails.entity_type);
+    preparedStmt.bindVarchar(5, logDetails.entityType);
     preparedStmt.bindVarchar(6, logDetails.entityId);
 
     await this.db.runPreparedStatement(preparedStmt);
@@ -56,7 +56,7 @@ class LogService {
       timestamp: currentDate.toString(),
       userId: logDetails.userId,
       action: logDetails.action,
-      entity_type: logDetails.entity_type,
+      entityType: logDetails.entityType,
       entityId: logDetails.entityId,
     };
   }

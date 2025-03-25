@@ -14,11 +14,11 @@ const getLog = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const createLog = async (req: Request, res: Response, next: NextFunction) => {
-  const { userId, action, entity_type, entityId } = req.body;
+  const { userId, action, entityType, entityId } = req.body;
   const logRequest: CreateLogRequest = {
     userId,
     action,
-    entity_type,
+    entityType,
     entityId,
   };
   try {
