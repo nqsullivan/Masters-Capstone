@@ -40,7 +40,7 @@ describe('Log API', () => {
       .send({
         userId: 'admin',
         action: 'LOGIN',
-        entity_type: 'USER',
+        entityType: 'USER',
         entityId: 'admin',
       });
 
@@ -55,7 +55,7 @@ describe('Log API', () => {
       .send({
         userId: 'admin',
         action: 'SCAN',
-        entity_type: 'USER',
+        entityType: 'USER',
         entityId: 'admin',
       });
 
@@ -86,7 +86,7 @@ describe('Log API', () => {
       .send({
         userId: 'admin',
         action: 'LOGIN',
-        entity_type: 'SESSION',
+        entityType: 'SESSION',
         entityId: 'admin',
       });
 
@@ -116,7 +116,7 @@ describe('Log API', () => {
       .send({
         userId: 'admin',
         action: 'SCAN',
-        entity_type: 'USER',
+        entityType: 'USER',
         entityId: 'admin',
       });
 
@@ -126,7 +126,7 @@ describe('Log API', () => {
       .send({
         userId: 'admin',
         action: 'LOGIN',
-        entity_type: 'USER',
+        entityType: 'USER',
         entityId: 'admin',
       });
 
@@ -151,7 +151,7 @@ describe('Log API', () => {
       .send({
         userId: 'admin',
         action: 'SCAN',
-        entity_type: 'USER',
+        entityType: 'USER',
         entityId: 'admin',
       });
 
@@ -161,7 +161,7 @@ describe('Log API', () => {
       .send({
         userId: 'admin',
         action: 'LOGIN',
-        entity_type: 'USER',
+        entityType: 'USER',
         entityId: 'admin',
       });
 

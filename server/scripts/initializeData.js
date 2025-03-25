@@ -186,7 +186,7 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, userId VARCHAR, action VARCHAR, entity_type VARCHAR, entityId VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, userId VARCHAR, action VARCHAR, entityType VARCHAR, entityId VARCHAR)'
     );
 
     const logData = [
@@ -196,7 +196,7 @@ async function init() {
     ];
     for (const data of logData) {
       await db.run(
-        'INSERT INTO log (id, timestamp, userId, action, entity_type, entityId) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO log (id, timestamp, userId, action, entityType, entityId) VALUES (?, ?, ?, ?, ?, ?)',
         data
       );
     }

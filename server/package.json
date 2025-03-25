@@ -7,7 +7,7 @@
   "scripts": {
     "start": "NODE_OPTIONS='--loader ts-node/esm' ts-node index.ts",
     "dev": "nodemon index.ts",
-    "build": "tsc && cp Dockerfile dist/server/Dockerfile && cp package*.json dist/server/",
+    "build": "tsc && cp Dockerfile dist/server/Dockerfile && cp package*.json dist/server/ && cp -r data dist/server/",
     "serve": "node dist/index.js",
     "format": "prettier --write .",
     "test": "jest --coverage",

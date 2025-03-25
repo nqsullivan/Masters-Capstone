@@ -13,10 +13,19 @@ def mock_nfc_camera():
 
 
 @pytest.fixture
-def state_machine(mock_nfc_camera):
-    """Creates a StateMachine instance with mock NFC and Camera controllers."""
+def mock_logger_api():
+    """Creates mock Logger and APIService for testing."""
+    mock_logger = Mock()
+    mock_api_service = Mock()
+    return mock_logger, mock_api_service
+
+
+@pytest.fixture
+def state_machine(mock_nfc_camera, mock_logger_api):
+    """Creates a StateMachine instance with mocks."""
     mock_nfc, mock_camera = mock_nfc_camera
-    sm = StateMachine(mock_nfc, mock_camera)
+    mock_logger, mock_api_service = mock_logger_api
+    sm = StateMachine(mock_nfc, mock_camera, mock_logger, mock_api_service)
     yield sm
     sm.stop()
 
