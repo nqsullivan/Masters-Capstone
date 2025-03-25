@@ -6,7 +6,7 @@ release_dir="./release"
 
 prepare_release_dir() {
     cd "$release_dir"
-    git clean -fdx
+    git clean -fdx --exclude=.env
     cd - > /dev/null
 }
 
@@ -53,7 +53,7 @@ ssh "$RPI_USER@$RPI_HOST" << 'EOF'
     docker compose pull
     docker compose down
     docker compose build
-    docker compose up -d
+    docker compose --env-file .env up -d
     rm ~/release.tar.gz
 EOF
 
