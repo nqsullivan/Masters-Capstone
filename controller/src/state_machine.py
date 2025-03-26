@@ -10,7 +10,7 @@ STREAMING_TIMEOUT = 60
 class StateMachine:
     states = ["IDLE", "ACTIVE", "STREAMING"]
 
-    def __init__(self, nfc_controller, camera_controller):
+    def __init__(self, nfc_controller, camera_controller, logging_service, api_service):
         self.nfc_controller = nfc_controller
         self.camera_controller = camera_controller
         self.state = "IDLE"
@@ -18,6 +18,8 @@ class StateMachine:
         self.running = True
         self.last_motion_time = None
         self.last_streaming_time = None
+        self.logging_service = logging_service
+        self.api_service = api_service
 
         self.event_thread = threading.Thread(target=self.process_events, daemon=True)
         self.event_thread.start()
@@ -79,6 +81,7 @@ class StateMachine:
     def printt(self, toPrint):
         """Prints logs with timestamps."""
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}]: {toPrint}")
+        self.logging_service.log(action=toPrint)
 
     def send_event(self, event_name, event_data=None):
         """Adds an event to the queue for processing."""

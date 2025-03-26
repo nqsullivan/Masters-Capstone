@@ -17,6 +17,8 @@ services:
     environment:
       - BLINKA_FORCEBOARD=RaspberryPi4
       - BLINKA_FORCECHIP=BCM2XXX
+      - API_URL=http://localhost:3000
+      - API_KEY=${API_KEY}
     volumes:
       - "/sys:/sys:ro"
       - "/proc/device-tree:/proc/device-tree:ro"
