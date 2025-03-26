@@ -1,54 +1,110 @@
 <div class="dashboard-container">
   <h1>Class: {{ className }}</h1>
-
   <div class="dashboard-widgets">
     <div class="widget">
       <h2>Session Information</h2>
-      <p *ngIf="!sessionInfo">Select a class to view session details.</p>
-      <div *ngIf="sessionInfo && sessionInfo.length">
-        <table class="refined-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-              <th>Professor ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let session of sessionInfo">
-              <td>
-                <a [routerLink]="['/session', session.id]">{{ session.id }}</a>
-              </td>
-              <td>{{ session.startTime }}</td>
-              <td>{{ session.endTime }}</td>
-              <td>{{ session.professorId }}</td>
-            </tr>
-          </tbody>
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input
+          matInput
+          (keyup)="applySessionFilter($event)"
+          placeholder="Ex. 03-10-2025"
+          #input
+        />
+      </mat-form-field>
+
+      <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="sessionsDataSource" matSort>
+          <!-- ID Column -->
+          <ng-container matColumnDef="ID">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let row">
+              <a [routerLink]="['/session', row.id]">{{ row.id }}</a>
+            </td>
+          </ng-container>
+
+          <!-- Start Time Column -->
+          <ng-container matColumnDef="Start Time">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Start Time
+            </th>
+            <td mat-cell *matCellDef="let row">{{ row.startTime }}</td>
+          </ng-container>
+
+          <!-- End Time Column -->
+          <ng-container matColumnDef="End Time">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>End Time</th>
+            <td mat-cell *matCellDef="let row">{{ row.endTime }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="sessionsDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: sessionsDisplayedColumns"
+          ></tr>
+
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">
+              No data matching the filter "{{ input.value }}"
+            </td>
+          </tr>
         </table>
+
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          aria-label="Select page of users"
+        ></mat-paginator>
       </div>
     </div>
 
     <div class="widget">
-      <h2>Student Enrolled</h2>
-      <p *ngIf="!students.length">No students found for this class.</p>
-      <div class="student-stats" *ngIf="students.length"></div>
-      <table class="refined-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let student of students">
-            <td>
-              <a [routerLink]="['/student', student.id]">{{ student.name }}</a>
+      <h2>Students Enrolled</h2>
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input
+          matInput
+          (keyup)="applyStudentsFilter($event)"
+          placeholder="Ex. FirstName LastName"
+          #input
+        />
+      </mat-form-field>
+
+      <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="studentsDataSource" matSort>
+          <!-- Name Column -->
+          <ng-container matColumnDef="Name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <td mat-cell *matCellDef="let row">
+              <a [routerLink]="['/session', row.id]">{{ row.name }}</a>
             </td>
-            <td>{{ student.id }}</td>
+          </ng-container>
+
+          <!-- ID Column -->
+          <ng-container matColumnDef="ID">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="studentsDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: studentsDisplayedColumns"
+          ></tr>
+
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">
+              No data matching the filter "{{ input.value }}"
+            </td>
           </tr>
-        </tbody>
-      </table>
+        </table>
+
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          aria-label="Select page of users"
+        ></mat-paginator>
+      </div>
     </div>
   </div>
 </div>
