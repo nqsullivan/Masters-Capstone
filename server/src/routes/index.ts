@@ -26,6 +26,7 @@ import {
   deleteClass,
   getClassPage,
   getSessionsForClass,
+  getSchedulesForRoomNumber,
 } from '../controllers/class.js';
 import {
   getProfessorsForClass,
@@ -67,6 +68,8 @@ router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 router.post('/class/:classId/students', verifyToken, addStudentsToClass);
 router.get('/class/:classId/students', verifyToken, getStudentsForClass);
+
+router.get('/schedule/:roomNumber', verifyToken, getSchedulesForRoomNumber);
 
 // Session routes
 router.post('/session', verifyToken, createSession);
