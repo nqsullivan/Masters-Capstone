@@ -15,6 +15,9 @@ describe('Student-Class Assignment API', () => {
   let token: string;
   let db: DatabaseAccess;
   const className = 'SER517 Capstone';
+  const roomNumber = 'PRLTA201';
+  const mockStartTime = '10:00:00';
+  const mockEndTime = '11:15:00';
   let classId: string;
 
   beforeAll(async () => {
@@ -37,7 +40,14 @@ describe('Student-Class Assignment API', () => {
     }
 
     // Create a class
-    classId = (await ClassService.createClass(className)).id;
+    classId = (
+      await ClassService.createClass(
+        className,
+        roomNumber,
+        mockStartTime,
+        mockEndTime
+      )
+    ).id;
 
     // Create students
     await db.runWithNoReturned(

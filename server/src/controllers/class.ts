@@ -14,9 +14,14 @@ const getClass = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const createClass = async (req: Request, res: Response, next: NextFunction) => {
-  const { name } = req.body;
+  const { name, roomNumber, startTime, endTime } = req.body;
   try {
-    const newClass = await ClassService.createClass(name);
+    const newClass = await ClassService.createClass(
+      name,
+      roomNumber,
+      startTime,
+      endTime
+    );
     res.status(201).send(newClass);
     next();
   } catch (e: any) {
@@ -91,6 +96,21 @@ const getSessionsForClass = async (
   }
 };
 
+const getSchedulesForRoomNumber = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { roomNumber } = req.params;
+  try {
+    const sessions = await ClassService.getSchedulesForRoomNumber(roomNumber);
+    res.status(200).send(sessions);
+    next();
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
 export {
   getClass,
   createClass,
@@ -98,4 +118,5 @@ export {
   deleteClass,
   getClassPage,
   getSessionsForClass,
+  getSchedulesForRoomNumber,
 };
