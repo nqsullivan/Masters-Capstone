@@ -10,12 +10,6 @@ import { RouterModule } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { Session, Student } from '../models/models';
 
-export interface SessionListData {
-  id: string;
-  startTime: string;
-  endTime: string;
-}
-
 @Component({
   selector: 'app-class-dashboard',
   templateUrl: './individualClass.component.html',
