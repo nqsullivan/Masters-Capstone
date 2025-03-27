@@ -14,7 +14,7 @@ from datetime import datetime
 import torch
 from PIL import Image
 from facenet_pytorch import InceptionResnetV1, MTCNN
-import threading  # modify: import threading for asynchronous clip recording
+import threading  # Import threading for asynchronous clip recording
 
 ##############################################
 # Initialization
@@ -48,7 +48,7 @@ FRED_PIC_DIR = "FRedPic"                 # For full-frame annotated images
 LOG_FILE = "face_log.txt"
 CLIP_VIDEO_DIR = "ClipVideo"             # For storage of the clipped videos
 
-for d in [RAW_PIC_DIR, CAPTURED_PHOTO_DIR, FRED_PIC_DIR, CLIP_VIDEO_DIR]: # modify: add ClipVideo directory
+for d in [RAW_PIC_DIR, CAPTURED_PHOTO_DIR, FRED_PIC_DIR, CLIP_VIDEO_DIR]: 
     if not os.path.exists(d):
         os.makedirs(d)
 
@@ -79,7 +79,7 @@ def capture_image(cap):
         print("⚠️ Failed to read from camera.")
         return None
 
-    timestamp_str = datetime.now().strftime("%m%d%Y_%H%M%S")
+    timestamp_str = datetime.now().strftime("%m%d%Y_%H%M%S_%f")[:-3]  # set Higher Resolution Timestamp
     filename = f"{timestamp_str}.jpg"
     filepath = os.path.join(RAW_PIC_DIR, filename)
     cv2.imwrite(filepath, frame)
@@ -94,7 +94,7 @@ def record_clip(cap):
     """
     global frame_buffer, fps, max_buffer
 
-    trigger_ts = datetime.now().strftime("%m%d%Y_%H%M%S")
+    trigger_ts = datetime.now().strftime("%m%d%Y_%H%M%S_%f")[:-3]  # set Higher Resolution Timestamp
     print(f"Trigger event for video clip at {trigger_ts}")
 
     # 1) Retrieve buffered frames (last 10 sec)
