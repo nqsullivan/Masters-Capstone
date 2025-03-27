@@ -5,12 +5,14 @@ from src.controllers.camera import CameraController
 from src.services.api_service import APIService
 from src.services.logging_service import LoggingService
 import time
-import dotenv
+import os
 
-dotenv.load_dotenv()
+API_URL = os.getenv("API_URL")
+API_KEY = os.getenv("API_KEY")
 
-API_URL = dotenv.getenv("API_URL")
-API_KEY = dotenv.getenv("API_KEY")
+if not API_URL or not API_KEY:
+    print("API_URL and API_KEY environment variables must be set", API_KEY, API_URL)
+    raise ValueError("API_URL and API_KEY environment variables must be set")
 
 api_service = APIService(base_url=API_URL, api_key=API_KEY)
 logger = LoggingService(api_service)

@@ -3,6 +3,6 @@ export interface Log {
   timestamp: string;
   userId: string;
   action: string;
-  entity_type: string;
+  entityType: string;
   entityId: string;
 }

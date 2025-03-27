@@ -1,6 +1,3 @@
-import requests
-
-
 class LoggingService:
     _instance = None
 
@@ -10,16 +7,15 @@ class LoggingService:
             cls._instance.api_service = api_service
         return cls._instance
 
-    def log(self, action, user_id="Controller", entity_type=None, entity_id=None):
+    def log(self, action, userId="Controller", entityType="", entityId=""):
         log_entry = {
-            "userId": user_id,
+            "userId": userId,
             "action": action,
-            "entityType": entity_type,
-            "entityId": entity_id,
+            "entityType": entityType,
+            "entityId": entityId,
         }
         try:
-            response = self.api_service.post("/logs", json=log_entry)
-            return response.status_code, response.json()
+            return self.api_service.post("/log", json=log_entry).json()
         except Exception as e:
             print(f"Logging failed: {e}")
             return None, None

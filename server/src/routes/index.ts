@@ -9,6 +9,7 @@ import {
   addAttendanceRecord,
   modifyAttendanceRecord,
   deleteAttendanceRecord,
+  getAttendanceRecords,
 } from '../controllers/session.js';
 import {
   addStudentsToSession,
@@ -25,6 +26,7 @@ import {
   deleteClass,
   getClassPage,
   getSessionsForClass,
+  getSchedulesForRoomNumber,
 } from '../controllers/class.js';
 import {
   getProfessorsForClass,
@@ -67,6 +69,8 @@ router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 router.post('/class/:classId/students', verifyToken, addStudentsToClass);
 router.get('/class/:classId/students', verifyToken, getStudentsForClass);
 
+router.get('/schedule/:roomNumber', verifyToken, getSchedulesForRoomNumber);
+
 // Session routes
 router.post('/session', verifyToken, createSession);
 router.delete('/session/:id', verifyToken, deleteSession);
@@ -90,6 +94,7 @@ router.delete(
   verifyToken,
   deleteAttendanceRecord
 );
+router.get('/session/:sessionId/attendance', verifyToken, getAttendanceRecords);
 
 // Student routes
 router.get('/student/:id', verifyToken, getStudent);

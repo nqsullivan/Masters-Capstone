@@ -21,17 +21,16 @@ class TestLoggingService(unittest.TestCase):
         mock_post.return_value = mock_response
         self.mock_api_service.post.return_value = mock_response
 
-        status_code, response_json = self.logging_service.log(
+        response_json = self.logging_service.log(
             action="TEST_ACTION",
-            user_id="user123",
-            entity_type="TestEntity",
-            entity_id="entity123",
+            userId="user123",
+            entityType="TestEntity",
+            entityId="entity123",
         )
 
-        self.assertEqual(status_code, 200)
         self.assertEqual(response_json, {"message": "Log recorded"})
         self.mock_api_service.post.assert_called_once_with(
-            "/logs",
+            "/log",
             json={
                 "userId": "user123",
                 "action": "TEST_ACTION",
@@ -50,15 +49,15 @@ class TestLoggingService(unittest.TestCase):
 
         status_code, response_json = self.logging_service.log(
             action="TEST_ACTION",
-            user_id="user123",
-            entity_type="TestEntity",
-            entity_id="entity123",
+            userId="user123",
+            entityType="TestEntity",
+            entityId="entity123",
         )
 
         self.assertIsNone(status_code)
         self.assertIsNone(response_json)
         self.mock_api_service.post.assert_called_once_with(
-            "/logs",
+            "/log",
             json={
                 "userId": "user123",
                 "action": "TEST_ACTION",
@@ -77,15 +76,15 @@ class TestLoggingService(unittest.TestCase):
 
         status_code, response_json = self.logging_service.log(
             action="TEST_ACTION",
-            user_id="user123",
-            entity_type="TestEntity",
-            entity_id="entity123",
+            userId="user123",
+            entityType="TestEntity",
+            entityId="entity123",
         )
 
         self.assertIsNone(status_code)
         self.assertIsNone(response_json)
         self.mock_api_service.post.assert_called_once_with(
-            "/logs",
+            "/log",
             json={
                 "userId": "user123",
                 "action": "TEST_ACTION",

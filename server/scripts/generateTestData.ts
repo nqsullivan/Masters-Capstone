@@ -24,16 +24,34 @@ async function generateTestData() {
 
   // Create sample classes
   const classes = [
-    { id: uuidv4(), name: 'Math 101' },
-    { id: uuidv4(), name: 'History 201' },
-    { id: uuidv4(), name: 'Computer Science 301' },
+    {
+      id: uuidv4(),
+      name: 'Math 101',
+      roomNumber: 'PRLTA202',
+      startTime: '10:00:00',
+      endTime: '11:15:00',
+    },
+    {
+      id: uuidv4(),
+      name: 'History 201',
+      roomNumber: 'SAN101',
+      startTime: '10:00:00',
+      endTime: '11:15:00',
+    },
+    {
+      id: uuidv4(),
+      name: 'Computer Science 301',
+      roomNumber: 'PRLTA202',
+      startTime: '11:30:00',
+      endTime: '12:45:00',
+    },
   ];
 
   for (const cls of classes) {
-    await db.runWithNoReturned(`INSERT INTO class (id, name) VALUES (?, ?)`, [
-      cls.id,
-      cls.name,
-    ]);
+    await db.runWithNoReturned(
+      'INSERT INTO class (id, name, roomNumber, startTime, endTime) VALUES (?, ?, ?, ?, ?)',
+      [cls.id, cls.name, cls.roomNumber, cls.startTime, cls.endTime]
+    );
   }
 
   // Create sample students

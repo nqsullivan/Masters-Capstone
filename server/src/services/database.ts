@@ -25,7 +25,7 @@ class DatabaseAccess {
     this.connection = await this.duckDB.connect();
 
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS class (id VARCHAR, name VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS class (id VARCHAR, name VARCHAR, roomNumber VARCHAR, startTime TIME, endTime TIME)`
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS student (id VARCHAR, name VARCHAR, image VARCHAR)`
@@ -46,7 +46,7 @@ class DatabaseAccess {
       `CREATE TABLE IF NOT EXISTS professor_class_lookup (username VARCHAR, classId VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, userId VARCHAR, action VARCHAR, entity_type VARCHAR, entityId VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS log (id VARCHAR, timestamp DATETIME, userId VARCHAR, action VARCHAR, entityType VARCHAR, entityId VARCHAR)`
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS credential (username VARCHAR, hash VARCHAR)`
