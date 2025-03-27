@@ -1,16 +1,41 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../services/api.service';
 
+interface AttendanceData {
+  id: string;
+  studentId: string;
+  studentName: string;
+}
+
 @Component({
   selector: 'app-class-dashboard',
   templateUrl: './individualSession.component.html',
   styleUrls: ['./individualSession.component.css'],
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+  ],
 })
 export class IndividualSessionComponent {
+  displayedColumns: string[] = ['id', 'name'];
+  dataSource: MatTableDataSource<AttendanceData>;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+
   sessionInfo: {
     id: string;
     startTime: string;
@@ -27,7 +52,9 @@ export class IndividualSessionComponent {
     className: '',
   };
 
-  attendances = [{ id: '1', studentId: '1', studentName: 'John Doe' }];
+  attendances: AttendanceData[] = [
+    { id: '1', studentId: '1', studentName: 'John Doe' },
+  ];
 
   sessionId: string | null = null;
   className: string | null = null;
@@ -96,6 +123,19 @@ export class IndividualSessionComponent {
             });
           this.attendances.push(attendanceRecord);
         }
+        // Assign the data to the data source for the table to render
+        this.dataSource = new MatTableDataSource(this.attendances);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
       });
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 }
