@@ -14,6 +14,7 @@ from datetime import datetime
 import torch
 from PIL import Image
 from facenet_pytorch import InceptionResnetV1, MTCNN
+import threading  # modify: import threading for asynchronous clip recording
 
 ##############################################
 # Initialization
@@ -47,7 +48,7 @@ FRED_PIC_DIR = "FRedPic"                 # For full-frame annotated images
 LOG_FILE = "face_log.txt"
 CLIP_VIDEO_DIR = "ClipVideo"             # For storage of the clipped videos
 
-for d in [RAW_PIC_DIR, CAPTURED_PHOTO_DIR, FRED_PIC_DIR]:
+for d in [RAW_PIC_DIR, CAPTURED_PHOTO_DIR, FRED_PIC_DIR, CLIP_VIDEO_DIR]: # modify: add ClipVideo directory
     if not os.path.exists(d):
         os.makedirs(d)
 
@@ -60,6 +61,9 @@ fps = 20                     # Frames per second for video recording
 max_buffer = fps * 10        # Buffer holds last 10 seconds of frames
 frame_buffer = []            # Circular buffer for recent frames
 
+# modify: Create a lock to protect cap.read() operations across threads
+cap_lock = threading.Lock()
+
 ##############################################
 # Utility Functions
 ##############################################
@@ -69,7 +73,8 @@ def capture_image(cap):
     Capture one frame from the already opened camera (cap) and save it to RawPic/
     with filename 'mmddyyyy_hhmmss.jpg'. Returns the file path.
     """
-    ret, frame = cap.read()
+    with cap_lock:  # modify: lock for safe reading
+        ret, frame = cap.read()
     if not ret:
         print("⚠️ Failed to read from camera.")
         return None
@@ -93,20 +98,23 @@ def record_clip(cap):
     print(f"Trigger event for video clip at {trigger_ts}")
 
     # 1) Retrieve buffered frames (last 10 sec)
-    clip_frames = list(frame_buffer)
+    with threading.Lock():  # modify: ensure safe copying from frame_buffer
+        clip_frames = list(frame_buffer)
 
-    # 2) Record additional frames for 5 seconds
+    # 2) Record additional frames for 5 seconds in a separate thread
     additional_frames = []
     start_time = time.time()
     while time.time() - start_time < 5:
-        ret, frame = cap.read()
+        with cap_lock:  # modify: lock around cap.read()
+            ret, frame = cap.read()
         if not ret:
             continue
         additional_frames.append(frame)
-        # Keep updating the buffer
-        frame_buffer.append(frame)
-        if len(frame_buffer) > max_buffer:
-            frame_buffer.pop(0)
+        # Update the frame buffer safely
+        with threading.Lock(): # modify: lock for safe writing to frame_buffer
+            frame_buffer.append(frame)
+            if len(frame_buffer) > max_buffer:
+                frame_buffer.pop(0)
 
         cv2.imshow("Press c/r/q in this window", frame)
         cv2.waitKey(1)
@@ -312,7 +320,8 @@ def main():
     while True:
 
         # Display a live feed from the camera so we have an OpenCV window
-        ret, frame = cap.read()
+        with cap_lock:  # modify: lock around camera read in main loop
+            ret, frame = cap.read()
         if not ret:
             print("⚠️ Camera read failed.")
             break
@@ -332,7 +341,7 @@ def main():
             # Capture one frame to RawPic/
             capture_image(cap)
             # Also record a 15-sec video clip
-            record_clip(cap)
+            threading.Thread(target=record_clip, args=(cap,)).start()  # modify: record clip asynchronously
             last_trigger_time = time.time()
 
         elif key_code == ord('r'):
