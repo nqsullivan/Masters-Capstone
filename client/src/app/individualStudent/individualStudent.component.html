@@ -1,0 +1,31 @@
+
+<div class="dashboard-container">
+  <h1>Student: {{ studentInfo.id }}</h1>
+
+  <div class="dashboard-widgets">
+    <div class="widget">
+      <h2>Student Information</h2>
+      <p *ngIf="!studentInfo">Invalid Student ID.</p>
+      <div *ngIf="studentInfo"></div>
+      <table class="refined-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Image</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ studentInfo.id }}</td>
+            <td>{{ studentInfo.name }}</td>
+            <td>
+              <img [src]="studentInfo.image" alt="{{ studentInfo.name }}" class="student-image" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
