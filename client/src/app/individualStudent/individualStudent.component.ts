@@ -12,8 +12,8 @@ import { Session, Student } from '../models/models';
 
 @Component({
   selector: 'app-class-dashboard',
-  templateUrl: './individualClass.component.html',
-  styleUrls: ['./individualClass.component.css'],
+  templateUrl: './individualStudent.component.html',
+  styleUrls: ['./individualStudent.component.css'],
   imports: [
     CommonModule,
     RouterModule,
@@ -25,18 +25,36 @@ import { Session, Student } from '../models/models';
   ],
 })
 export class IndividualStudentComponent {
+  studentId: string | null = null;
 
   studentInfo = {
-      "id": "a0f4b0bf-d8e2-481c-a3b1-1e9764736c55",
-      "name": "Student 603",
-      "image": "https://randomuser.me/api/portraits/men/47.jpg"
-  }
+    id: '',
+    name: '',
+    image: '',
+  };
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService
   ) {}
 
   ngOnInit(): void {
-   
+    this.route.paramMap.subscribe((params) => {
+      this.studentId = params.get('id');
+    });
+    if (this.studentId) {
+      this.getStudentInfo(this.studentId);
+    }
+  }
+
+  getStudentInfo(studentId: string): void {
+    this.apiService
+      .get<{ id: string; name: string; image: string }>(`student/${studentId}`)
+      .subscribe((response) => {
+        this.studentInfo = {
+          id: response.id,
+          name: response.name,
+          image: response.image,
+        };
+      });
   }
 }

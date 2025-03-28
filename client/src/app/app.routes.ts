@@ -18,6 +18,6 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'class/:id', component: IndividualClassComponent },
   { path: 'session/:id', component: IndividualSessionComponent },
-  { path: 'student', component: IndividualStudentComponent },
+  { path: 'student/:id', component: IndividualStudentComponent },
   { path: '**', redirectTo: 'dashboard' },
 ];
