@@ -1,5 +1,5 @@
 <div class="dashboard-container">
-  <h1>Session {{ sessionInfo.id }}</h1>
+  <h1>Session: {{ sessionInfo.id }}</h1>
 
   <div class="dashboard-widgets">
     <div class="widget">
@@ -17,7 +17,11 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ sessionInfo.className }}</td>
+            <td>
+              <a [routerLink]="['/class', sessionInfo.classId]">{{
+                sessionInfo.className
+              }}</a>
+            </td>
             <td>{{ sessionInfo.startTime }}</td>
             <td>{{ sessionInfo.endTime }}</td>
             <td>{{ sessionInfo.professorId }}</td>
@@ -28,30 +32,53 @@
 
     <div class="widget">
       <h2>Attendance Record</h2>
-      <p *ngIf="!attendances.length">
-        No attendance records found for this class.
-      </p>
-      <div class="student-stats" *ngIf="attendances.length"></div>
-      <table class="refined-table">
-        <thead>
-          <tr>
-            <th>Record ID</th>
-            <th>Student ID</th>
-            <th>Student Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let attendance of attendances">
-            <td>
-              <a [routerLink]="['/attendance', attendance.id]">{{
-                attendance.id
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input
+          matInput
+          (keyup)="applyFilter($event)"
+          placeholder="Ex. FirstName LastName"
+          #input
+        />
+      </mat-form-field>
+      <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSource" matSort>
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Record ID</th>
+            <td mat-cell *matCellDef="let row">
+              <a [routerLink]="['/attendance', row.id]">{{ row.id }}</a>
+            </td>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Student Name
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <a [routerLink]="['/student', row.studentId]">{{
+                row.studentName
               }}</a>
             </td>
-            <td>{{ attendance.studentId }}</td>
-            <td>{{ attendance.studentName }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">
+              No data matching the filter "{{ input.value }}"
+            </td>
           </tr>
-        </tbody>
-      </table>
+        </table>
+
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          aria-label="Select page of users"
+        ></mat-paginator>
+      </div>
     </div>
   </div>
 </div>
