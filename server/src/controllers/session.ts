@@ -6,13 +6,12 @@ const createSession = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { startTime, endTime, classId, professorId } = req.body;
+  const { startTime, endTime, classId } = req.body;
   try {
     const newSession = await SessionService.createSession(
       startTime,
       endTime,
-      classId,
-      professorId
+      classId
     );
     res.status(201).send(newSession);
   } catch (e: any) {
@@ -65,14 +64,13 @@ const updateSession = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-  const { startTime, endTime, classId, professorId } = req.body;
+  const { startTime, endTime, classId } = req.body;
   try {
     const updatedSession = await SessionService.updateSession(
       id,
       startTime,
       endTime,
-      classId,
-      professorId
+      classId
     );
     if (updatedSession) {
       const sessionWithStrings = {
@@ -83,31 +81,6 @@ const updateSession = async (
       res.status(200).send(sessionWithStrings);
     } else {
       throw new Error('Session not found');
-    }
-  } catch (e: any) {
-    if (e.message === 'Session not found') {
-      res.status(404).json({ error: e.message });
-    } else {
-      res.status(400).json({ error: e.message });
-    }
-  } finally {
-    next();
-  }
-};
-
-const getStudentsForSession = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { sessionId } = req.params;
-  try {
-    const studentIds = await SessionService.getStudentsForSession(sessionId);
-    if (studentIds.length > 0) {
-      res.status(200).send(studentIds);
-    } else {
-      await SessionService.getSession(sessionId);
-      res.status(200).send([]);
     }
   } catch (e: any) {
     if (e.message === 'Session not found') {
@@ -205,7 +178,6 @@ export {
   deleteSession,
   getSession,
   updateSession,
-  getStudentsForSession,
   addAttendanceRecord,
   modifyAttendanceRecord,
   deleteAttendanceRecord,

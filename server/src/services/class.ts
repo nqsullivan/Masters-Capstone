@@ -115,7 +115,7 @@ class ClassService {
         id: session.id,
         startTime: UtilService.formatDate(session.startTime),
         endTime: UtilService.formatDate(session.endTime),
-        classId: session.classId
+        classId: session.classId,
       });
     }
 

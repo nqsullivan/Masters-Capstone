@@ -18,7 +18,7 @@ class SessionService {
   async createSession(
     startTime: string,
     endTime: string,
-    classId: string,
+    classId: string
   ): Promise<Session> {
     if (!classId || !startTime || !endTime) {
       throw new Error('All fields are required');
@@ -50,11 +50,9 @@ class SessionService {
       startTime: string;
       endTime: string;
       classId: string;
-      professorId: string;
-    }>(
-      `SELECT id, startTime, endTime, classId, professorId FROM session WHERE id = ?`,
-      [sessionId]
-    );
+    }>(`SELECT id, startTime, endTime, classId FROM session WHERE id = ?`, [
+      sessionId,
+    ]);
 
     if (result.length > 0) {
       return {
@@ -62,7 +60,6 @@ class SessionService {
         startTime: UtilService.formatDate(result[0].startTime),
         endTime: UtilService.formatDate(result[0].endTime),
         classId: result[0].classId,
-        professorId: result[0].professorId,
       };
     }
     throw new Error('Session not found');
@@ -82,7 +79,7 @@ class SessionService {
     sessionId: string,
     startTime: string,
     endTime: string,
-    classId: string,
+    classId: string
   ): Promise<Session> {
     const existingSession = await this.getSession(sessionId);
     if (!existingSession) {
