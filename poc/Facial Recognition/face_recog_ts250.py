@@ -116,8 +116,8 @@ def record_clip(cap):
             if len(frame_buffer) > max_buffer:
                 frame_buffer.pop(0)
 
-        cv2.imshow("Press c/r/q in this window", frame)
-        cv2.waitKey(1)
+        # cv2.imshow("Press c/r/q in this window", frame)   # commented out to Prevent OpenCV C++ crash from thread GUI access
+        # cv2.waitKey(1)  # commented out to Prevent OpenCV C++ crash from thread GUI access
 
     # Combine frames
     clip_frames.extend(additional_frames)
