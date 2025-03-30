@@ -90,14 +90,8 @@ async function generateTestData() {
       };
       sessions.push(session);
       await db.runWithNoReturned(
-        `INSERT INTO session (id, startTime, endTime, classId, professorId) VALUES (?, ?, ?, ?, ?)`,
-        [
-          session.id,
-          session.startTime,
-          session.endTime,
-          session.classId,
-          session.professorId,
-        ]
+        `INSERT INTO session (id, startTime, endTime, classId) VALUES (?, ?, ?, ?)`,
+        [session.id, session.startTime, session.endTime, session.classId]
       );
     }
   }

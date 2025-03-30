@@ -56,8 +56,7 @@ describe('Dashboard API', () => {
     let session1 = await SessionService.createSession(
       new Date().toISOString().split('.')[0] + 'Z',
       new Date().toISOString().split('.')[0] + 'Z',
-      classId,
-      professor1.username
+      classId
     );
     sessionId = session1.id;
     let attendance1 = await SessionService.addAttendanceRecord(
