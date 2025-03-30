@@ -1,4 +1,4 @@
-import { Component, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, QueryList, ViewChildren, inject, model, signal } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -9,11 +9,36 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { Session, Student } from '../models/models';
+import {MatButtonModule} from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import {
+  FormControl,
+  FormGroupDirective,
+  NgForm,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import {ErrorStateMatcher} from '@angular/material/core';
+import { HttpResponseBase } from '@angular/common/http';
+
+export interface DialogData {
+  studentId: string
+}
 
 @Component({
   selector: 'app-class-dashboard',
   templateUrl: './individualClass.component.html',
   styleUrls: ['./individualClass.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     RouterModule,
@@ -22,7 +47,8 @@ import { Session, Student } from '../models/models';
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-  ],
+    MatButtonModule,
+  ]
 })
 export class IndividualClassComponent {
   sessionsDisplayedColumns: string[] = ['ID', 'Start Time', 'End Time'];
@@ -39,6 +65,9 @@ export class IndividualClassComponent {
 
   classId: string | null = null;
   className: string | null = null;
+
+  readonly studentId = signal('');
+  readonly dialog = inject(MatDialog);
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService
@@ -111,6 +140,24 @@ export class IndividualClassComponent {
       });
   }
 
+  addStudentToClass(studentIds: string[]) {
+    let data = {
+      studentIds: studentIds
+    };
+    this.apiService.post<HttpResponseBase>(`class/${this.classId}/students`, data).subscribe({
+      next: () => {
+        // Refresh students table
+      if (this.classId) {
+        console.log('REFRESH ROUTE')
+        this.getStudetsFromClass(this.classId);
+      }
+      },
+      error: () => {
+        console.log('ERROR ROUTE')
+      }
+    });
+  }
+
   applySessionFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.sessionsDataSource.filter = filterValue.trim().toLowerCase();
@@ -127,5 +174,56 @@ export class IndividualClassComponent {
     if (this.studentsDataSource.paginator) {
       this.studentsDataSource.paginator.firstPage();
     }
+  }
+
+  openDialog(): void {
+    const dialogRef = this.dialog.open(AddStudentDialog, {
+      width: '500px',
+      data: {studentId: this.studentId()},
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      if (result !== undefined) {
+        console.log(result);
+        this.addStudentToClass([result.studentId]);
+      }
+    });
+  }
+}
+
+/** https://material.angular.io/components/dialog/overview */
+@Component({
+  selector: 'add-student-dialog',
+  templateUrl: 'add-student-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    FormsModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule
+  ],
+})
+export class AddStudentDialog {
+  readonly dialogRef = inject(MatDialogRef<AddStudentDialog>);
+  readonly data = inject<DialogData>(MAT_DIALOG_DATA);
+  readonly studentId = model(this.data.studentId);
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  studentIdFormControl = new FormControl('', [Validators.required]);
+  matcher = new MyErrorStateMatcher();
+}
+
+/** https://material.angular.io/components/input/examples */
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
   }
 }
