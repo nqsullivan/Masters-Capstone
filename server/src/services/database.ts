@@ -34,7 +34,7 @@ class DatabaseAccess {
       `CREATE TABLE IF NOT EXISTS student_class_lookup (studentId VARCHAR, classId VARCHAR)`
     );
     await this.connection.run(
-      `CREATE TABLE IF NOT EXISTS session (id VARCHAR, startTime DATETIME, endTime DATETIME, classId VARCHAR, professorId VARCHAR)`
+      `CREATE TABLE IF NOT EXISTS session (id VARCHAR, startTime DATETIME, endTime DATETIME, classId VARCHAR)`
     );
     await this.connection.run(
       `CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portraitUrl VARCHAR, portraitCaptured BOOLEAN)`

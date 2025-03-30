@@ -5,16 +5,11 @@ import {
   deleteSession,
   getSession,
   updateSession,
-  getStudentsForSession,
   addAttendanceRecord,
   modifyAttendanceRecord,
   deleteAttendanceRecord,
   getAttendanceRecords,
 } from '../controllers/session.js';
-import {
-  addStudentsToSession,
-  deleteStudentFromSession,
-} from '../controllers/studentSessionAssignment.js';
 import {
   addStudentsToClass,
   getStudentsForClass,
@@ -76,13 +71,6 @@ router.post('/session', verifyToken, createSession);
 router.delete('/session/:id', verifyToken, deleteSession);
 router.get('/session/:id', verifyToken, getSession);
 router.put('/session/:id', verifyToken, updateSession);
-router.get('/session/:sessionId/students', verifyToken, getStudentsForSession);
-router.post('/session/:sessionId/students', verifyToken, addStudentsToSession);
-router.delete(
-  '/session/:sessionId/students/:studentId',
-  verifyToken,
-  deleteStudentFromSession
-);
 router.post('/session/:sessionId/attendance', verifyToken, addAttendanceRecord);
 router.put(
   '/session/:sessionId/attendance/:attendanceId',

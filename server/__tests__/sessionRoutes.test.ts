@@ -6,9 +6,6 @@ import AuthService from '../src/services/auth';
 import ClassService from '../src/services/class';
 import SessionService from '../src/services/session';
 import StudentService from '../src/services/student';
-import UserClassAssignmentService from '../src/services/userClassAssignment';
-import StudentClassAssignmentService from '../src/services/studentClassAssignment';
-import StudentSessionAssignmentService from '../src/services/studentSessionAssignment';
 
 import DatabaseAccess from '../src/services/database';
 const app = express();
@@ -50,7 +47,6 @@ describe('Session Routes', () => {
       classId: classId,
       startTime: mockStartTime,
       endTime: mockEndTime,
-      professorId: 'fakeProfId',
     };
 
     const response = await request(app)
@@ -66,8 +62,7 @@ describe('Session Routes', () => {
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
     const sessionId = createResponse.id;
 
@@ -92,8 +87,7 @@ describe('Session Routes', () => {
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
     const sessionId = createResponse.id;
 
@@ -109,8 +103,7 @@ describe('Session Routes', () => {
     const createResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
     const sessionId = createResponse.id;
 
@@ -118,7 +111,6 @@ describe('Session Routes', () => {
       startTime: new Date('2026-01-01T12:00:00Z'),
       endTime: new Date('2026-01-01T13:00:00Z'),
       classId: classId,
-      professorId: 'fakeProfId',
     };
 
     const updateResponse = await request(app)
@@ -127,63 +119,6 @@ describe('Session Routes', () => {
       .send(updatedSessionData);
 
     expect(updateResponse.status).toBe(200);
-  });
-
-  test('GET /session/:sessionId/students should return students for a session', async () => {
-    const createResponse = await SessionService.createSession(
-      mockStartTime,
-      mockEndTime,
-      classId,
-      'fakeProfId'
-    );
-    const sessionId = createResponse.id;
-
-    const student1 = await StudentService.createStudent(
-      'John Doe1',
-      'path/to/image.jpg'
-    );
-    const student2 = await StudentService.createStudent(
-      'John Doe2',
-      'path/to/image.jpg'
-    );
-
-    await StudentSessionAssignmentService.addStudentsToSession(
-      [student1.id, student2.id],
-      sessionId
-    );
-
-    const getResponse = await request(app)
-      .get(`/api/session/${sessionId}/students`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(getResponse.status).toBe(200);
-    expect(getResponse.body).toEqual([student1.id, student2.id]);
-  });
-
-  test('GET /session/:sessionId/students with invalid sessionId should return 400 and error details', async () => {
-    const response = await request(app)
-      .get(`/api/session/invalidSessionId/students`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty('error');
-  });
-
-  test('GET /session/:sessionId/students should return 200 and empty array if no students are assigned', async () => {
-    const createResponse = await SessionService.createSession(
-      mockStartTime,
-      mockEndTime,
-      classId,
-      'fakeProfId'
-    );
-    const sessionId = createResponse.id;
-
-    const response = await request(app)
-      .get(`/api/session/${sessionId}/students`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
   });
 
   test('POST /session should return 400 if required fields are missing', async () => {
@@ -200,7 +135,6 @@ describe('Session Routes', () => {
       startTime: new Date('2026-01-01T12:00:00Z'),
       endTime: new Date('2026-01-01T13:00:00Z'),
       classId: 'fakeClassId',
-      professorId: 'fakeProfId',
     };
 
     const response = await request(app)
@@ -233,29 +167,11 @@ describe('Session Routes', () => {
     expect(response.status).toBe(400);
   });
 
-  test('GET /session/:sessionId/students should return 404 if no students found', async () => {
-    const createResponse = await SessionService.createSession(
-      mockStartTime,
-      mockEndTime,
-      classId,
-      'fakeProfId'
-    );
-    const sessionId = createResponse.id;
-
-    const response = await request(app)
-      .get(`/api/session/${sessionId}/students`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
-  });
-
   test('POST /api/session/:sessionId/attendance should return 200 and attendance details', async () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
 
     const studentResponse = await StudentService.createStudent(
@@ -303,8 +219,7 @@ describe('Session Routes', () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
 
     const attendanceData = {
@@ -325,8 +240,7 @@ describe('Session Routes', () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
 
     const studentResponse = await StudentService.createStudent(
@@ -381,8 +295,7 @@ describe('Session Routes', () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
 
     const updatedAttendanceData = {
@@ -403,8 +316,7 @@ describe('Session Routes', () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
 
     const attendanceData = {
@@ -425,8 +337,7 @@ describe('Session Routes', () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
 
     const studentResponse = await StudentService.createStudent(
@@ -463,8 +374,7 @@ describe('Session Routes', () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
 
     const response = await request(app)
@@ -479,8 +389,7 @@ describe('Session Routes', () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
-      classId,
-      'fakeProfId'
+      classId
     );
 
     const studentResponse = await StudentService.createStudent(
