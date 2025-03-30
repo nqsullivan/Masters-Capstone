@@ -3,6 +3,8 @@ import busio
 from adafruit_pn532.i2c import PN532_I2C
 import threading
 
+from src.services.logging_service import printt
+
 
 class NFCController:
     SCL_PIN = 3
@@ -17,17 +19,17 @@ class NFCController:
         i2c = busio.I2C(self.SCL_PIN, self.SDA_PIN)
         self.pn532 = PN532_I2C(i2c, debug=False)
         self.pn532.SAM_configuration()
-        print("NFC Controller initialized. Waiting for NFC cards...")
+        printt("NFC Controller initialized. Waiting for NFC cards...")
 
     def enter_low_power_mode(self):
         """Reduce polling frequency when in low-power mode."""
         self.low_power = True
-        print("NFC module entering software low-power mode.")
+        printt("NFC module entering software low-power mode.")
 
     def exit_low_power_mode(self):
         """Increase polling frequency when in active mode."""
         self.low_power = False
-        print("NFC module is now active.")
+        printt("NFC module is now active.")
 
     def read_nfc(self, state_machine):
         """Reads NFC tags at a lower frequency in low-power mode."""
@@ -46,7 +48,7 @@ class NFCController:
                     time.sleep(2)
 
             except RuntimeError as e:
-                print(f"NFC read error: {e}")
+                printt(f"NFC read error: {e}")
                 time.sleep(polling_interval)
 
     def start(self, state_machine):

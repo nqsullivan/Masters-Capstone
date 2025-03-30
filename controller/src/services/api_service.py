@@ -1,5 +1,7 @@
 import requests
 
+from src.services.logging_service import printt
+
 
 class APIService:
     _instance = None
@@ -48,7 +50,7 @@ class APIService:
             try:
                 return response.json()
             except ValueError:
-                print("Response is not valid JSON")
+                printt("Response is not valid JSON")
                 return None
         else:
             response.raise_for_status()

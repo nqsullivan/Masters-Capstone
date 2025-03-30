@@ -3,7 +3,7 @@ from src.controllers.nfc import NFCController
 from src.controllers.ultrasonic import UltrasonicController
 from src.controllers.camera import CameraController
 from src.services.api_service import APIService
-from src.services.logging_service import LoggingService
+from src.services.logging_service import LoggingService, printt
 import time
 import os
 
@@ -29,7 +29,7 @@ try:
     while True:
         time.sleep(1)
 except KeyboardInterrupt:
-    print("\nShutting down...")
+    printt("\nShutting down...")
     nfc.stop()
     ultrasonic.stop()
     sm.stop()

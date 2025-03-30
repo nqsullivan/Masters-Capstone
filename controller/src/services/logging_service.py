@@ -1,9 +1,12 @@
+import time
+
+
 class LoggingService:
     _instance = None
 
-    def __new__(cls, api_service, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super(LoggingService, cls).__new__(cls)
+    def __new__(cls, api_service=None, *args, **kwargs):
+        if cls._instance is None and api_service is not None:
+            cls._instance = super().__new__(cls)
             cls._instance.api_service = api_service
         return cls._instance
 
@@ -15,7 +18,13 @@ class LoggingService:
             "entityId": entityId,
         }
         try:
-            return self.api_service.post("/log", json=log_entry).json()
+            self.api_service.post("/log", json=log_entry)
         except Exception as e:
-            print(f"Logging failed: {e}")
-            return None, None
+            printt(f"Logging failed: {e}")
+
+
+def printt(message):
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    print(f"[{timestamp}]: {message}")
+    if LoggingService._instance:
+        LoggingService._instance.log(message)
