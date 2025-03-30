@@ -31,7 +31,7 @@ build_and_copy "server" "npm run build" "npm ci" "dist/server" "../release"
 
 rsync -a --delete controller/ "$release_dir/controller" --exclude=".git"
 
-tar --no-xattrs -czf release/release.tar.gz -C release .
+tar --disable-copyfile --no-xattrs -czf release/release.tar.gz -C release .
 
 if [ -z "$RPI_HOST" ]; then
     read -p "Enter Raspberry Pi hostname (or IP): " RPI_HOST
@@ -49,11 +49,25 @@ ssh "$RPI_USER@$RPI_HOST" << 'EOF'
     rm -rf ~/release
     mkdir -p ~/release
     tar -xzf ~/release.tar.gz -C ~/release
+
     cd ~/release
+
     docker compose pull
     docker compose down
     docker compose build
     docker compose --env-file .env up -d
+
+    cd controller
+    rm -rf venv
+    python3 -m venv venv --system-site-packages
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip install --no-cache-dir -r requirements.txt
+
+    pkill -f main.py || true
+    nohup ./start.sh > controller.log 2>&1 &
+
+    cd ~
     rm ~/release.tar.gz
 EOF
 
