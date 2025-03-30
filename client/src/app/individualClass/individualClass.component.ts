@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, QueryList, ViewChildren, inject, model, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  QueryList,
+  ViewChildren,
+  inject,
+  model,
+  signal,
+} from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -9,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { Session, Student } from '../models/models';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -27,11 +35,11 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import {ErrorStateMatcher} from '@angular/material/core';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { HttpResponseBase } from '@angular/common/http';
 
 export interface DialogData {
-  studentId: string
+  studentId: string;
 }
 
 @Component({
@@ -48,7 +56,7 @@ export interface DialogData {
     MatSortModule,
     MatPaginatorModule,
     MatButtonModule,
-  ]
+  ],
 })
 export class IndividualClassComponent {
   sessionsDisplayedColumns: string[] = ['ID', 'Start Time', 'End Time'];
@@ -142,20 +150,22 @@ export class IndividualClassComponent {
 
   addStudentToClass(studentIds: string[]) {
     let data = {
-      studentIds: studentIds
+      studentIds: studentIds,
     };
-    this.apiService.post<HttpResponseBase>(`class/${this.classId}/students`, data).subscribe({
-      next: () => {
-        // Refresh students table
-      if (this.classId) {
-        console.log('REFRESH ROUTE')
-        this.getStudetsFromClass(this.classId);
-      }
-      },
-      error: () => {
-        console.log('ERROR ROUTE')
-      }
-    });
+    this.apiService
+      .post<HttpResponseBase>(`class/${this.classId}/students`, data)
+      .subscribe({
+        next: () => {
+          // Refresh students table
+          if (this.classId) {
+            console.log('REFRESH ROUTE');
+            this.getStudetsFromClass(this.classId);
+          }
+        },
+        error: () => {
+          console.log('ERROR ROUTE');
+        },
+      });
   }
 
   applySessionFilter(event: Event) {
@@ -179,10 +189,10 @@ export class IndividualClassComponent {
   openDialog(): void {
     const dialogRef = this.dialog.open(AddStudentDialog, {
       width: '500px',
-      data: {studentId: this.studentId()},
+      data: { studentId: this.studentId() },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       console.log('The dialog was closed');
       if (result !== undefined) {
         console.log(result);
@@ -204,7 +214,10 @@ export class IndividualClassComponent {
     MatDialogContent,
     MatDialogActions,
     MatDialogClose,
-    FormsModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
   ],
 })
 export class AddStudentDialog {
@@ -222,8 +235,15 @@ export class AddStudentDialog {
 
 /** https://material.angular.io/components/input/examples */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+  isErrorState(
+    control: FormControl | null,
+    form: FormGroupDirective | NgForm | null
+  ): boolean {
     const isSubmitted = form && form.submitted;
-    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
+    return !!(
+      control &&
+      control.invalid &&
+      (control.dirty || control.touched || isSubmitted)
+    );
   }
 }
