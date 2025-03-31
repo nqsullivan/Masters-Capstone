@@ -34,7 +34,7 @@ interface AttendanceData {
   ],
 })
 export class IndividualSessionComponent {
-  displayedColumns: string[] = ['checkInTime', 'photo', 'id', 'name'];
+  displayedColumns: string[] = ['checkInTime', 'photo', 'name'];
   dataSource: MatTableDataSource<AttendanceData>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
