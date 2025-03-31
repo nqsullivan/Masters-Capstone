@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Readable } from 'stream';
 
 class ImageStorage {
@@ -68,6 +69,20 @@ class ImageStorage {
       }
     } catch (e: any) {
       console.error(e.message);
+    }
+  }
+
+  async generatePresignedUrl(imageKey: string) {
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: imageKey,
+    });
+
+    try {
+      return await getSignedUrl(this.s3, command, { expiresIn: 60 });
+    } catch (e) {
+      console.error(`Failed to generate presigned URL: ${e}`);
+      return null;
     }
   }
 }

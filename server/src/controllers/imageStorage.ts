@@ -34,17 +34,17 @@ const retrieveImage = async (
     if (!imageKey) {
       throw new Error('No image key provided');
     }
+
     const ImageStorageInstance = new ImageStorage();
 
     const imageResponse =
-      await ImageStorageInstance.downloadImageFromAWS(imageKey);
-    if (imageResponse) {
-      res.setHeader('Content-Type', imageResponse.contentType);
-      const image = imageResponse.image;
-      image.pipe(res);
-    } else {
+      await ImageStorageInstance.generatePresignedUrl(imageKey);
+
+    if (!imageResponse) {
       throw new Error('Image not found in AWS');
     }
+
+    res.status(200).json({ imageUrl: imageResponse });
 
     next();
   } catch (e: any) {

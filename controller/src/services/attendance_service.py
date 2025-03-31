@@ -44,18 +44,14 @@ class AttendanceService:
                 printt("Failed to create session.")
                 return
 
-        attend_event = {
-            "studentId": nfc_event.get("card_id"),
-            "checkInTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "portraitURL": None,
-        }
-
         try:
             filename = f"capture_{int(time.time())}.jpg"
             full_picture_path = self.camera_controller.take_picture(filename=filename)
             printt(f"Picture saved as {filename}")
         except Exception as e:
             printt(f"Error taking picture: {e}")
+
+        portraitUrl = None
 
         if full_picture_path:
             try:
@@ -71,7 +67,7 @@ class AttendanceService:
                     image_url = response.get("message", {}).get("fileUrl")
                     if image_url:
                         printt(f"Image uploaded successfully: {image_url}")
-                        attend_event["portraitURL"] = image_url
+                        portraitUrl = image_url
 
             except requests.RequestException as e:
                 printt(f"Error uploading image: {e}")
@@ -79,9 +75,12 @@ class AttendanceService:
         try:
             response = self.api_service.post(
                 f"/session/{self.current_session.get('id')}/attendance",
-                json=attend_event,
+                json={
+                    "studentId": nfc_event.get("card_id"),
+                    "checkInTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "portraitUrl": portraitUrl,
+                },
             )
-            printt(f"Attendance event logged: {response}")
         except requests.RequestException as e:
             printt(f"Error logging attendance event: {e}")
 
