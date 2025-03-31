@@ -3,12 +3,6 @@ import express from 'express';
 import routes from '../src/routes/index';
 import { expect, test, describe, beforeAll, jest } from '@jest/globals';
 import AuthService from '../src/services/auth';
-import {
-  S3Client,
-  PutObjectCommand,
-  PutObjectCommandInput,
-  PutObjectCommandOutput,
-} from '@aws-sdk/client-s3';
 
 // Initialize Express app
 const app = express();
@@ -17,14 +11,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', routes);
 
 // Mock AWS SDK's S3Client
-jest.mock('@aws-sdk/client-s3', () => {
-  return {
-    S3Client: jest.fn().mockImplementation(() => ({
-      send: jest.fn(),
-    })),
-    PutObjectCommand: jest.fn(),
-  };
-});
+const mockSend = jest.fn() as jest.Mock<any>;
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn(() => ({
+    send: mockSend,
+  })),
+  PutObjectCommand: jest.fn(),
+  GetObjectCommand: jest.fn(),
+}));
 
 describe('Image Upload Routes', () => {
   let token: string;
@@ -56,12 +50,46 @@ describe('Image Upload Routes', () => {
   });
 
   test('POST /upload/image should return 201 and file URL if image upload is successful', async () => {
+    const fakeS3Response = { ETag: '"mock-etag-value"' };
+    mockSend.mockResolvedValueOnce(fakeS3Response);
+
     const response = await request(app)
       .post('/api/image')
       .set('Authorization', `Bearer ${token}`)
       .attach('image', Buffer.from('test-image-content'), 'test-image.jpg');
 
     expect(response.status).toBe(201);
-    expect(response.body.message).toHaveProperty('fileUrl');
+    expect(response.body.message.fileUrl).toMatch(
+      /^https:\/\/mock-bucket\.s3\.mock-region\.amazonaws\.com\/\d+_test-image\.jpg$/
+    );
+  });
+
+  test('POST /upload/image should still respond with 201 if S3 upload fails silently', async () => {
+    mockSend.mockRejectedValueOnce(new Error('S3 Upload Failed'));
+
+    const response = await request(app)
+      .post('/api/image')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('image', Buffer.from('test-image-content'), 'test.jpg');
+
+    expect(response.status).toBe(201);
+    expect(response.body).toBeNull;
+  });
+
+  test('POST /upload/image should return 500 if AWS config is missing', async () => {
+    process.env.ACCESS_KEY = '';
+    process.env.SECRET = '';
+    process.env.REGION = '';
+    process.env.BUCKET_NAME = '';
+
+    const response = await request(app)
+      .post('/api/image')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('image', Buffer.from('test-image-content'), 'test.jpg');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error).toBe(
+      'Missing AWS configuration in environment variables'
+    );
   });
 });

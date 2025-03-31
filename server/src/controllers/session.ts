@@ -100,10 +100,6 @@ const addAttendanceRecord = async (
 ) => {
   const { sessionId } = req.params;
   const { studentId, checkInTime, portraitUrl } = req.body;
-  console.log('sessionId', sessionId);
-  console.log('studentId', studentId);
-  console.log('checkInTime', checkInTime);
-  console.log('portraitUrl', portraitUrl);
   try {
     const attendance = await SessionService.addAttendanceRecord(
       sessionId,
