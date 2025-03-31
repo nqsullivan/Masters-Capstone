@@ -5,3 +5,4 @@ transitions
 black
 requests
 dotenv
+picamera2

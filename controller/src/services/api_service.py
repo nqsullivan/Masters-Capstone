@@ -1,5 +1,7 @@
 import requests
 
+from src.services.logging_service import printt
+
 
 class APIService:
     _instance = None
@@ -25,10 +27,18 @@ class APIService:
         response = requests.get(url, headers=self.headers, params=params)
         return self._handle_response(response)
 
-    def post(self, endpoint, json=None):
+    def post(self, endpoint, json=None, files=None):
         endpoint = endpoint.lstrip("/")
         url = f"{self.base_url}/{endpoint}"
-        response = requests.post(url, headers=self.headers, json=json)
+        if files:
+            headers = {
+                key: value
+                for key, value in self.headers.items()
+                if key != "Content-Type"
+            }
+            response = requests.post(url, headers=headers, data=json, files=files)
+        else:
+            response = requests.post(url, headers=self.headers, json=json)
         return self._handle_response(response)
 
     def put(self, endpoint, json=None):
@@ -44,11 +54,12 @@ class APIService:
         return self._handle_response(response)
 
     def _handle_response(self, response):
-        if response.status_code == 200:
+        if response.status_code // 200:
             try:
                 return response.json()
             except ValueError:
                 print("Response is not valid JSON")
                 return None
         else:
+            print(f"Error: {response.status_code} - {response.text}")
             response.raise_for_status()

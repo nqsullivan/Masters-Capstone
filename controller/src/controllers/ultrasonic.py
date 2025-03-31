@@ -2,6 +2,8 @@ import time
 import threading
 import RPi.GPIO as GPIO
 
+from src.services.logging_service import printt
+
 
 class UltrasonicController:
     def __init__(self, state_machine, trig_pin=23, echo_pin=24, threshold=50):
@@ -15,7 +17,7 @@ class UltrasonicController:
         GPIO.setup(self.trig_pin, GPIO.OUT)
         GPIO.setup(self.echo_pin, GPIO.IN)
 
-        print("Ultrasonic Controller initialized. Motion detection active.")
+        printt("Ultrasonic Controller initialized. Motion detection active.")
 
     def get_distance(self):
         """Measures the distance using the ultrasonic sensor with timeout handling."""
@@ -67,7 +69,7 @@ class UltrasonicController:
                         "motion_detected", {"distance": current_distance}
                     )
                 else:
-                    print("StateMachine not initialized!")
+                    printt("StateMachine not initialized!")
 
                 time.sleep(2)
 

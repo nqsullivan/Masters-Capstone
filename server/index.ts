@@ -13,7 +13,7 @@ AuthService.init();
 
 app.use(
   cors({
-    origin: 'http://localhost:4200',
+    origin: process.env.CLIENT_ORIGIN || 'http://localhost:4200',
     methods: 'GET,POST,PUT,DELETE',
     allowedHeaders: 'Content-Type,Authorization',
   })

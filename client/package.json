@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build && cp Dockerfile dist/client/Dockerfile",
+    "build": "ng build --configuration production && cp Dockerfile dist/client/Dockerfile && cp nginx.conf dist/client/nginx.conf",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "format": "prettier --write .",
@@ -33,6 +33,7 @@
     "@angular/cli": "^19.2.0",
     "@angular/compiler-cli": "^19.2.0",
     "@types/jasmine": "~5.1.0",
+    "@types/node": "^22.13.14",
     "husky": "^9.1.7",
     "jasmine-core": "~5.4.0",
     "karma": "~6.4.0",
