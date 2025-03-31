@@ -46,29 +46,34 @@ describe('Image Retrieval Routes', () => {
   });
 
   it('should retrieve a presigned image URL successfully', async () => {
-    const mockedPresign = getSignedUrl as jest.MockedFunction<typeof getSignedUrl>;
+    const mockedPresign = getSignedUrl as jest.MockedFunction<
+      typeof getSignedUrl
+    >;
     mockedPresign.mockResolvedValue('https://mock-s3-url.com/presigned-key');
-  
+
     const response = await request(app)
       .get('/api/image/valid-key')
       .set('Authorization', `Bearer ${token}`);
-  
+
     expect(response.status).toBe(200);
-    expect(response.body.imageUrl).toBe('https://mock-s3-url.com/presigned-key');
+    expect(response.body.imageUrl).toBe(
+      'https://mock-s3-url.com/presigned-key'
+    );
   });
-  
+
   it('should return 404 if image is not found in AWS', async () => {
-    const mockedPresign = getSignedUrl as jest.MockedFunction<typeof getSignedUrl>;
+    const mockedPresign = getSignedUrl as jest.MockedFunction<
+      typeof getSignedUrl
+    >;
     mockedPresign.mockResolvedValue(null as unknown as string);
-  
+
     const response = await request(app)
       .get('/api/image/missing-key')
       .set('Authorization', `Bearer ${token}`);
-  
+
     expect(response.status).toBe(404);
     expect(response.body.error).toBe('Image not found in AWS');
   });
-  
 
   it('should return 400 if no image key is provided', async () => {
     const response = await request(app)
@@ -79,7 +84,9 @@ describe('Image Retrieval Routes', () => {
   });
 
   it('should return 404 if image is not found in AWS', async () => {
-    const mockedPresign = getSignedUrl as jest.MockedFunction<typeof getSignedUrl>;
+    const mockedPresign = getSignedUrl as jest.MockedFunction<
+      typeof getSignedUrl
+    >;
     mockedPresign.mockResolvedValue(null as unknown as string);
 
     const response = await request(app)
