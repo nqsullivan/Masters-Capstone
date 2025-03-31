@@ -23,7 +23,7 @@
       [formControl]="studentIdFormControl"
       [errorStateMatcher]="matcher"
       placeholder="Ex. asu123"
-      [(ngModel)]="data.id"
+      [(ngModel)]="data.studentId"
     />
   </mat-form-field>
   <mat-error *ngIf="studentIdFormControl.hasError('required')">
