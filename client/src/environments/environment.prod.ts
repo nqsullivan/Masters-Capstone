@@ -1,5 +1,4 @@
 export const environment = {
-    production: true,
-    apiUrl: 'http://raspberrypi.local:3000'
-  };
-  
+  production: true,
+  apiUrl: 'http://raspberrypi.local:3000',
+};
