@@ -23,8 +23,8 @@ class LoggingService:
             printt(f"Logging failed: {e}")
 
 
-def printt(message):
+def printt(message, *args, **kwargs):
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print(f"[{timestamp}]: {message}")
+    print(f"[{timestamp}]: {message}", *args, **kwargs)
     if LoggingService._instance:
         LoggingService._instance.log(message)
