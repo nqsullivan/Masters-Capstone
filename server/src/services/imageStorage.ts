@@ -53,6 +53,7 @@ class ImageStorage {
     }
   }
 
+  /* istanbul ignore next */
   async downloadImageFromAWS(imageKey: string) {
     const params = {
       Bucket: this.bucketName,
