@@ -1,0 +1,63 @@
+<h2 mat-dialog-title>Edit Student Information</h2>
+<mat-dialog-content id="edit-student-dialog">
+  <!-- Image URL Field -->
+  <mat-form-field>
+    <mat-label>Image URL</mat-label>
+    <input
+      matInput
+      [formControl]="imageFormControl"
+      [errorStateMatcher]="matcher"
+      placeholder="Ex. https://example.com/image.jpg"
+      [(ngModel)]="data.image"
+    />
+  </mat-form-field>
+  <mat-error *ngIf="imageFormControl.hasError('required')">
+    Image URL is <strong>required</strong>
+  </mat-error>
+
+  <!-- Student ID Field -->
+  <mat-form-field>
+    <mat-label>Student ID</mat-label>
+    <input
+      matInput
+      [formControl]="studentIdFormControl"
+      [errorStateMatcher]="matcher"
+      placeholder="Ex. asu123"
+      [(ngModel)]="data.studentId"
+    />
+  </mat-form-field>
+  <mat-error *ngIf="studentIdFormControl.hasError('required')">
+    Student ID is <strong>required</strong>
+  </mat-error>
+
+  <!-- Name Field -->
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input
+      matInput
+      [formControl]="nameFormControl"
+      [errorStateMatcher]="matcher"
+      placeholder="Ex. John Doe"
+      [(ngModel)]="data.name"
+    />
+  </mat-form-field>
+  <mat-error *ngIf="nameFormControl.hasError('required')">
+    Name is <strong>required</strong>
+  </mat-error>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button
+    mat-button
+    [disabled]="
+      imageFormControl.invalid ||
+      studentIdFormControl.invalid ||
+      nameFormControl.invalid
+    "
+    [mat-dialog-close]="data"
+    cdkFocusInitial
+  >
+    Save
+  </button>
+</mat-dialog-actions>

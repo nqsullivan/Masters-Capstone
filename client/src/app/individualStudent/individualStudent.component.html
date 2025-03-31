@@ -3,10 +3,19 @@
 
   <div class="dashboard-widgets">
     <div class="widget">
+    
       <h2>Student Information</h2>
+      <div id="button-container">
+        <button mat-raised-button class = "button" click = "openDialog()">
+          Edit
+        </button>
+      </div>
       <p *ngIf="!studentInfo">Invalid Student ID.</p>
       <div *ngIf="studentInfo"></div>
       <table class="refined-table">
+        
+        
+   
         <thead>
           <tr>
             <th>Image</th>
