@@ -6,3 +6,8 @@ black
 requests
 dotenv
 picamera2
+opencv-python
+torch
+numpy
+pillow
+facenet-pytorch

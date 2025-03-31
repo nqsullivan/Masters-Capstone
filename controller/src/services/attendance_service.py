@@ -9,11 +9,20 @@ from src.services.logging_service import printt
 class AttendanceService:
     _instance = None
 
-    def __new__(cls, api_service, camera_controller, room_number, *args, **kwargs):
+    def __new__(
+        cls,
+        api_service,
+        camera_controller,
+        face_recognition_service,
+        room_number,
+        *args,
+        **kwargs,
+    ):
         if cls._instance is None:
             cls._instance = super(AttendanceService, cls).__new__(cls)
             cls._instance.api_service = api_service
             cls._instance.camera_controller = camera_controller
+            cls._instance.face_recognition_service = face_recognition_service
             cls._instance.room_number = room_number
             cls._instance.schedule = cls._instance.get_schedule()
             cls._instance.current_class = cls._instance.get_current_class()
@@ -21,8 +30,6 @@ class AttendanceService:
         return cls._instance
 
     def handle_attendance_event(self, nfc_event):
-        """Handles attendance events."""
-
         printt("Handling attendance event...")
 
         if nfc_event is None:
@@ -31,7 +38,7 @@ class AttendanceService:
 
         class_id = self.get_current_class()
 
-        if self.current_class != self.get_current_class():
+        if self.current_class != class_id:
             self.current_class = class_id
             self.current_session = self.create_session()
             if not self.current_session:
@@ -50,37 +57,47 @@ class AttendanceService:
             printt(f"Picture saved as {filename}")
         except Exception as e:
             printt(f"Error taking picture: {e}")
+            return
 
-        portraitUrl = None
+        portrait_url = None
+        student_id = nfc_event.get("card_id")
 
-        if full_picture_path:
-            try:
-                with open(full_picture_path, "rb") as f:
+        try:
+            recognition_results = self.face_recognition_service.run_on_image(
+                full_picture_path
+            )
+            if recognition_results:
+                primary_result = recognition_results[0]
+                portrait_path = primary_result.get("croppedPath")
+                identity = primary_result.get("identity")
+
+                with open(portrait_path, "rb") as f:
                     response = self.api_service.post("/image", files={"image": f})
 
-                    if response.get("error"):
-                        printt("Error uploading image:", response["error"])
-                        raise Exception("Image upload failed.")
+                if response.get("error"):
+                    printt("Error uploading image:", response["error"])
+                    raise Exception("Image upload failed.")
 
-                    printt("Image upload response:", str(response))
-
-                    image_url = response.get("message", {}).get("fileUrl")
-                    if image_url:
-                        printt(f"Image uploaded successfully: {image_url}")
-                        portraitUrl = image_url
-
-            except requests.RequestException as e:
-                printt(f"Error uploading image: {e}")
+                image_url = response.get("message", {}).get("fileUrl")
+                if image_url:
+                    printt(f"Image uploaded successfully: {image_url}")
+                    portrait_url = image_url
+                    # TODO
+                    # if identity != "Unknown" and identity != student_id
+                    #     flagged = True
+        except Exception as e:
+            printt(f"Error during facial recognition or image upload: {e}")
 
         try:
             response = self.api_service.post(
                 f"/session/{self.current_session.get('id')}/attendance",
                 json={
-                    "studentId": nfc_event.get("card_id"),
+                    "studentId": student_id,
                     "checkInTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "portraitUrl": portraitUrl,
+                    "portraitUrl": portrait_url,
                 },
             )
+            printt(f"Attendance event logged: {response}")
         except requests.RequestException as e:
             printt(f"Error logging attendance event: {e}")
 

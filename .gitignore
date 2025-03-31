@@ -148,3 +148,5 @@ release/*
 !release/docker-compose.yml
 
 .DS_Store
+
+controller/data/registered_photos
