@@ -76,4 +76,60 @@ export class IndividualStudentComponent {
         };
       });
   }
+
+  openDialog(): void {
+    console.log('Opening dialog');
+    const dialogRef = this.dialog.open(EditStudentDialogComponent, {
+      width: '400px',
+      data: { ...this.studentInfo },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.studentInfo = result; // Update the student info with the result
+        console.log('Updated Student Info:', this.studentInfo);
+      }
+    });
+  }
+}
+
+@Component({
+  selector: 'app-edit-student-dialog',
+  templateUrl: './edit-student-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+  ],
+})
+export class EditStudentDialogComponent {
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+  dialogRef = inject(MatDialogRef<EditStudentDialogComponent>);
+
+  imageFormControl = new FormControl(this.data.image, [Validators.required]);
+  studentIdFormControl = new FormControl(this.data.studentId, [Validators.required]);
+  nameFormControl = new FormControl(this.data.name, [Validators.required]);
+
+  matcher = new MyErrorStateMatcher();
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+}
+
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(
+    control: FormControl | null,
+    form: FormGroupDirective | NgForm | null
+  ): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
+  }
 }
