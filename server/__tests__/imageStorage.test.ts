@@ -3,12 +3,6 @@ import express from 'express';
 import routes from '../src/routes/index';
 import { expect, test, describe, beforeAll, jest } from '@jest/globals';
 import AuthService from '../src/services/auth';
-import {
-  S3Client,
-  PutObjectCommand,
-  PutObjectCommandInput,
-  PutObjectCommandOutput,
-} from '@aws-sdk/client-s3';
 
 // Initialize Express app
 const app = express();
