@@ -3,6 +3,7 @@ from src.controllers.nfc import NFCController
 from src.controllers.ultrasonic import UltrasonicController
 from src.controllers.camera import CameraController
 from src.services.api_service import APIService
+from src.services.face_recognition_service import FaceRecognitionService
 from src.services.attendance_service import AttendanceService
 from src.services.logging_service import LoggingService, printt
 import time
@@ -21,7 +22,10 @@ camera = CameraController()
 
 api_service = APIService(base_url=API_URL, api_key=API_KEY)
 logger = LoggingService(api_service)
-attendance_service = AttendanceService(api_service, camera, ROOM_NUMBER)
+face_recognition_service = FaceRecognitionService()
+attendance_service = AttendanceService(
+    api_service, camera, face_recognition_service, ROOM_NUMBER
+)
 
 sm = StateMachine(nfc, camera, logger, api_service, attendance_service)
 ultrasonic = UltrasonicController(sm)

@@ -43,11 +43,28 @@
       </mat-form-field>
       <div class="mat-elevation-z8">
         <table mat-table [dataSource]="dataSource" matSort>
-          <!-- ID Column -->
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Record ID</th>
+          <!-- Check In Time -->
+          <ng-container matColumnDef="checkInTime">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Check In Time
+            </th>
             <td mat-cell *matCellDef="let row">
-              <a [routerLink]="['/attendance', row.id]">{{ row.id }}</a>
+              {{ row.checkIn | date: 'short' }}
+            </td>
+          </ng-container>
+
+          <!-- Attendance Photo-->
+          <ng-container matColumnDef="photo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Attendance Photo
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <img
+                [src]="row.portraitUrl"
+                alt="Attendance Photo"
+                class="attendance-photo"
+                style="width: 100px; height: 100px; object-fit: cover"
+              />
             </td>
           </ng-container>
 
