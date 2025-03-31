@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Add Existing Student</h2>
+<mat-dialog-content id="student-dialog">
+  <mat-form-field>
+    <mat-label>ASU ID</mat-label>
+    <input
+      matInput
+      [formControl]="studentIdFormControl"
+      [errorStateMatcher]="matcher"
+      placeholder="Ex. asu123"
+      [(ngModel)]="data.studentId"
+    />
+  </mat-form-field>
+  @if (studentIdFormControl.hasError('required')) {
+  <mat-error>Student ID is <strong>required</strong></mat-error>
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  @if (studentIdFormControl.hasError('required')) {
+  <button mat-button disabled="True" cdkFocusInitial>Submit</button>
+  } @else {
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Submit</button>
+  }
+</mat-dialog-actions>
