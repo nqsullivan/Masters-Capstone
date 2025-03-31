@@ -13,6 +13,10 @@ interface AttendanceData {
   id: string;
   studentId: string;
   studentName: string;
+  portraitUrl: string;
+  portraitCaptured: boolean;
+  checkIn: string;
+  sessionId: string;
 }
 
 @Component({
@@ -30,7 +34,7 @@ interface AttendanceData {
   ],
 })
 export class IndividualSessionComponent {
-  displayedColumns: string[] = ['id', 'name'];
+  displayedColumns: string[] = ['checkInTime', 'photo', 'id', 'name'];
   dataSource: MatTableDataSource<AttendanceData>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -52,9 +56,7 @@ export class IndividualSessionComponent {
     className: '',
   };
 
-  attendances: AttendanceData[] = [
-    { id: '1', studentId: '1', studentName: 'John Doe' },
-  ];
+  attendances: AttendanceData[] = [];
 
   sessionId: string | null = null;
   className: string | null = null;
@@ -115,12 +117,30 @@ export class IndividualSessionComponent {
             id: entry.id,
             studentId: entry.studentId,
             studentName: '',
+            portraitUrl: entry.portraitUrl,
+            portraitCaptured: entry.portraitCaptured,
+            checkIn: entry.checkIn,
+            sessionId: entry.sessionId,
           };
           this.apiService
             .get<{ name: string; id: string }>(`student/${entry.studentId}`)
             .subscribe((response) => {
               attendanceRecord['studentName'] = response.name;
             });
+
+          if (entry.portraitUrl.includes('amazonaws.com')) {
+            const index = entry.portraitUrl.indexOf('amazonaws.com');
+            entry.portraitUrl = entry.portraitUrl.slice(
+              index + 'amazonaws.com/'.length
+            );
+          }
+
+          this.apiService
+            .get<{ imageUrl: string }>(`image/${entry.portraitUrl}`)
+            .subscribe((response) => {
+              attendanceRecord['portraitUrl'] = response['imageUrl'];
+            });
+
           this.attendances.push(attendanceRecord);
         }
         // Assign the data to the data source for the table to render
