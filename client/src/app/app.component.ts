@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from './services/auth.service';
-import {Title} from '@angular/platform-browser';
+import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd } from '@angular/router';
 
@@ -31,13 +31,16 @@ import { Router, NavigationEnd } from '@angular/router';
 export class AppComponent implements DoCheck {
   welcomeMessage: string | null = null;
   currentPageTitle: string = 'Dashboard';
-  constructor(private authService: AuthService, private router: Router) {
-        this.router.events.pipe(
-          filter(event => event instanceof NavigationEnd)
-        ).subscribe(() => {
-          this.updatePageTitle();
-        });
-    }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.updatePageTitle();
+      });
+  }
 
   ngDoCheck(): void {
     if (this.authService.getUsername() !== null) {

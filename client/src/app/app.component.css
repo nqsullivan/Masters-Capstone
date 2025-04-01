@@ -28,12 +28,11 @@
   background-color: #3498db;
   color: white;
   padding: 8px 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   height: 40px;
   display: flex;
   align-items: center;
 }
-
 
 .page-content {
   flex-grow: 1;

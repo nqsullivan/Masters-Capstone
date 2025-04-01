@@ -13,29 +13,29 @@ export const routes: Routes = [
     path: 'dashboard',
     component: DashboardComponent,
     canActivate: [AuthGuard],
-    data: { title: 'Dashboard' }
+    data: { title: 'Dashboard' },
   },
   {
     path: 'classes',
     component: ClassListComponent,
     canActivate: [AuthGuard],
-    data: { title: 'Classes' }
+    data: { title: 'Classes' },
   },
   { path: 'login', component: LoginComponent, data: { title: 'Login' } },
   {
     path: 'class/:id',
     component: IndividualClassComponent,
-    data: { title: 'Class Details' }
+    data: { title: 'Class Details' },
   },
   {
     path: 'session/:id',
     component: IndividualSessionComponent,
-    data: { title: 'Session Details' }
+    data: { title: 'Session Details' },
   },
   {
     path: 'student/:id',
     component: IndividualStudentComponent,
-    data: { title: 'Student Details' }
+    data: { title: 'Student Details' },
   },
   { path: '**', redirectTo: 'dashboard' },
 ];
