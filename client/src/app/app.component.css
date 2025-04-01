@@ -38,12 +38,37 @@
   font-size: 16px;
   cursor: pointer;
   pointer-events: auto;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: block;
+  transition: background-color 0.3s ease;
 }
 
 .sidebar ul li a:hover {
-  color: #1abc9c;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
+.sidebar ul li a.active {
+  background-color: #1abc9c;
+  color: white;
+  font-weight: bold;
+}
+
+.sidebar ul li a.active {
+  position: relative;
+}
+
+.sidebar ul li a.active::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: white;
+  border-radius: 2px;
+}
 .sidebar h3 {
   margin-top: 500px;
 }
