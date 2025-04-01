@@ -24,7 +24,7 @@ import {
 
 interface DialogData {
   image: string;
-  studentId: string;
+  id: string;
   name: string;
 }
 
@@ -86,7 +86,7 @@ export class IndividualStudentComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.studentInfo = result; // Update the student info with the result
+        this.studentInfo = result; // Update the student info with the result, so the UI updates without a refresh
         console.log('Updated Student Info:', this.studentInfo);
       }
     });
@@ -108,20 +108,52 @@ export class IndividualStudentComponent {
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
+    CommonModule,
   ],
 })
 export class EditStudentDialogComponent {
+  updatedStudentInfo: { id: string; name: string; image: string };
+  
   data = inject<DialogData>(MAT_DIALOG_DATA);
   dialogRef = inject(MatDialogRef<EditStudentDialogComponent>);
 
+  constructor(private apiService: ApiService) {}
+
   imageFormControl = new FormControl(this.data.image, [Validators.required]);
-  studentIdFormControl = new FormControl(this.data.studentId, [Validators.required]);
+  studentIdFormControl = new FormControl(this.data.id, [Validators.required]);
   nameFormControl = new FormControl(this.data.name, [Validators.required]);
 
   matcher = new MyErrorStateMatcher();
   onNoClick(): void {
     this.dialogRef.close();
   }
+  save(): void {
+    {
+      this.updateStudent(this.studentIdFormControl.value ?? '', {
+        name: this.nameFormControl.value ?? '',
+        image: this.imageFormControl.value ?? '',
+      });
+    
+  }
+}
+
+updateStudent(studentId: string, updatedData: { name: string; image: string }): void {
+  this.apiService
+    .put<{ id: string; name: string; image: string }>(`student/${studentId}`, updatedData)
+    .subscribe({
+      next: (response) => {
+        console.log('Student updated successfully:', response);
+        this.updatedStudentInfo = response; // Update the local student info with the response
+      },
+      error: (error) => {
+        console.error('Error updating student:', error);
+      },
+      complete: () => {
+        console.log('Update student request completed.');
+      },
+    });
+}
+
 }
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
