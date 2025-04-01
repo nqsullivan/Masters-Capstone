@@ -2,7 +2,7 @@
 <mat-dialog-content id="edit-student-dialog">
   <!-- Image URL Field -->
   <mat-form-field>
-    <mat-label>Image URL</mat-label>
+    <mat-label>Image Pathway</mat-label>
     <input
       matInput
       [formControl]="imageFormControl"
@@ -15,20 +15,15 @@
     Image URL is <strong>required</strong>
   </mat-error>
 
-  <!-- Student ID Field -->
-  <mat-form-field>
-    <mat-label>Student ID</mat-label>
-    <input
-      matInput
-      [formControl]="studentIdFormControl"
-      [errorStateMatcher]="matcher"
-      placeholder="Ex. asu123"
-      [(ngModel)]="data.id"
-    />
-  </mat-form-field>
-  <mat-error *ngIf="studentIdFormControl.hasError('required')">
-    Student ID is <strong>required</strong>
-  </mat-error>
+  <!-- Select Image Button -->
+  <button mat-button (click)="fileInput.click()">Select Image</button>
+  <input
+    #fileInput
+    type="file"
+    accept="image/*"
+    style="display: none"
+    (change)="onFileSelected($event)"
+  />
 
   <!-- Name Field -->
   <mat-form-field>

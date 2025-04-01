@@ -136,6 +136,38 @@ export class EditStudentDialogComponent {
     
   }
 }
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+  
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0]; 
+      console.log('Selected file name:', file.name); 
+  
+
+      const fileName = file.name;
+  
+
+      this.imageFormControl.setValue(fileName);
+
+      const formData = new FormData();
+      formData.append('image', file); 
+  
+
+      this.uploadFile(formData);
+    }
+  
+}
+
+uploadFile(formData: FormData): void {
+  this.apiService.post('image', formData).subscribe({
+    next: (response) => {
+      console.log('File uploaded successfully:', response);
+    },
+    error: (error) => {
+      console.error('Error uploading file:', error);
+    },
+  });
+}
 
 updateStudent(studentId: string, updatedData: { name: string; image: string }): void {
   this.apiService
