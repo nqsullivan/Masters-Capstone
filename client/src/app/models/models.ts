@@ -8,7 +8,6 @@ export interface Session {
   startTime: string;
   endTime: string;
   classId: string;
-  professorId: string;
 }
 
 export interface Student {
