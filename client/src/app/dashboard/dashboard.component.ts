@@ -1,9 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { AuthService } from '../services/auth.service';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { RouterModule } from '@angular/router';
 import {
   Class,
   Student,
@@ -14,7 +19,16 @@ import {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxChartsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgxChartsModule,
+    MatInputModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    RouterModule,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
@@ -28,6 +42,19 @@ export class DashboardComponent implements OnInit {
     name: string;
     series: { name: string; value: number }[];
   }[] = [];
+
+  displayedColumns: string[] = [
+    'Name',
+    'Total Classes',
+    'Classes Attended',
+    'Percentage',
+  ];
+  dataSource: MatTableDataSource<
+    Student & { totalClasses: number; classesAttended: number }
+  >;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+
   studentList: (Student & { totalClasses: number; classesAttended: number })[] =
     [];
 
@@ -152,9 +179,22 @@ export class DashboardComponent implements OnInit {
       totalClasses,
       classesAttended: studentAttendance.get(student.id)?.attended || 0,
     }));
+
+    this.dataSource = new MatTableDataSource(this.studentList);
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   onClassChange(): void {
     this.loadDashboardData();
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 }
