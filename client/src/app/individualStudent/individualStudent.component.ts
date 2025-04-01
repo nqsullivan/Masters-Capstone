@@ -111,7 +111,7 @@ export class IndividualStudentComponent {
   openDialog(): void {
     console.log('Opening dialog');
     const dialogRef = this.dialog.open(EditStudentDialogComponent, {
-      width: '400px',
+      width: '500px',
       data: { ...this.studentInfo },
     });
 
