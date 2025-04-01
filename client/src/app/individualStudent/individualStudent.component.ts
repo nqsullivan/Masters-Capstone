@@ -4,7 +4,15 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { MatDialog, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogTitle,
+  MatDialogContent,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
@@ -69,12 +77,35 @@ export class IndividualStudentComponent {
     this.apiService
       .get<{ id: string; name: string; image: string }>(`student/${studentId}`)
       .subscribe((response) => {
-        this.studentInfo = {
-          id: response.id,
-          name: response.name,
-          image: response.image,
-        };
+        let imageKey = '';
+        // Check if the image URL starts with "https://team-5-capstone-25"
+        if (response.image.startsWith('https://team-5-capstone-25')) {
+          //the image key is the last part of the URL
+          imageKey = response.image.split('/').pop() ?? '';
+          if (imageKey) {
+            this.retrieveImage(imageKey);
+          } else {
+            console.error('Image key is undefined');
+          }
+        } else {
+          //this is for test data
+          this.studentInfo.image = response.image;
+        }
+        this.studentInfo.id = response.id;
+        this.studentInfo.name = response.name;
       });
+  }
+
+  retrieveImage(imageKey: string): void {
+    this.apiService.get<{ imageUrl: string }>(`image/${imageKey}`).subscribe({
+      next: (response) => {
+        console.log('Retrieved image URL:', response.imageUrl);
+        this.studentInfo.image = response.imageUrl;
+      },
+      error: (error) => {
+        console.error('Error retrieving image:', error);
+      },
+    });
   }
 
   openDialog(): void {
@@ -86,8 +117,7 @@ export class IndividualStudentComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.studentInfo = result; // Update the student info with the result, so the UI updates without a refresh
-        console.log('Updated Student Info:', this.studentInfo);
+        this.studentInfo.name = result.name; // Update the student info with the result, so the UI updates without a refresh
       }
     });
   }
@@ -113,7 +143,7 @@ export class IndividualStudentComponent {
 })
 export class EditStudentDialogComponent {
   updatedStudentInfo: { id: string; name: string; image: string };
-  
+
   data = inject<DialogData>(MAT_DIALOG_DATA);
   dialogRef = inject(MatDialogRef<EditStudentDialogComponent>);
 
@@ -133,59 +163,66 @@ export class EditStudentDialogComponent {
         name: this.nameFormControl.value ?? '',
         image: this.imageFormControl.value ?? '',
       });
-    
+      console.log('Updated student:', this.updatedStudentInfo);
+      //refresh the page
+      window.location.reload();
+    }
   }
-}
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-  
+
     if (input.files && input.files.length > 0) {
-      const file = input.files[0]; 
-      console.log('Selected file name:', file.name); 
-  
+      const file = input.files[0];
+      console.log('Selected file name:', file.name);
 
       const fileName = file.name;
-  
 
       this.imageFormControl.setValue(fileName);
 
       const formData = new FormData();
-      formData.append('image', file); 
-  
+      formData.append('image', file);
 
       this.uploadFile(formData);
     }
-  
-}
+  }
 
-uploadFile(formData: FormData): void {
-  this.apiService.post('image', formData).subscribe({
-    next: (response) => {
-      console.log('File uploaded successfully:', response);
-    },
-    error: (error) => {
-      console.error('Error uploading file:', error);
-    },
-  });
-}
+  uploadFile(formData: FormData): void {
+    this.apiService
+      .post<{ message: { fileUrl: string } }>('image', formData)
+      .subscribe({
+        next: (response) => {
+          console.log('File uploaded successfully:', response);
+          this.imageFormControl.setValue(response.message.fileUrl);
+        },
+        error: (error) => {
+          console.error('Error uploading file:', error);
+        },
+      });
+  }
 
-updateStudent(studentId: string, updatedData: { name: string; image: string }): void {
-  this.apiService
-    .put<{ id: string; name: string; image: string }>(`student/${studentId}`, updatedData)
-    .subscribe({
-      next: (response) => {
-        console.log('Student updated successfully:', response);
-        this.updatedStudentInfo = response; // Update the local student info with the response
-      },
-      error: (error) => {
-        console.error('Error updating student:', error);
-      },
-      complete: () => {
-        console.log('Update student request completed.');
-      },
-    });
-}
-
+  updateStudent(
+    studentId: string,
+    updatedData: { name: string; image: string }
+  ): void {
+    this.apiService
+      .put<{
+        id: string;
+        name: string;
+        image: string;
+      }>(`student/${studentId}`, updatedData)
+      .subscribe({
+        next: (response) => {
+          console.log('Student updated successfully:', response);
+          this.updatedStudentInfo = response; // Update the local student info with the response
+        },
+        error: (error) => {
+          console.error('Error updating student:', error);
+        },
+        complete: () => {
+          console.log('Update student request completed.');
+        },
+      });
+  }
 }
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -194,6 +231,10 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     form: FormGroupDirective | NgForm | null
   ): boolean {
     const isSubmitted = form && form.submitted;
-    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
+    return !!(
+      control &&
+      control.invalid &&
+      (control.dirty || control.touched || isSubmitted)
+    );
   }
 }

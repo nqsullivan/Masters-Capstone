@@ -51,7 +51,8 @@
       nameFormControl.invalid
     "
     [mat-dialog-close]="data"
-    cdkFocusInitial (click) = "save()"
+    cdkFocusInitial
+    (click)="save()"
   >
     Save
   </button>

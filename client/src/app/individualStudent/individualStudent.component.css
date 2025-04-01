@@ -100,7 +100,6 @@
   cursor: pointer;
   margin: 10px;
   border-radius: 50px;
-
 }
 
 .button:hover {
@@ -112,4 +111,3 @@
   display: flex;
   width: 100%;
 }
-
