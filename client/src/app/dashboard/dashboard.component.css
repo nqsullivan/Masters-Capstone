@@ -41,7 +41,7 @@
 .student-stats th,
 .student-stats td {
   padding: 10px;
-  text-align: center;
+  text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
@@ -57,4 +57,13 @@
   .student-stats {
     width: 100%;
   }
+}
+
+table {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
 }
