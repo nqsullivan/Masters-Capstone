@@ -175,7 +175,7 @@ class SessionService {
 
     const attendance = await this.getAttendanceRecord(attendanceId);
     if (!portraitUrl) {
-         portraitUrl = attendance.portraitUrl;
+      portraitUrl = attendance.portraitUrl;
     }
     const portraitCaptured = portraitUrl !== '';
 
