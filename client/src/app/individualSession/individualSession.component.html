@@ -1,5 +1,7 @@
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+<link
+  href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  rel="stylesheet"
+/>
 <div class="dashboard-container">
   <h1>Session: {{ sessionInfo.id }}</h1>
 
@@ -49,11 +51,10 @@
               Did Check In
             </th>
             <td mat-cell *matCellDef="let row">
-              {{row.checkIn !== ''}}
+              {{ row.checkIn !== '' }}
             </td>
           </ng-container>
 
-          
           <!-- Check In Time -->
           <ng-container matColumnDef="checkInTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -93,9 +94,16 @@
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions" stickyEnd>
-            <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
+            <th mat-header-cell *matHeaderCellDef aria-label="row actions">
+              &nbsp;
+            </th>
             <td mat-cell *matCellDef="let element">
-              <button mat-icon-button [matMenuTriggerFor]="appMenu" [matMenuTriggerData]="{name: 'Sally'}" (click)="selectedElement = element">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="appMenu"
+                [matMenuTriggerData]="{ name: 'Sally' }"
+                (click)="selectedElement = element"
+              >
                 <mat-icon>more_vert</mat-icon>
               </button>
             </td>
@@ -106,7 +114,6 @@
               <button mat-menu-item (click)="edit()">Edit</button>
             </ng-template>
           </mat-menu>
-          
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>

@@ -8,9 +8,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../services/api.service';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatIconModule} from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -42,7 +42,7 @@ interface AttendanceData {
 
 interface DialogData {
   checkInTime: string;
-  selectedElement: AttendanceData
+  selectedElement: AttendanceData;
 }
 
 @Component({
@@ -59,11 +59,17 @@ interface DialogData {
     MatPaginatorModule,
     MatMenuModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
   ],
 })
 export class IndividualSessionComponent {
-  displayedColumns: string[] = ['didCheckIn', 'checkInTime', 'photo', 'name', 'actions'];
+  displayedColumns: string[] = [
+    'didCheckIn',
+    'checkInTime',
+    'photo',
+    'name',
+    'actions',
+  ];
   dataSource: MatTableDataSource<AttendanceData>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -93,7 +99,6 @@ export class IndividualSessionComponent {
     private route: ActivatedRoute,
     private apiService: ApiService
   ) {}
-
 
   selectedElement: AttendanceData | null = null;
   readonly checkInTime = signal('');
@@ -195,17 +200,19 @@ export class IndividualSessionComponent {
     console.log(checkInTime);
     console.log(attendanceData);
     if (checkInTime && attendanceData) {
-      console.log('Entered if block')
-      this.apiService.put(`session/${this.sessionId}/attendance/${attendanceData.id}`, {
-        checkInTime: checkInTime
-      }).subscribe({
-        next: () => {
-          this.reloadAttendanceData();
-        },
-        error: (result) => {
-          alert(result.error.error);
-        }
-      })
+      console.log('Entered if block');
+      this.apiService
+        .put(`session/${this.sessionId}/attendance/${attendanceData.id}`, {
+          checkInTime: checkInTime,
+        })
+        .subscribe({
+          next: () => {
+            this.reloadAttendanceData();
+          },
+          error: (result) => {
+            alert(result.error.error);
+          },
+        });
     }
   }
 
@@ -213,7 +220,10 @@ export class IndividualSessionComponent {
     console.log('edit =>', this.selectedElement);
     const dialogRef = this.dialog.open(EditAttendanceDialog, {
       width: '500px',
-      data: { checkInTime: this.checkInTime(), selectedElement: this.selectedElement },
+      data: {
+        checkInTime: this.checkInTime(),
+        selectedElement: this.selectedElement,
+      },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
