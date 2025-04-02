@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject, model, signal } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -8,6 +8,27 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../services/api.service';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import {
+  FormControl,
+  FormGroupDirective,
+  NgForm,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 interface AttendanceData {
   id: string;
@@ -17,6 +38,11 @@ interface AttendanceData {
   portraitCaptured: boolean;
   checkIn: string;
   sessionId: string;
+}
+
+interface DialogData {
+  checkInTime: string;
+  selectedElement: AttendanceData
 }
 
 @Component({
@@ -31,10 +57,13 @@ interface AttendanceData {
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    MatMenuModule,
+    MatIconModule,
+    MatButtonModule
   ],
 })
 export class IndividualSessionComponent {
-  displayedColumns: string[] = ['checkInTime', 'photo', 'name'];
+  displayedColumns: string[] = ['didCheckIn', 'checkInTime', 'photo', 'name', 'actions'];
   dataSource: MatTableDataSource<AttendanceData>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -65,15 +94,27 @@ export class IndividualSessionComponent {
     private apiService: ApiService
   ) {}
 
+
+  selectedElement: AttendanceData | null = null;
+  readonly checkInTime = signal('');
+  readonly dialog = inject(MatDialog);
+
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       this.sessionId = params.get('id');
     });
     if (this.sessionId) {
       this.getSessionInfo(this.sessionId);
+      this.reloadAttendanceData();
+    }
+  }
+
+  reloadAttendanceData() {
+    if (this.sessionId) {
       this.getAttendances(this.sessionId);
     }
   }
+
   getSessionInfo(sessionId: string): void {
     this.apiService
       .get<{
@@ -150,6 +191,40 @@ export class IndividualSessionComponent {
       });
   }
 
+  editAttendance(checkInTime: string, attendanceData: AttendanceData): void {
+    console.log(checkInTime);
+    console.log(attendanceData);
+    if (checkInTime && attendanceData) {
+      console.log('Entered if block')
+      this.apiService.put(`session/${this.sessionId}/attendance/${attendanceData.id}`, {
+        checkInTime: checkInTime
+      }).subscribe({
+        next: () => {
+          this.reloadAttendanceData();
+        },
+        error: (result) => {
+          alert(result.error.error);
+        }
+      })
+    }
+  }
+
+  edit() {
+    console.log('edit =>', this.selectedElement);
+    const dialogRef = this.dialog.open(EditAttendanceDialog, {
+      width: '500px',
+      data: { checkInTime: this.checkInTime(), selectedElement: this.selectedElement },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('The dialog was closed');
+      if (result !== undefined) {
+        console.log(result);
+        this.editAttendance(result.checkInTime, result.selectedElement);
+      }
+    });
+  }
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -157,5 +232,51 @@ export class IndividualSessionComponent {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+}
+
+/** https://material.angular.io/components/dialog/overview */
+@Component({
+  selector: 'edit-attendance-dialog',
+  templateUrl: 'edit-attendance-dialog.html',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+  ],
+})
+export class EditAttendanceDialog {
+  readonly dialogRef = inject(MatDialogRef<EditAttendanceDialog>);
+  readonly data = inject<DialogData>(MAT_DIALOG_DATA);
+  readonly checkInTime = model(this.data.checkInTime);
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  checkInTimeFormControl = new FormControl('', [Validators.required]);
+  matcher = new MyErrorStateMatcher();
+}
+
+/** https://material.angular.io/components/input/examples */
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(
+    control: FormControl | null,
+    form: FormGroupDirective | NgForm | null
+  ): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(
+      control &&
+      control.invalid &&
+      (control.dirty || control.touched || isSubmitted)
+    );
   }
 }
