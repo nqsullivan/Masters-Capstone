@@ -29,6 +29,8 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatMenu, MatMenuModule } from '@angular/material/menu';
 
 interface DialogData {
   image: string;
@@ -48,6 +50,8 @@ interface DialogData {
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    MatIconModule,
+    MatMenuModule,
   ],
 })
 export class IndividualStudentComponent {
@@ -120,6 +124,28 @@ export class IndividualStudentComponent {
         this.studentInfo.name = result.name; // Update the student info with the result, so the UI updates without a refresh
       }
     });
+  }
+
+  deleteStudent(studentId: string): void {
+    this.apiService
+      .delete<{ message: string }>(`student/${studentId}`)
+      .subscribe({
+        next: (response) => {
+          console.log('Student deleted successfully:', response.message);
+
+          this.studentInfo = {
+            id: '',
+            name: '',
+            image: '',
+          };
+        },
+        error: (error) => {
+          console.error('Error deleting student:', error);
+        },
+        complete: () => {
+          console.log('Delete student request completed.');
+        },
+      });
   }
 }
 

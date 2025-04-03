@@ -4,11 +4,7 @@
   <div class="dashboard-widgets">
     <div class="widget">
       <h2>Student Information</h2>
-      <div id="button-container">
-        <button mat-raised-button class="button" (click)="openDialog()">
-          Edit
-        </button>
-      </div>
+
       <p *ngIf="!studentInfo">Invalid Student ID.</p>
       <div *ngIf="studentInfo"></div>
       <table class="refined-table">
@@ -17,6 +13,24 @@
             <th>Image</th>
             <th>Student ID</th>
             <th>Name</th>
+            <th>
+              <!-- Three-dot menu -->
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="menu"
+                aria-label="More options"
+              >
+                <span> ⋮</span>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="openDialog()">
+                  <span>Edit</span>
+                </button>
+                <button mat-menu-item (click)="deleteStudent(studentInfo.id)">
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </th>
           </tr>
         </thead>
         <tbody>
