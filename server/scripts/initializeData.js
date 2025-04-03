@@ -93,7 +93,7 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portraitUrl VARCHAR, portraitCaptured BOOLEAN, FRIdentifiedId VARCHAR, status VARCHAR)'
+      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portraitUrl VARCHAR, portraitCaptured BOOLEAN, FRIdentifiedId VARCHAR, status VARCHAR, flagged BOOLEAN default FALSE)'
     );
 
     const attendanceData = [
