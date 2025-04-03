@@ -174,7 +174,9 @@ class SessionService {
     }
 
     const attendance = await this.getAttendanceRecord(attendanceId);
-    portraitUrl = portraitUrl || '';
+    if (!portraitUrl) {
+      portraitUrl = attendance.portraitUrl;
+    }
     const portraitCaptured = portraitUrl !== '';
 
     await this.db.runWithNoReturned(

@@ -42,6 +42,13 @@ export interface DialogData {
   studentId: string;
 }
 
+export interface SessionTableData {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
 @Component({
   selector: 'app-class-dashboard',
   templateUrl: './individualClass.component.html',
@@ -59,8 +66,8 @@ export interface DialogData {
   ],
 })
 export class IndividualClassComponent {
-  sessionsDisplayedColumns: string[] = ['ID', 'Start Time', 'End Time'];
-  sessionsDataSource: MatTableDataSource<Session>;
+  sessionsDisplayedColumns: string[] = ['Date', 'Start Time', 'End Time'];
+  sessionsDataSource: MatTableDataSource<SessionTableData>;
 
   studentsDisplayedColumns: string[] = ['Name', 'ID'];
   studentsDataSource: MatTableDataSource<Student>;
@@ -68,7 +75,6 @@ export class IndividualClassComponent {
   @ViewChildren(MatPaginator) paginator = new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort = new QueryList<MatSort>();
 
-  sessionInfo: Session[] = [];
   students: Student[] = [];
 
   classId: string | null = null;
@@ -108,12 +114,15 @@ export class IndividualClassComponent {
           startTime: string;
           endTime: string;
           classId: string;
-          professorId: string;
         }>
       >(`class/${classId}/sessions`)
       .subscribe((response) => {
-        this.sessionInfo = response;
-        this.sessionsDataSource = new MatTableDataSource(this.sessionInfo);
+        let sessionInfo: Session[] = response;
+        let transformedSessionInfo: SessionTableData[] =
+          this.transformIncomingSessionInfo(sessionInfo);
+        this.sessionsDataSource = new MatTableDataSource(
+          transformedSessionInfo
+        );
         this.sessionsDataSource.paginator = this.paginator.toArray()[0];
         this.sessionsDataSource.sort = this.sort.toArray()[0];
       });
@@ -199,6 +208,20 @@ export class IndividualClassComponent {
         this.addStudentToClass([result.studentId]);
       }
     });
+  }
+
+  transformIncomingSessionInfo(sessionInfo: Session[]): SessionTableData[] {
+    let transformedSessionInfo: SessionTableData[] = [];
+
+    sessionInfo.forEach((sessionInfo) => {
+      transformedSessionInfo.push({
+        id: sessionInfo.id,
+        date: sessionInfo.startTime.split(' ')[0],
+        startTime: sessionInfo.startTime.split(' ')[1],
+        endTime: sessionInfo.endTime.split(' ')[1],
+      });
+    });
+    return transformedSessionInfo;
   }
 }
 

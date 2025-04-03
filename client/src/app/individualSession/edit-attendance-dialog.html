@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Edit Attendance</h2>
+<mat-dialog-content id="edit-attendance">
+  <mat-form-field>
+    <mat-label>Check In Time</mat-label>
+    <input
+      matInput
+      [formControl]="checkInTimeFormControl"
+      [errorStateMatcher]="matcher"
+      [placeholder]="data.selectedElement.checkIn"
+      [(ngModel)]="data.checkInTime"
+    />
+  </mat-form-field>
+  @if (checkInTimeFormControl.hasError('required')) {
+  <mat-error>Check In Time is <strong>required</strong></mat-error>
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  @if (checkInTimeFormControl.hasError('required')) {
+  <button mat-button disabled="True" cdkFocusInitial>Submit</button>
+  } @else {
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Submit</button>
+  }
+</mat-dialog-actions>
