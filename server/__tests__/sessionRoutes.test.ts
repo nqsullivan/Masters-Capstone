@@ -181,7 +181,6 @@ describe('Session Routes', () => {
 
     const attendanceData = {
       studentId: studentResponse.id,
-      checkInTime: '2025-02-17T18:00:00.000Z',
       portraitUrl: 'www.test.com',
     };
 
@@ -194,7 +193,6 @@ describe('Session Routes', () => {
     expect(response.body).toHaveProperty('id');
     expect(response.body).toHaveProperty('studentId', studentResponse.id);
     expect(response.body).toHaveProperty('sessionId', sessionResponse.id);
-    expect(response.body).toHaveProperty('checkIn', '2025-02-17T18:00:00.000Z');
     expect(response.body).toHaveProperty('portraitUrl', 'www.test.com');
     expect(response.body).toHaveProperty('portraitCaptured', true);
   });
@@ -202,7 +200,6 @@ describe('Session Routes', () => {
   test('POST /api/session/:sessionId/attendance with invalid sessionId should return 400 and error details', async () => {
     const attendanceData = {
       studentId: 1,
-      checkInTime: '2025-02-17T18:00:00.000Z',
       portraitUrl: 'www.test.com',
     };
 
@@ -223,7 +220,6 @@ describe('Session Routes', () => {
     );
 
     const attendanceData = {
-      checkInTime: '2025-02-17T18:00:00.000Z',
       portraitUrl: 'www.test.com',
     };
 
@@ -251,7 +247,6 @@ describe('Session Routes', () => {
     const attendanceResponse = await SessionService.addAttendanceRecord(
       sessionResponse.id,
       studentResponse.id,
-      '2025-02-17T18:00:00.000Z',
       'www.test.com'
     );
 
@@ -348,7 +343,6 @@ describe('Session Routes', () => {
     const attendanceResponse = await SessionService.addAttendanceRecord(
       sessionResponse.id,
       studentResponse.id,
-      '2025-02-17T18:00:00.000Z',
       'www.test.com'
     );
 
@@ -400,7 +394,6 @@ describe('Session Routes', () => {
     await SessionService.addAttendanceRecord(
       sessionResponse.id,
       studentResponse.id,
-      '2021-02-17T18:00:00.000Z',
       'fake url'
     );
 
