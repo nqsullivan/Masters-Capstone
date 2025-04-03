@@ -71,12 +71,6 @@ class DatabaseAccess {
     console.log('Database connected');
   }
 
-  async disconnect() {
-    if (this.connection) {
-      this.connection.close();
-    }
-  }
-
   async runWithNoReturned(query: string, params: any[] = []) {
     if (!this.connection) {
       await this.connect();
