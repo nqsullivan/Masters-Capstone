@@ -102,7 +102,15 @@ async function generateTestData() {
       if (randomBoolean()) {
         await db.runWithNoReturned(
           `INSERT INTO attendance (id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured, FRIdentifiedId) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [uuidv4(), student.id, session.id, randomDate(), student.image, true, student.id]
+          [
+            uuidv4(),
+            student.id,
+            session.id,
+            randomDate(),
+            student.image,
+            true,
+            student.id,
+          ]
         );
       }
     }

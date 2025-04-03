@@ -104,7 +104,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
-        '1'
+        '1',
       ],
       [
         '2',
@@ -113,7 +113,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
-        '2'
+        '2',
       ],
       [
         '3',
@@ -122,7 +122,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
-        '3'
+        '3',
       ],
       [
         '4',
@@ -131,7 +131,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
-        '4'
+        '4',
       ],
       [
         '5',
@@ -140,7 +140,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
-        '5'
+        '5',
       ],
       [
         '6',
@@ -149,7 +149,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
-        '6'
+        '6',
       ],
     ];
     for (const data of attendanceData) {
