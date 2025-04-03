@@ -93,7 +93,7 @@ async function init() {
     }
 
     await db.run(
-      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portraitUrl VARCHAR, portraitCaptured BOOLEAN)'
+      'CREATE TABLE IF NOT EXISTS attendance (id VARCHAR, studentId VARCHAR, sessionId VARCHAR, checkIn DATETIME, portraitUrl VARCHAR, portraitCaptured BOOLEAN, FRIdentifiedId VARCHAR, status VARCHAR)'
     );
 
     const attendanceData = [
@@ -104,6 +104,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
+        '1'
       ],
       [
         '2',
@@ -112,6 +113,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
+        '2'
       ],
       [
         '3',
@@ -120,6 +122,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
+        '3'
       ],
       [
         '4',
@@ -128,6 +131,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
+        '4'
       ],
       [
         '5',
@@ -136,6 +140,7 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
+        '5'
       ],
       [
         '6',
@@ -144,11 +149,12 @@ async function init() {
         '2021-01-01 08:00:00',
         'https://via.placeholder.com/150',
         true,
+        '6'
       ],
     ];
     for (const data of attendanceData) {
       await db.run(
-        'INSERT INTO attendance (id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO attendance (id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured, FRIdentifiedId) VALUES (?, ?, ?, ?, ?, ?, ?)',
         data
       );
     }
