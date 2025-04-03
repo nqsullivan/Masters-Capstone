@@ -8,6 +8,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from './services/auth.service';
+import { Title } from '@angular/platform-browser';
+import { filter } from 'rxjs/operators';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -27,12 +30,26 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent implements DoCheck {
   welcomeMessage: string | null = null;
-  constructor(private authService: AuthService) {}
+  currentPageTitle: string = 'Dashboard';
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.updatePageTitle();
+      });
+  }
 
   ngDoCheck(): void {
     if (this.authService.getUsername() !== null) {
       this.welcomeMessage = `Hello, ${this.authService.getUsername()}`;
     }
+  }
+  private updatePageTitle(): void {
+    const route = this.router.routerState.snapshot.root.firstChild;
+    this.currentPageTitle = route?.data['title'] || 'Dashboard';
   }
 
   logout(): void {
