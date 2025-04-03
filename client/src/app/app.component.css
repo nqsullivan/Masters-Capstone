@@ -27,7 +27,7 @@
 .page-header {
   background-color: #3498db;
   color: white;
-  padding: 8px 20px;
+  padding: 8px 40px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   height: 40px;
   display: flex;
@@ -36,7 +36,7 @@
 
 .page-content {
   flex-grow: 1;
-  padding: 20px;
+  padding: 40px;
   background-color: #f4f4f4;
   overflow-y: auto;
 }
@@ -71,7 +71,7 @@
 
 .main-content {
   flex-grow: 1;
-  padding: 20px;
+  padding: -20px;
   background-color: #f4f4f4;
 }
 
