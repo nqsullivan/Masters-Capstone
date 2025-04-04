@@ -290,8 +290,8 @@ describe('Session Routes', () => {
     );
 
     const updatedAttendanceData = {
-      FRIdentifiedId: "different-id",
-      status: "ESCALATED"
+      FRIdentifiedId: 'different-id',
+      status: 'ESCALATED',
     };
 
     const response = await request(app)

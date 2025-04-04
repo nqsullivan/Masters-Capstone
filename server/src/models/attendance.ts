@@ -7,5 +7,5 @@ export interface Attendance {
   portraitCaptured: boolean;
   FRIdentifiedId: string | null;
   status: string | null;
-  flagged: boolean
+  flagged: boolean;
 }

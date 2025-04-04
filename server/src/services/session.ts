@@ -100,9 +100,7 @@ class SessionService {
     portraitUrl: string
   ): Promise<Attendance> {
     if (!sessionId || !studentId) {
-      throw new Error(
-        'sessionId and studentId fields are required'
-      );
+      throw new Error('sessionId and studentId fields are required');
     }
 
     const session = await this.getSession(sessionId);
@@ -149,7 +147,7 @@ class SessionService {
         portraitCaptured: row.portraitCaptured,
         FRIdentifiedId: row.FRIdentifiedId,
         status: row.status,
-        flagged: row.flagged
+        flagged: row.flagged,
       };
 
       if (attendanceRecords.has(row.sessionId)) {
@@ -176,7 +174,7 @@ class SessionService {
     const attendance = await this.getAttendanceRecord(attendanceId);
     let flagged = attendance.flagged;
 
-    if(!checkInTime) {
+    if (!checkInTime) {
       checkInTime = attendance.checkIn;
     }
 
@@ -198,14 +196,24 @@ class SessionService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (!['ESCALATED', 'DISMISSED'].includes(status)) {
-        throw new Error('status field can only be updated to DISMISSED or ESCALATED');
+        throw new Error(
+          'status field can only be updated to DISMISSED or ESCALATED'
+        );
       }
     }
     const portraitCaptured = portraitUrl !== '';
 
     await this.db.runWithNoReturned(
       'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ? WHERE id = ?',
-      [checkInTime, portraitUrl, portraitCaptured, FRIdentifiedId, status, flagged, attendanceId]
+      [
+        checkInTime,
+        portraitUrl,
+        portraitCaptured,
+        FRIdentifiedId,
+        status,
+        flagged,
+        attendanceId,
+      ]
     );
 
     return {
@@ -217,7 +225,7 @@ class SessionService {
       portraitCaptured: portraitCaptured,
       FRIdentifiedId: FRIdentifiedId,
       status: status,
-      flagged: flagged
+      flagged: flagged,
     };
   }
 
@@ -247,7 +255,7 @@ class SessionService {
         portraitCaptured: result[0].portraitCaptured,
         FRIdentifiedId: result[0].FRIdentifiedId,
         status: result[0].status,
-        flagged: result[0].flagged
+        flagged: result[0].flagged,
       };
     }
     throw new Error('Attendance record not found');

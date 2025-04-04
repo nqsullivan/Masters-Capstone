@@ -85,11 +85,11 @@ describe('Dashboard API', () => {
         [session1.id]: [
           {
             ...attendance1,
-            checkIn: ""
+            checkIn: '',
           },
           {
             ...attendance2,
-            checkIn: ""
+            checkIn: '',
           },
         ],
       },
