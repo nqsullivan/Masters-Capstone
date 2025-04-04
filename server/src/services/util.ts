@@ -48,6 +48,10 @@ class UtilService {
   formatDate(date: string): string {
     return date.toString();
   }
+
+  formatNumber(value: number | bigint): number {
+    return typeof value === 'bigint' ? Number(value) : value;
+  }
 }
 
 export default new UtilService();

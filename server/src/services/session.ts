@@ -164,6 +164,59 @@ class SessionService {
     return Object.fromEntries(attendanceRecords);
   }
 
+  async getAttendanceRecordsForProfessorPaged(
+    professorId: string,
+    page: number,
+    pageSize: number
+  ): Promise<{ attendanceRecords: Attendance[]; totalCount: number }> {
+    const offset = (page - 1) * pageSize;
+
+    const result = await this.db.runAndReadAll<{
+      id: string;
+      studentId: string;
+      sessionId: string;
+      checkIn: string;
+      portraitUrl: string;
+      portraitCaptured: boolean;
+    }>(
+      `
+      SELECT a.id, a.studentId, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured
+      FROM attendance a
+      JOIN student s ON a.studentId = s.id
+      JOIN student_class_lookup scl ON s.id = scl.studentId
+      JOIN professor_class_lookup pcl ON scl.classId = pcl.classId
+      WHERE pcl.username = ?
+      LIMIT ? OFFSET ?
+      `,
+      [professorId, pageSize, offset]
+    );
+
+    const totalCountResult = await this.db.runAndReadAll<{ count: number }>(
+      `
+      SELECT COUNT(*) as count
+      FROM attendance a
+      JOIN student s ON a.studentId = s.id
+      JOIN student_class_lookup scl ON s.id = scl.studentId
+      JOIN professor_class_lookup pcl ON scl.classId = pcl.classId
+      WHERE pcl.username = ?
+      `,
+      [professorId]
+    );
+
+    let totalCount = UtilService.formatNumber(totalCountResult[0].count);
+
+    const attendanceRecords = result.map((row) => ({
+      id: row.id,
+      studentId: row.studentId,
+      sessionId: row.sessionId,
+      checkIn: UtilService.formatDate(row.checkIn),
+      portraitUrl: row.portraitUrl,
+      portraitCaptured: row.portraitCaptured,
+    }));
+
+    return { attendanceRecords, totalCount };
+  }
+
   async modifyAttendanceRecord(
     attendanceId: string,
     checkInTime: string,
