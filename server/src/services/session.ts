@@ -116,17 +116,7 @@ class SessionService {
       [id, student.id, session.id, portraitUrl, portraitCaptured]
     );
 
-    return {
-      id,
-      studentId: student.id,
-      sessionId: session.id,
-      checkIn: null,
-      portraitUrl: portraitUrl,
-      portraitCaptured: portraitCaptured,
-      FRIdentifiedId: null,
-      status: null,
-      flagged: false
-    };
+    return await this.getAttendanceRecord(id);
   }
 
   async getAttendanceRecordsForSessions(
@@ -183,19 +173,23 @@ class SessionService {
       throw new Error('attendanceId is required');
     }
 
-    let flagged = false;
-
     const attendance = await this.getAttendanceRecord(attendanceId);
+    let flagged = attendance.flagged;
+
+    if(!checkInTime) {
+      checkInTime = attendance.checkIn;
+    }
+
     if (!portraitUrl) {
       portraitUrl = attendance.portraitUrl;
     }
 
     if (!FRIdentifiedId) {
       FRIdentifiedId = attendance.FRIdentifiedId;
-    } else {
-      if (attendance.studentId !== FRIdentifiedId) {
-        flagged = true;
-      }
+    }
+
+    if (attendance.studentId !== FRIdentifiedId) {
+      flagged = true;
     }
 
     if (!status) {
@@ -203,7 +197,7 @@ class SessionService {
     } else {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      if (status !== 'DISMISSED' || status !== 'ESCALATED') {
+      if (!['ESCALATED', 'DISMISSED'].includes(status)) {
         throw new Error('status field can only be updated to DISMISSED or ESCALATED');
       }
     }
@@ -248,7 +242,7 @@ class SessionService {
         id: result[0].id,
         studentId: result[0].studentId,
         sessionId: result[0].sessionId,
-        checkIn: UtilService.formatDate(result[0].checkIn || ''),
+        checkIn: this.getFormattedCheckInTime(result[0].checkIn),
         portraitUrl: result[0].portraitUrl,
         portraitCaptured: result[0].portraitCaptured,
         FRIdentifiedId: result[0].FRIdentifiedId,
@@ -257,6 +251,13 @@ class SessionService {
       };
     }
     throw new Error('Attendance record not found');
+  }
+
+  getFormattedCheckInTime(checkIn: string | null) {
+    if (checkIn) {
+      return UtilService.formatDate(checkIn);
+    }
+    return null;
   }
 
   async deleteAttendanceRecord(attendanceId: string): Promise<void> {
