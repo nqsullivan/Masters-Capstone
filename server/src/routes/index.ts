@@ -13,6 +13,7 @@ import {
 import {
   addStudentsToClass,
   getStudentsForClass,
+  deleteStudentFromClass,
 } from '../controllers/studentClassAssignment.js';
 import {
   getClass,
@@ -63,6 +64,11 @@ router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 router.post('/class/:classId/students', verifyToken, addStudentsToClass);
 router.get('/class/:classId/students', verifyToken, getStudentsForClass);
+router.delete(
+  '/class/:classId/student/:studentId',
+  verifyToken,
+  deleteStudentFromClass
+);
 
 router.get('/schedule/:roomNumber', verifyToken, getSchedulesForRoomNumber);
 

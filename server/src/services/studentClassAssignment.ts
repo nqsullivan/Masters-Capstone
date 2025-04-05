@@ -52,12 +52,12 @@ class StudentClassAssignmentService {
   }
 
   async deleteStudentFromClass(
-    studentId: string,
-    classId: string
+    classId: string,
+    studentId: string
   ): Promise<void> {
     const existingAssignment = await this.db.runAndReadAll(
       `SELECT studentId, classId FROM student_class_lookup WHERE studentId = ? AND classId = ?`,
-      [studentId, classId]
+      [classId, studentId]
     );
     if (existingAssignment.length === 0) {
       throw new Error(
@@ -67,7 +67,7 @@ class StudentClassAssignmentService {
 
     await this.db.runWithNoReturned(
       `DELETE FROM student_class_lookup WHERE studentId = ? AND classId = ?`,
-      [studentId, classId]
+      [classId, studentId]
     );
   }
 
