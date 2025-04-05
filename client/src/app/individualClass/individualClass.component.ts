@@ -11,7 +11,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
@@ -63,13 +65,15 @@ export interface SessionTableData {
     MatSortModule,
     MatPaginatorModule,
     MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
   ],
 })
 export class IndividualClassComponent {
   sessionsDisplayedColumns: string[] = ['Date', 'Start Time', 'End Time'];
   sessionsDataSource: MatTableDataSource<SessionTableData>;
 
-  studentsDisplayedColumns: string[] = ['Name', 'ID'];
+  studentsDisplayedColumns: string[] = ['Name', 'ID', 'Actions'];
   studentsDataSource: MatTableDataSource<Student>;
 
   @ViewChildren(MatPaginator) paginator = new QueryList<MatPaginator>();
@@ -173,6 +177,23 @@ export class IndividualClassComponent {
         },
         error: () => {
           console.log('ERROR ROUTE');
+        },
+      });
+  }
+  removeStudentFromClass(studentId: string) {
+    this.apiService
+      .delete<HttpResponseBase>(`class/${this.classId}/student/${studentId}`)
+      .subscribe({
+        next: () => {
+          // Refresh students table
+          if (this.classId) {
+            this.getStudetsFromClass(this.classId);
+          }
+        },
+        error: () => {
+          console.log(
+            'Error occurred while removing the student from the class'
+          );
         },
       });
   }

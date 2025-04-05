@@ -97,6 +97,8 @@
 
 #button-container {
   display: flex;
+  justify-content: right;
+  margin-top: 10px;
 }
 
 #add-student {
