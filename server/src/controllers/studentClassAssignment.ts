@@ -50,8 +50,8 @@ export const deleteStudentFromClass = async (
     const { classId, studentId } = req.params;
 
     await StudentClassAssignmentService.deleteStudentFromClass(
-      studentId,
-      classId
+      classId,
+      studentId
     );
 
     res
