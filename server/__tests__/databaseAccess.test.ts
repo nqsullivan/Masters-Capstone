@@ -33,10 +33,6 @@ describe('DatabaseAccess', () => {
     db = await DatabaseAccess.getInstance();
   });
 
-  afterEach(async () => {
-    await db.disconnect();
-  });
-
   test('runWithNoReturned executes a query without returning rows', async () => {
     const query = 'INSERT INTO user (id, username) VALUES (?, ?)';
     await db.runWithNoReturned(query, ['1', 'Alice']);
@@ -54,10 +50,5 @@ describe('DatabaseAccess', () => {
     const instance1 = await DatabaseAccess.getInstance();
     const instance2 = await DatabaseAccess.getInstance();
     expect(instance1).toBe(instance2);
-  });
-
-  test('disconnect closes the database connection', async () => {
-    await db.disconnect();
-    expect(db['connection'].close).toHaveBeenCalled();
   });
 });

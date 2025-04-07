@@ -37,6 +37,7 @@ import {
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { HttpResponseBase } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 export interface DialogData {
   studentId: string;
@@ -83,8 +84,9 @@ export class IndividualClassComponent {
   readonly studentId = signal('');
   readonly dialog = inject(MatDialog);
   constructor(
-    private route: ActivatedRoute,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -205,7 +207,33 @@ export class IndividualClassComponent {
       console.log('The dialog was closed');
       if (result !== undefined) {
         console.log(result);
-        this.addStudentToClass([result.studentId]);
+        //check if the studentId exists
+        this.apiService.get(`student/${result.studentId}`).subscribe({
+          next: () => {
+            console.log('Student exists');
+            this.addStudentToClass([result.studentId]);
+          },
+          error: (error) => {
+            // If the student does not exist, show a snackbar
+            console.error('Student does not exist:', error);
+            const snackBarClose = this.snackBar.open(
+              `Student with ID ${result.studentId} does not exist.`,
+              'Close',
+              {
+                duration: 1500,
+
+                horizontalPosition: 'center',
+                verticalPosition: 'top',
+                panelClass: ['snackBar'],
+              }
+            );
+
+            snackBarClose.afterDismissed().subscribe(() => {
+              // Reopen the dialog
+              this.openDialog();
+            });
+          },
+        });
       }
     });
   }

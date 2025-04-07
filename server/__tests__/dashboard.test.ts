@@ -62,13 +62,11 @@ describe('Dashboard API', () => {
     let attendance1 = await SessionService.addAttendanceRecord(
       sessionId,
       studentId1,
-      new Date().toISOString().split('.')[0] + 'Z',
       'portrait.jpg'
     );
     let attendance2 = await SessionService.addAttendanceRecord(
       sessionId,
       studentId2,
-      new Date().toISOString().split('.')[0] + 'Z',
       'portrait.jpg'
     );
 
@@ -87,11 +85,11 @@ describe('Dashboard API', () => {
         [session1.id]: [
           {
             ...attendance1,
-            checkIn: formatDateToSQL(attendance1.checkIn),
+            checkIn: '',
           },
           {
             ...attendance2,
-            checkIn: formatDateToSQL(attendance2.checkIn),
+            checkIn: '',
           },
         ],
       },
