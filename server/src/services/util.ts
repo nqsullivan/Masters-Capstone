@@ -45,8 +45,8 @@ class UtilService {
     };
   }
 
-  formatDate(date: string): string {
-    return date.toString();
+  formatDate(date: string | null | undefined): string {
+    return date ? date.toString() : '';
   }
 
   formatNumber(value: number | bigint): number {

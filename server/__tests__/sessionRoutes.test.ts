@@ -488,15 +488,13 @@ describe('Session Routes', () => {
     await SessionService.addAttendanceRecord(
       session1.id,
       student1.id,
-      '2025-02-01T08:05:00.000Z',
-      'url1.com'
+      '2025-02-01T08:05:00.000Z'
     );
 
     await SessionService.addAttendanceRecord(
       session2.id,
       student2.id,
-      '2025-02-02T08:10:00.000Z',
-      'url2.com'
+      '2025-02-02T08:10:00.000Z'
     );
 
     const response = await request(app)
@@ -542,14 +540,12 @@ describe('Session Routes', () => {
     await SessionService.addAttendanceRecord(
       session1.id,
       student1.id,
-      '2025-02-01T08:05:00.000Z',
       'url1.com'
     );
 
     await SessionService.addAttendanceRecord(
       session2.id,
       student2.id,
-      '2025-02-02T08:10:00.000Z',
       'url2.com'
     );
 
