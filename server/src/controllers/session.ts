@@ -99,12 +99,11 @@ const addAttendanceRecord = async (
   next: NextFunction
 ) => {
   const { sessionId } = req.params;
-  const { studentId, checkInTime, portraitUrl } = req.body;
+  const { studentId, portraitUrl } = req.body;
   try {
     const attendance = await SessionService.addAttendanceRecord(
       sessionId,
       studentId,
-      checkInTime,
       portraitUrl
     );
     res.status(201).send(attendance);
@@ -121,12 +120,14 @@ const modifyAttendanceRecord = async (
   next: NextFunction
 ) => {
   const { sessionId, attendanceId } = req.params;
-  const { checkInTime, portraitUrl } = req.body;
+  const { checkInTime, portraitUrl, FRIdentifiedId, status } = req.body;
   try {
     const attendance = await SessionService.modifyAttendanceRecord(
       attendanceId,
       checkInTime,
-      portraitUrl
+      portraitUrl,
+      FRIdentifiedId,
+      status
     );
     res.status(200).send(attendance);
   } catch (e: any) {

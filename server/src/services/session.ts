@@ -97,13 +97,10 @@ class SessionService {
   async addAttendanceRecord(
     sessionId: string,
     studentId: string,
-    checkInTime: string,
     portraitUrl: string
   ): Promise<Attendance> {
-    if (!sessionId || !studentId || !checkInTime) {
-      throw new Error(
-        'sessionId, studentId, and checkInTime fields are required'
-      );
+    if (!sessionId || !studentId) {
+      throw new Error('sessionId and studentId fields are required');
     }
 
     const session = await this.getSession(sessionId);
@@ -113,18 +110,11 @@ class SessionService {
     const portraitCaptured = portraitUrl !== '';
 
     await this.db.runWithNoReturned(
-      'INSERT INTO attendance (id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured) VALUES (?, ?, ?, ?, ?, ?)',
-      [id, student.id, session.id, checkInTime, portraitUrl, portraitCaptured]
+      'INSERT INTO attendance (id, studentId, sessionId, portraitUrl, portraitCaptured) VALUES (?, ?, ?, ?, ?)',
+      [id, student.id, session.id, portraitUrl, portraitCaptured]
     );
 
-    return {
-      id,
-      studentId: student.id,
-      sessionId: session.id,
-      checkIn: UtilService.formatDate(checkInTime),
-      portraitUrl: portraitUrl,
-      portraitCaptured: portraitCaptured,
-    };
+    return await this.getAttendanceRecord(id);
   }
 
   async getAttendanceRecordsForSessions(
@@ -136,11 +126,14 @@ class SessionService {
       id: string;
       studentId: string;
       sessionId: string;
-      checkIn: string;
+      checkIn: string | null;
       portraitUrl: string;
       portraitCaptured: boolean;
+      FRIdentifiedId: string;
+      status: string | null;
+      flagged: boolean;
     }>(
-      `SELECT id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured FROM attendance WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
+      `SELECT id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured, FRIdentifiedId, status, flagged FROM attendance WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
       [...sessionIds]
     );
 
@@ -149,9 +142,12 @@ class SessionService {
         id: row.id,
         studentId: row.studentId,
         sessionId: row.sessionId,
-        checkIn: UtilService.formatDate(row.checkIn),
+        checkIn: UtilService.formatDate(row.checkIn || ''),
         portraitUrl: row.portraitUrl,
         portraitCaptured: row.portraitCaptured,
+        FRIdentifiedId: row.FRIdentifiedId,
+        status: row.status,
+        flagged: row.flagged,
       };
 
       if (attendanceRecords.has(row.sessionId)) {
@@ -166,31 +162,70 @@ class SessionService {
 
   async modifyAttendanceRecord(
     attendanceId: string,
-    checkInTime: string,
-    portraitUrl: string
+    checkInTime: string | null,
+    portraitUrl: string,
+    FRIdentifiedId: string | null,
+    status: string | null
   ): Promise<Attendance> {
-    if (!attendanceId || !checkInTime) {
-      throw new Error('attendanceId, and checkInTime fields are required');
+    if (!attendanceId) {
+      throw new Error('attendanceId is required');
     }
 
     const attendance = await this.getAttendanceRecord(attendanceId);
+    let flagged = attendance.flagged;
+
+    if (!checkInTime) {
+      checkInTime = attendance.checkIn;
+    }
+
     if (!portraitUrl) {
       portraitUrl = attendance.portraitUrl;
+    }
+
+    if (!FRIdentifiedId) {
+      FRIdentifiedId = attendance.FRIdentifiedId;
+    }
+
+    if (attendance.studentId !== FRIdentifiedId) {
+      flagged = true;
+    }
+
+    if (!status) {
+      status = attendance.status;
+    } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (!['ESCALATED', 'DISMISSED'].includes(status)) {
+        throw new Error(
+          'status field can only be updated to DISMISSED or ESCALATED'
+        );
+      }
     }
     const portraitCaptured = portraitUrl !== '';
 
     await this.db.runWithNoReturned(
-      'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ? WHERE id = ?',
-      [checkInTime, portraitUrl, portraitCaptured, attendanceId]
+      'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ? WHERE id = ?',
+      [
+        checkInTime,
+        portraitUrl,
+        portraitCaptured,
+        FRIdentifiedId,
+        status,
+        flagged,
+        attendanceId,
+      ]
     );
 
     return {
       id: attendance.id,
       studentId: attendance.studentId,
       sessionId: attendance.sessionId,
-      checkIn: UtilService.formatDate(checkInTime),
+      checkIn: UtilService.formatDate(checkInTime || ''),
       portraitUrl: portraitUrl,
       portraitCaptured: portraitCaptured,
+      FRIdentifiedId: FRIdentifiedId,
+      status: status,
+      flagged: flagged,
     };
   }
 
@@ -199,11 +234,14 @@ class SessionService {
       id: string;
       studentId: string;
       sessionId: string;
-      checkIn: string;
+      checkIn: string | null;
       portraitUrl: string;
       portraitCaptured: boolean;
+      FRIdentifiedId: string;
+      status: string | null;
+      flagged: boolean;
     }>(
-      `SELECT id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured FROM attendance WHERE id = ?`,
+      `SELECT id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured, FRIdentifiedId, status, flagged FROM attendance WHERE id = ?`,
       [attendanceId]
     );
 
@@ -212,12 +250,22 @@ class SessionService {
         id: result[0].id,
         studentId: result[0].studentId,
         sessionId: result[0].sessionId,
-        checkIn: UtilService.formatDate(result[0].checkIn),
+        checkIn: this.getFormattedCheckInTime(result[0].checkIn),
         portraitUrl: result[0].portraitUrl,
         portraitCaptured: result[0].portraitCaptured,
+        FRIdentifiedId: result[0].FRIdentifiedId,
+        status: result[0].status,
+        flagged: result[0].flagged,
       };
     }
     throw new Error('Attendance record not found');
+  }
+
+  getFormattedCheckInTime(checkIn: string | null) {
+    if (checkIn) {
+      return UtilService.formatDate(checkIn);
+    }
+    return null;
   }
 
   async deleteAttendanceRecord(attendanceId: string): Promise<void> {
