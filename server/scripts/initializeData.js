@@ -211,8 +211,6 @@ async function init() {
       'CREATE TABLE IF NOT EXISTS credential (username VARCHAR, hash VARCHAR)'
     );
 
-    await db.close();
-
     console.log('Database initialized successfully');
   } catch (err) {
     console.error('Error initializing database:', err);
