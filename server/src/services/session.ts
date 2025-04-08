@@ -160,12 +160,71 @@ class SessionService {
     return Object.fromEntries(attendanceRecords);
   }
 
+  async getAttendanceRecordsForProfessorPaged(
+    professorId: string,
+    page: number,
+    pageSize: number
+  ): Promise<{ attendanceRecords: Attendance[]; totalCount: number }> {
+    const offset = (page - 1) * pageSize;
+
+    const result = await this.db.runAndReadAll<{
+      id: string;
+      studentId: string;
+      sessionId: string;
+      checkIn: string;
+      portraitUrl: string;
+      portraitCaptured: boolean;
+      FRIdentifiedId: string;
+      status: string | null;
+      flagged: boolean;
+    }>(
+      `
+      SELECT a.id, a.studentId, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
+      FROM attendance a
+      JOIN student s ON a.studentId = s.id
+      JOIN student_class_lookup scl ON s.id = scl.studentId
+      JOIN professor_class_lookup pcl ON scl.classId = pcl.classId
+      WHERE pcl.username = ?
+      LIMIT ? OFFSET ?
+      `,
+      [professorId, pageSize, offset]
+    );
+
+    const totalCountResult = await this.db.runAndReadAll<{ count: number }>(
+      `
+      SELECT COUNT(*) as count
+      FROM attendance a
+      JOIN student s ON a.studentId = s.id
+      JOIN student_class_lookup scl ON s.id = scl.studentId
+      JOIN professor_class_lookup pcl ON scl.classId = pcl.classId
+      WHERE pcl.username = ?
+      `,
+      [professorId]
+    );
+
+    let totalCount = UtilService.formatNumber(totalCountResult[0].count);
+
+    const attendanceRecords = result.map((row) => ({
+      id: row.id,
+      studentId: row.studentId,
+      sessionId: row.sessionId,
+      checkIn: UtilService.formatDate(row.checkIn),
+      portraitUrl: row.portraitUrl,
+      portraitCaptured: row.portraitCaptured,
+      FRIdentifiedId: row.FRIdentifiedId,
+      status: row.status,
+      flagged: row.flagged,
+    }));
+
+    return { attendanceRecords, totalCount };
+  }
+
   async modifyAttendanceRecord(
     attendanceId: string,
-    checkInTime: string | null,
-    portraitUrl: string,
-    FRIdentifiedId: string | null,
-    status: string | null
+    checkInTime: string | null | undefined,
+    portraitUrl: string | null | undefined,
+    FRIdentifiedId: string | null | undefined,
+    status: string | null | undefined
   ): Promise<Attendance> {
     if (!attendanceId) {
       throw new Error('attendanceId is required');
@@ -174,53 +233,48 @@ class SessionService {
     const attendance = await this.getAttendanceRecord(attendanceId);
     let flagged = attendance.flagged;
 
-    if (!checkInTime) {
-      checkInTime = attendance.checkIn;
-    }
+    checkInTime = checkInTime ?? attendance.checkIn ?? null;
+    portraitUrl = portraitUrl ?? attendance.portraitUrl ?? '';
+    FRIdentifiedId = FRIdentifiedId ?? attendance.FRIdentifiedId ?? null;
+    status = status ?? attendance.status ?? null;
 
-    if (!portraitUrl) {
-      portraitUrl = attendance.portraitUrl;
-    }
-
-    if (!FRIdentifiedId) {
-      FRIdentifiedId = attendance.FRIdentifiedId;
-    }
-
-    if (attendance.studentId !== FRIdentifiedId) {
+    if (FRIdentifiedId !== null && attendance.studentId !== FRIdentifiedId) {
       flagged = true;
     }
 
-    if (!status) {
-      status = attendance.status;
-    } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+    if (status !== null) {
       if (!['ESCALATED', 'DISMISSED'].includes(status)) {
         throw new Error(
           'status field can only be updated to DISMISSED or ESCALATED'
         );
       }
     }
+
     const portraitCaptured = portraitUrl !== '';
 
-    await this.db.runWithNoReturned(
-      'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ? WHERE id = ?',
-      [
-        checkInTime,
-        portraitUrl,
-        portraitCaptured,
-        FRIdentifiedId,
-        status,
-        flagged,
-        attendanceId,
-      ]
-    );
+    try {
+      await this.db.runWithNoReturned(
+        'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ? WHERE id = ?',
+        [
+          checkInTime,
+          portraitUrl,
+          portraitCaptured,
+          FRIdentifiedId,
+          status,
+          flagged,
+          attendanceId,
+        ]
+      );
+    } catch (e) {
+      console.error('DB update error:', e);
+      throw e;
+    }
 
     return {
       id: attendance.id,
       studentId: attendance.studentId,
       sessionId: attendance.sessionId,
-      checkIn: UtilService.formatDate(checkInTime || ''),
+      checkIn: UtilService.formatDate(checkInTime),
       portraitUrl: portraitUrl,
       portraitCaptured: portraitCaptured,
       FRIdentifiedId: FRIdentifiedId,
