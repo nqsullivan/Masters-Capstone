@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import SessionService from '../services/session.js';
+import AuthService from '../services/auth.js';
 
 const createSession = async (
   req: Request,
@@ -99,12 +100,11 @@ const addAttendanceRecord = async (
   next: NextFunction
 ) => {
   const { sessionId } = req.params;
-  const { studentId, checkInTime, portraitUrl } = req.body;
+  const { studentId, portraitUrl } = req.body;
   try {
     const attendance = await SessionService.addAttendanceRecord(
       sessionId,
       studentId,
-      checkInTime,
       portraitUrl
     );
     res.status(201).send(attendance);
@@ -121,12 +121,14 @@ const modifyAttendanceRecord = async (
   next: NextFunction
 ) => {
   const { sessionId, attendanceId } = req.params;
-  const { checkInTime, portraitUrl } = req.body;
+  const { checkInTime, portraitUrl, FRIdentifiedId, status } = req.body;
   try {
     const attendance = await SessionService.modifyAttendanceRecord(
       attendanceId,
       checkInTime,
-      portraitUrl
+      portraitUrl,
+      FRIdentifiedId,
+      status
     );
     res.status(200).send(attendance);
   } catch (e: any) {
@@ -152,7 +154,7 @@ const deleteAttendanceRecord = async (
   }
 };
 
-const getAttendanceRecords = async (
+const getAttendanceRecordsForSession = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -169,6 +171,53 @@ const getAttendanceRecords = async (
   }
 };
 
+const getAttendanceRecordsForProfessorPaged = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  const page: number = parseInt(req.query.page as string) || 1;
+  const size: number = parseInt(req.query.size as string) || 10;
+
+  try {
+    const user = await AuthService.getUser(token);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const { attendanceRecords, totalCount } =
+      await SessionService.getAttendanceRecordsForProfessorPaged(
+        user.username,
+        page,
+        size
+      );
+
+    const attendancePage = {
+      page,
+      pageSize: size,
+      totalItems: totalCount,
+      totalPages: Math.ceil(totalCount / size),
+      data: attendanceRecords,
+    };
+
+    res.status(200).send(attendancePage);
+    next();
+  } catch (e: any) {
+    if (e.message === 'User not found') {
+      res.status(404).json({ error: e.message });
+    } else {
+      console.error(e);
+      res.status(400).json({ error: e.message });
+    }
+  }
+};
+
 export {
   createSession,
   deleteSession,
@@ -177,5 +226,6 @@ export {
   addAttendanceRecord,
   modifyAttendanceRecord,
   deleteAttendanceRecord,
-  getAttendanceRecords,
+  getAttendanceRecordsForSession,
+  getAttendanceRecordsForProfessorPaged,
 };

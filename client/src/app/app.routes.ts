@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
+import { FlagsComponent } from './flags/flags.component';
 import { AuthGuard } from './guards/auth.guard';
 import { ClassListComponent } from './class-list/class-list.component';
 import { IndividualClassComponent } from './individualClass/individualClass.component';
@@ -20,6 +21,11 @@ export const routes: Routes = [
     component: ClassListComponent,
     canActivate: [AuthGuard],
     data: { title: 'Classes' },
+  },
+  {
+    path: 'attendance-flags',
+    component: FlagsComponent,
+    data: { title: 'Attendance Flags' },
   },
   { path: 'login', component: LoginComponent, data: { title: 'Login' } },
   {

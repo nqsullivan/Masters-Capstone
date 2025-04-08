@@ -8,7 +8,8 @@ import {
   addAttendanceRecord,
   modifyAttendanceRecord,
   deleteAttendanceRecord,
-  getAttendanceRecords,
+  getAttendanceRecordsForProfessorPaged,
+  getAttendanceRecordsForSession,
 } from '../controllers/session.js';
 import {
   addStudentsToClass,
@@ -52,6 +53,9 @@ const router = express.Router();
 router.post('/login', login);
 router.post('/register', register);
 
+// Attendance routes
+router.get('/attendance', verifyToken, getAttendanceRecordsForProfessorPaged);
+
 // Class routes
 router.get('/class/:id', verifyToken, getClass);
 router.get('/classes', verifyToken, getClassPage);
@@ -88,7 +92,11 @@ router.delete(
   verifyToken,
   deleteAttendanceRecord
 );
-router.get('/session/:sessionId/attendance', verifyToken, getAttendanceRecords);
+router.get(
+  '/session/:sessionId/attendance',
+  verifyToken,
+  getAttendanceRecordsForSession
+);
 
 // Student routes
 router.get('/student/:id', verifyToken, getStudent);
