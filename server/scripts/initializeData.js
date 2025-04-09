@@ -242,14 +242,14 @@ const generateTestData = async (db) => {
         `INSERT INTO user (id, type, username, password) VALUES (?, ?, ?, ?)`,
         [uuidv4(), user.type, user.username, user.password]
       );
-  
+
       const hashedPassword = await bcrypt.hash(user.password, 10);
-  
-      await db.run(
-        `INSERT INTO credential (username, hash) VALUES (?, ?)`,
-        [user.username, hashedPassword]
-      );
-  
+
+      await db.run(`INSERT INTO credential (username, hash) VALUES (?, ?)`, [
+        user.username,
+        hashedPassword,
+      ]);
+
       console.log(`Created user: ${user.username} (${user.type})`);
     } catch (error) {
       console.error(`Failed to create user ${user.username}:`, error.message);
