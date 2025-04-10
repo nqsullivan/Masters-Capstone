@@ -77,16 +77,17 @@ def capture_image(cap):
         ret, frame = cap.read()
     if not ret:
         print("⚠️ Failed to read from camera.")
-        return None
+        return None, None
 
     timestamp_str = datetime.now().strftime("%m%d%Y_%H%M%S_%f")[:-3]  # set Higher Resolution Timestamp
     filename = f"{timestamp_str}.jpg"
     filepath = os.path.join(RAW_PIC_DIR, filename)
     cv2.imwrite(filepath, frame)
     print(f"✅ Captured image: {filepath}")
-    return filepath
+    # return filepath
+    return filepath, timestamp_str  # <-- return timestamp too
 
-def record_clip(cap):
+def record_clip(cap, trigger_ts=None):
     """
     Record a 15-second video clip for a trigger event.
     The clip covers 10 seconds before and 5 seconds after the trigger.
@@ -94,7 +95,10 @@ def record_clip(cap):
     """
     global frame_buffer, fps, max_buffer
 
-    trigger_ts = datetime.now().strftime("%m%d%Y_%H%M%S_%f")[:-3]  # set Higher Resolution Timestamp
+    # trigger_ts = datetime.now().strftime("%m%d%Y_%H%M%S_%f")[:-3]  # set Higher Resolution Timestamp
+    # print(f"Trigger event for video clip at {trigger_ts}")
+    if trigger_ts is None:
+        trigger_ts = datetime.now().strftime("%m%d%Y_%H%M%S_%f")[:-3]
     print(f"Trigger event for video clip at {trigger_ts}")
 
     # 1) Retrieve buffered frames (last 10 sec)
@@ -339,9 +343,12 @@ def main():
 
         if key_code == ord('c'):
             # Capture one frame to RawPic/
-            capture_image(cap)
+            # capture_image(cap)
             # Also record a 15-sec video clip
-            threading.Thread(target=record_clip, args=(cap,)).start()  # modify: record clip asynchronously
+            # threading.Thread(target=record_clip, args=(cap,)).start()  # modify: record clip asynchronously
+            _, ts = capture_image(cap)
+            if ts:
+                threading.Thread(target=record_clip, args=(cap, ts)).start()
             last_trigger_time = time.time()
 
         elif key_code == ord('r'):
