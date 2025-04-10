@@ -233,7 +233,7 @@ class SessionService {
     const attendance = await this.getAttendanceRecord(attendanceId);
     let flagged = attendance.flagged;
 
-    checkInTime = checkInTime ?? attendance.checkIn ?? null;
+    checkInTime = checkInTime ?? null;
     portraitUrl = portraitUrl ?? attendance.portraitUrl ?? '';
     FRIdentifiedId = FRIdentifiedId ?? attendance.FRIdentifiedId ?? null;
     status = status ?? attendance.status ?? null;
