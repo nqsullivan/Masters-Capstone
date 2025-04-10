@@ -125,28 +125,6 @@ export class IndividualStudentComponent {
       }
     });
   }
-
-  deleteStudent(studentId: string): void {
-    this.apiService
-      .delete<{ message: string }>(`student/${studentId}`)
-      .subscribe({
-        next: (response) => {
-          console.log('Student deleted successfully:', response.message);
-
-          this.studentInfo = {
-            id: '',
-            name: '',
-            image: '',
-          };
-        },
-        error: (error) => {
-          console.error('Error deleting student:', error);
-        },
-        complete: () => {
-          console.log('Delete student request completed.');
-        },
-      });
-  }
 }
 
 @Component({
