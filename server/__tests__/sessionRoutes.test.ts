@@ -260,9 +260,7 @@ describe('Session Routes', () => {
     };
 
     const response = await request(app)
-      .put(
-        `/api/attendance/${attendanceResponse.id}`
-      )
+      .put(`/api/attendance/${attendanceResponse.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send(updatedAttendanceData);
 
@@ -299,9 +297,7 @@ describe('Session Routes', () => {
     };
 
     const response = await request(app)
-      .put(
-        `/api/attendance/${attendanceResponse.id}`
-      )
+      .put(`/api/attendance/${attendanceResponse.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send(updatedAttendanceData);
 

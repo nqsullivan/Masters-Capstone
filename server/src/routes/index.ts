@@ -54,11 +54,7 @@ router.post('/register', register);
 
 // Attendance routes
 router.get('/attendance', verifyToken, getAttendanceRecordsForProfessorPaged);
-router.put(
-  '/attendance/:attendanceId',
-  verifyToken,
-  modifyAttendanceRecord
-);
+router.put('/attendance/:attendanceId', verifyToken, modifyAttendanceRecord);
 
 // Class routes
 router.get('/class/:id', verifyToken, getClass);
