@@ -61,6 +61,7 @@ export class FlagsComponent {
 
   selectedElement: AttendanceData | null = null;
   flaggedAttendanceRecordsToReview: AttendanceData[] = [];
+  escalatedAttendanceRecordsToReview: AttendanceData[] = [];
 
   constructor(private apiService: ApiService) {}
 
@@ -70,6 +71,7 @@ export class FlagsComponent {
 
   getFlaggedAttendanceData() {
     this.flaggedAttendanceRecordsToReview = [];
+    this.escalatedAttendanceRecordsToReview = [];
     this.apiService.get<{ data: AttendanceRecord[] }>(`attendance`).subscribe({
       next: (response) => {
         let attendance = response.data;
@@ -87,6 +89,10 @@ export class FlagsComponent {
           if (attendanceRecord.flagged && attendanceRecord.status === '') {
             this.flaggedAttendanceRecordsToReview.push(attendanceRecord);
           }
+
+          if (attendanceRecord.status === 'ESCALATED') {
+            this.escalatedAttendanceRecordsToReview.push(attendanceRecord);
+          }
         });
 
         this.flaggedDataSource = new MatTableDataSource(
@@ -94,6 +100,12 @@ export class FlagsComponent {
         );
         this.flaggedDataSource.paginator = this.paginator.toArray()[0];
         this.flaggedDataSource.sort = this.sort.toArray()[0];
+
+        this.escalatedDataSource = new MatTableDataSource(
+          this.escalatedAttendanceRecordsToReview
+        );
+        this.escalatedDataSource.paginator = this.paginator.toArray()[1];
+        this.escalatedDataSource.sort = this.sort.toArray()[1];
       },
     });
   }
@@ -101,6 +113,13 @@ export class FlagsComponent {
   handleEscalate() {
     let data = {
       status: 'ESCALATED',
+    };
+    this.putAttendanceRequest(data);
+  }
+
+  handleDeEscalate() {
+    let data = {
+      status: '',
     };
     this.putAttendanceRequest(data);
   }
@@ -128,6 +147,15 @@ export class FlagsComponent {
 
     if (this.flaggedDataSource.paginator) {
       this.flaggedDataSource.paginator.firstPage();
+    }
+  }
+
+  applyEscalatedFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.escalatedDataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.escalatedDataSource.paginator) {
+      this.escalatedDataSource.paginator.firstPage();
     }
   }
 }
