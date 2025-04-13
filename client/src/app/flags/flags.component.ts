@@ -12,6 +12,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AttendanceRecord } from '../models/models';
+import { HttpResponseBase } from '@angular/common/http';
 
 interface AttendanceData {
   id: string;
@@ -59,7 +60,7 @@ export class FlagsComponent {
   @ViewChildren(MatSort) sort = new QueryList<MatSort>();
 
   selectedElement: AttendanceData | null = null;
-  flaggedAttendanceRecords: AttendanceData[] = [];
+  flaggedAttendanceRecordsToReview: AttendanceData[] = [];
 
   constructor(private apiService: ApiService) {}
 
@@ -68,6 +69,7 @@ export class FlagsComponent {
   }
 
   getFlaggedAttendanceData() {
+    this.flaggedAttendanceRecordsToReview = [];
     this.apiService.get<{ data: AttendanceRecord[] }>(`attendance`).subscribe({
       next: (response) => {
         let attendance = response.data;
@@ -82,15 +84,13 @@ export class FlagsComponent {
             flagged: attendance.flagged,
           };
 
-          if (attendanceRecord.flagged) {
-            this.flaggedAttendanceRecords.push(attendanceRecord);
+          if (attendanceRecord.flagged && attendanceRecord.status === '') {
+            this.flaggedAttendanceRecordsToReview.push(attendanceRecord);
           }
         });
 
-        console.log('Attendance', attendance);
-        console.log('FlaggedAttendance', this.flaggedAttendanceRecords);
         this.flaggedDataSource = new MatTableDataSource(
-          this.flaggedAttendanceRecords
+          this.flaggedAttendanceRecordsToReview
         );
         this.flaggedDataSource.paginator = this.paginator.toArray()[0];
         this.flaggedDataSource.sort = this.sort.toArray()[0];
@@ -98,19 +98,29 @@ export class FlagsComponent {
     });
   }
 
-  getStudentName(studentId: string): string {
-    this.apiService.get<{ name: string }>(`student/${studentId}`).subscribe({
-      next: (response) => {
-        console.log('Student', response);
-        return response.name;
-      },
-    });
-    return '';
+  handleEscalate() {
+    let data = {
+      status: 'ESCALATED',
+    };
+    this.putAttendanceRequest(data);
   }
 
-  handleEscalate() {}
+  handleDimiss() {
+    let data = {
+      status: 'DISMISSED',
+    };
+    this.putAttendanceRequest(data);
+  }
 
-  handleDimiss() {}
+  putAttendanceRequest(data: { status: string }) {
+    this.apiService
+      .put<HttpResponseBase>(`attendance/${this.selectedElement?.id}`, data)
+      .subscribe({
+        next: () => {
+          this.getFlaggedAttendanceData();
+        },
+      });
+  }
 
   applyFlaggedFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
