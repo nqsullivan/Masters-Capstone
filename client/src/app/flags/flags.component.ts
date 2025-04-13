@@ -65,9 +65,19 @@ export class FlagsComponent {
 
   constructor(private apiService: ApiService) {}
 
+  selectedTabIndex = 0;
+
   ngOnInit(): void {
+    const savedIndex = localStorage.getItem('flags-selected-tab');
+    this.selectedTabIndex = savedIndex ? parseInt(savedIndex, 10) : 0;
     this.getFlaggedAttendanceData();
   }
+
+  onTabChange(index: number): void {
+    this.selectedTabIndex = index;
+    localStorage.setItem('flags-selected-tab', index.toString());
+  }
+
 
   getFlaggedAttendanceData() {
     this.flaggedAttendanceRecordsToReview = [];
