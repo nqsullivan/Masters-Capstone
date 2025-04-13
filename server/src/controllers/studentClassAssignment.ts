@@ -40,3 +40,26 @@ export const getStudentsForClass = async (
     res.status(400).json({ error: e.message });
   }
 };
+
+export const deleteStudentFromClass = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { classId, studentId } = req.params;
+
+    await StudentClassAssignmentService.deleteStudentFromClass(
+      classId,
+      studentId
+    );
+
+    res
+      .status(200)
+      .json({ message: 'Student removed from class successfully' });
+    next();
+  } catch (e: any) {
+    console.error(e);
+    res.status(400).json({ error: e.message });
+  }
+};
