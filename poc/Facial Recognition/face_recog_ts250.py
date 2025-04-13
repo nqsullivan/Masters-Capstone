@@ -83,7 +83,7 @@ def capture_image(cap):
     filename = f"{timestamp_str}.jpg"
     filepath = os.path.join(RAW_PIC_DIR, filename)
     cv2.imwrite(filepath, frame)
-    print(f"✅ Captured image: {filepath}")
+    print(f"📸 Captured image: {filepath}")
     # return filepath
     return filepath, timestamp_str  # <-- return timestamp too
 
@@ -99,7 +99,7 @@ def record_clip(cap, trigger_ts=None):
     # print(f"Trigger event for video clip at {trigger_ts}")
     if trigger_ts is None:
         trigger_ts = datetime.now().strftime("%m%d%Y_%H%M%S_%f")[:-3]
-    print(f"Trigger event for video clip at {trigger_ts}")
+    print(f"🎬 Trigger event for video clip at {trigger_ts}")
 
     # 1) Retrieve buffered frames (last 10 sec)
     with threading.Lock():  # modify: ensure safe copying from frame_buffer
@@ -134,7 +134,7 @@ def record_clip(cap, trigger_ts=None):
     for f in clip_frames:
         out.write(f)
     out.release()
-    print(f"Saved video clip to {filepath}")
+    print(f"✅ Saved video clip to {filepath}")
 
 def resize_with_padding(image, target_size=(170, 240)):
     """
@@ -167,7 +167,7 @@ def save_annotated_frame_in_fred(annotated_frame, identity, distance, captured_t
     filename = f"{identity} ({distance:.2f})_{captured_ts_str}.jpg"
     path = os.path.join(FRED_PIC_DIR, filename)
     cv2.imwrite(path, annotated_frame)
-    print(f"Saved annotated frame to {path}")
+    print(f"🖼️  Saved annotated frame to {path}")
 
 def save_cropped_face_in_captured(face_pil, identity, distance, captured_ts_str):
     """
@@ -190,7 +190,7 @@ def save_cropped_face_in_captured(face_pil, identity, distance, captured_ts_str)
     filename = f"{identity} ({distance:.2f})_{captured_ts_str}.jpg"
     path = os.path.join(CAPTURED_PHOTO_DIR, filename)
     cv2.imwrite(path, resized_face)
-    print(f"Saved cropped face to {path}")
+    print(f"🙂 Saved cropped face to {path}")
 
 def run_face_recognition_on_rawpics():
     """
@@ -271,12 +271,12 @@ def run_face_recognition_on_rawpics():
             if os.path.exists(orig_video):
                 new_video = os.path.join(CLIP_VIDEO_DIR, f"{fr_identity} ({fr_distance:.2f})_{captured_ts_str}.mp4")
                 os.rename(orig_video, new_video)
-                print(f"Renamed video clip from {orig_video} to {new_video}")
+                print(f"🔀 Renamed video clip from {orig_video} to {new_video}")
         # --- NEW CODE BLOCK END ---
         
         # Delete the raw file from RawPic
         os.remove(raw_path)
-        print(f"Deleted raw file {raw_path}")
+        print(f"🗑️  Deleted raw file {raw_path}")
 
 def compare_faces(embedding):
     """
@@ -301,7 +301,7 @@ def log_face(identity, distance, captured_ts_str):
     log_entry = f"{identity} ({distance:.2f}), {captured_ts_str}\n"
     with open(LOG_FILE, "a") as f:
         f.write(log_entry)
-    print(f"Logged: {log_entry.strip()}")
+    print(f"📝 Logged: {log_entry.strip()}")
 
 def annotate_face(frame, box, identity, distance):
     """
@@ -373,7 +373,7 @@ def main():
             last_trigger_time = 0
 
         elif key_code == ord('q'):
-            print("Exiting.")
+            print("👋 Exiting.")
             break
 
         # Auto-run recognition if WAIT_TIME has passed since last capture
