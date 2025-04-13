@@ -196,11 +196,18 @@ export class IndividualSessionComponent {
       });
   }
 
-  editAttendance(checkInTime: string, attendanceData: AttendanceData): void {
+  editAttendance(
+    checkInTime: string | null,
+    attendanceData: AttendanceData
+  ): void {
     console.log(checkInTime);
     console.log(attendanceData);
-    if (checkInTime && attendanceData) {
+    if (attendanceData) {
       console.log('Entered if block');
+      if (checkInTime == '') {
+        checkInTime = null;
+      }
+
       this.apiService
         .put(`session/${this.sessionId}/attendance/${attendanceData.id}`, {
           checkInTime: checkInTime,
@@ -272,7 +279,7 @@ export class EditAttendanceDialog {
     this.dialogRef.close();
   }
 
-  checkInTimeFormControl = new FormControl('', [Validators.required]);
+  checkInTimeFormControl = new FormControl('');
   matcher = new MyErrorStateMatcher();
 }
 

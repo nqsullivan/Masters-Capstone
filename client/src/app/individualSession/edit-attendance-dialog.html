@@ -10,15 +10,9 @@
       [(ngModel)]="data.checkInTime"
     />
   </mat-form-field>
-  @if (checkInTimeFormControl.hasError('required')) {
-  <mat-error>Check In Time is <strong>required</strong></mat-error>
-  }
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button (click)="onNoClick()">Cancel</button>
-  @if (checkInTimeFormControl.hasError('required')) {
-  <button mat-button disabled="True" cdkFocusInitial>Submit</button>
-  } @else {
+
   <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Submit</button>
-  }
 </mat-dialog-actions>
