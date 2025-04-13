@@ -217,6 +217,10 @@ def run_face_recognition_on_rawpics():
         img_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         boxes, _ = mtcnn.detect(img_pil)
 
+        # Initialize variables to hold FR result (assumes one major face per image)
+        fr_identity = None
+        fr_distance = None
+
         if boxes is not None:
             for box in boxes:
                 x1, y1, x2, y2 = box
@@ -246,6 +250,8 @@ def run_face_recognition_on_rawpics():
 
                 # Compare with registered embeddings
                 identity, distance = compare_faces(embedding)
+                fr_identity = identity
+                fr_distance = distance
 
                 # Log recognition with the same timestamp
                 log_face(identity, distance, captured_ts_str)
@@ -258,6 +264,16 @@ def run_face_recognition_on_rawpics():
                 # 2) Save cropped face (170x240) to captured_photo (using the raw timestamp)
                 save_cropped_face_in_captured(face_crop_pil, identity, distance, captured_ts_str)
 
+         # --- NEW CODE BLOCK START ---
+        # Rename the corresponding video clip (if it exists)
+        if fr_identity is not None and fr_distance is not None:
+            orig_video = os.path.join(CLIP_VIDEO_DIR, f"{captured_ts_str}.mp4")
+            if os.path.exists(orig_video):
+                new_video = os.path.join(CLIP_VIDEO_DIR, f"{fr_identity} ({fr_distance:.2f})_{captured_ts_str}.mp4")
+                os.rename(orig_video, new_video)
+                print(f"Renamed video clip from {orig_video} to {new_video}")
+        # --- NEW CODE BLOCK END ---
+        
         # Delete the raw file from RawPic
         os.remove(raw_path)
         print(f"Deleted raw file {raw_path}")
