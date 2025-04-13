@@ -2,7 +2,10 @@
   href="https://fonts.googleapis.com/icon?family=Material+Icons"
   rel="stylesheet"
 />
-<mat-tab-group [selectedIndex]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+<mat-tab-group
+  [selectedIndex]="selectedTabIndex"
+  (selectedIndexChange)="onTabChange($event)"
+>
   <mat-tab label="To Review">
     <mat-form-field>
       <mat-label>Filter</mat-label>

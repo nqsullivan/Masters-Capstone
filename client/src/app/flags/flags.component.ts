@@ -78,7 +78,6 @@ export class FlagsComponent {
     localStorage.setItem('flags-selected-tab', index.toString());
   }
 
-
   getFlaggedAttendanceData() {
     this.flaggedAttendanceRecordsToReview = [];
     this.escalatedAttendanceRecordsToReview = [];
