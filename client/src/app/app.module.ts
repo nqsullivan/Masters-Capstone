@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ContactComponent } from './contact/contact.component';
-import { FlagsComponsent } from './flags/flags.component';
+import { FlagsComponent } from './flags/flags.component';
 import { LoginComponent } from './login/login.component';
 import { ClassListComponent } from './class-list/class-list.component';
 
@@ -21,7 +21,7 @@ import { routes } from './app.routes';
     AppComponent,
     DashboardComponent,
     ContactComponent,
-    FlagsComponsent,
+    FlagsComponent,
     LoginComponent,
     ClassListComponent,
   ],

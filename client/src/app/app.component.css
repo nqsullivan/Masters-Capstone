@@ -107,3 +107,13 @@
 .main-content p {
   color: #666;
 }
+
+.new-info-icon {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: red;
+  border-radius: 50%;
+  margin-left: 8px; 
+  vertical-align: middle; 
+}
