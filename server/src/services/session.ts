@@ -249,9 +249,9 @@ class SessionService {
     }
 
     if (status !== null) {
-      if (!['ESCALATED', 'DISMISSED'].includes(status)) {
+      if (!['ESCALATED', 'DISMISSED', ''].includes(status)) {
         throw new Error(
-          'status field can only be updated to DISMISSED or ESCALATED'
+          'status field can only be updated to be blank or one of the values: [DISMISSED, ESCALATED]'
         );
       }
     }
