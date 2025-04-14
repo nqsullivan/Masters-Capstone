@@ -81,42 +81,48 @@ export class FlagsComponent {
   getFlaggedAttendanceData() {
     this.flaggedAttendanceRecordsToReview = [];
     this.escalatedAttendanceRecordsToReview = [];
-    this.apiService.get<{ data: AttendanceRecord[] }>(`attendance`).subscribe({
-      next: (response) => {
-        let attendance = response.data;
-        attendance.forEach((attendance) => {
-          let attendanceRecord: AttendanceData = {
-            id: attendance.id,
-            studentId: attendance.studentId,
-            studentName: attendance.studentName,
-            FRIdentifiedId: attendance.FRIdentifiedId,
-            checkInTime: attendance.checkIn,
-            status: attendance.status || '',
-            flagged: attendance.flagged,
-          };
+    this.apiService
+      .get<{ data: AttendanceRecord[] }>(`attendance`, {
+        page: 1,
+        size: 100,
+        isFlagged: true,
+      })
+      .subscribe({
+        next: (response) => {
+          let attendance = response.data;
+          attendance.forEach((attendance) => {
+            let attendanceRecord: AttendanceData = {
+              id: attendance.id,
+              studentId: attendance.studentId,
+              studentName: attendance.studentName,
+              FRIdentifiedId: attendance.FRIdentifiedId,
+              checkInTime: attendance.checkIn,
+              status: attendance.status || '',
+              flagged: attendance.flagged,
+            };
 
-          if (attendanceRecord.flagged && attendanceRecord.status === '') {
-            this.flaggedAttendanceRecordsToReview.push(attendanceRecord);
-          }
+            if (attendanceRecord.flagged && attendanceRecord.status === '') {
+              this.flaggedAttendanceRecordsToReview.push(attendanceRecord);
+            }
 
-          if (attendanceRecord.status === 'ESCALATED') {
-            this.escalatedAttendanceRecordsToReview.push(attendanceRecord);
-          }
-        });
+            if (attendanceRecord.status === 'ESCALATED') {
+              this.escalatedAttendanceRecordsToReview.push(attendanceRecord);
+            }
+          });
 
-        this.flaggedDataSource = new MatTableDataSource(
-          this.flaggedAttendanceRecordsToReview
-        );
-        this.flaggedDataSource.paginator = this.paginator.toArray()[0];
-        this.flaggedDataSource.sort = this.sort.toArray()[0];
+          this.flaggedDataSource = new MatTableDataSource(
+            this.flaggedAttendanceRecordsToReview
+          );
+          this.flaggedDataSource.paginator = this.paginator.toArray()[0];
+          this.flaggedDataSource.sort = this.sort.toArray()[0];
 
-        this.escalatedDataSource = new MatTableDataSource(
-          this.escalatedAttendanceRecordsToReview
-        );
-        this.escalatedDataSource.paginator = this.paginator.toArray()[1];
-        this.escalatedDataSource.sort = this.sort.toArray()[1];
-      },
-    });
+          this.escalatedDataSource = new MatTableDataSource(
+            this.escalatedAttendanceRecordsToReview
+          );
+          this.escalatedDataSource.paginator = this.paginator.toArray()[1];
+          this.escalatedDataSource.sort = this.sort.toArray()[1];
+        },
+      });
   }
 
   handleEscalate() {

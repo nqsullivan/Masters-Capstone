@@ -255,7 +255,7 @@ describe('Session Routes', () => {
     );
 
     const updatedAttendanceData = {
-      checkInTime: '2025-02-17T18:00:00.000Z',
+      checkIn: '2025-02-17T18:00:00.000Z',
       portraitUrl: 'www.test.com',
     };
 

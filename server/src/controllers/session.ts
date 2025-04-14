@@ -121,11 +121,11 @@ const modifyAttendanceRecord = async (
   next: NextFunction
 ) => {
   const { attendanceId } = req.params;
-  const { checkInTime, portraitUrl, FRIdentifiedId, status } = req.body;
+  const { checkIn, portraitUrl, FRIdentifiedId, status } = req.body;
   try {
     const attendance = await SessionService.modifyAttendanceRecord(
       attendanceId,
-      checkInTime,
+      checkIn,
       portraitUrl,
       FRIdentifiedId,
       status
@@ -184,6 +184,12 @@ const getAttendanceRecordsForProfessorPaged = async (
 
   const page: number = parseInt(req.query.page as string) || 1;
   const size: number = parseInt(req.query.size as string) || 10;
+  const isFlagged: boolean | null =
+    req.query.isFlagged === 'true'
+      ? true
+      : req.query.isFlagged === 'false'
+        ? false
+        : null;
 
   try {
     const user = await AuthService.getUser(token);
@@ -195,7 +201,8 @@ const getAttendanceRecordsForProfessorPaged = async (
       await SessionService.getAttendanceRecordsForProfessorPaged(
         user.username,
         page,
-        size
+        size,
+        isFlagged
       );
 
     const attendancePage = {
