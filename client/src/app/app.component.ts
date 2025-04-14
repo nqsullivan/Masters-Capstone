@@ -31,7 +31,7 @@ import { Router, NavigationEnd } from '@angular/router';
 export class AppComponent implements DoCheck {
   welcomeMessage: string | null = null;
   currentPageTitle: string = 'Dashboard';
-  hasNewInfo: boolean = true; //indicate there are new unread flagged events
+  hasNewInfo: boolean = false; //indicate there are new unread flagged events
   constructor(
     private authService: AuthService,
     private router: Router

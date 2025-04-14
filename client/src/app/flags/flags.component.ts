@@ -13,8 +13,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AttendanceRecord } from '../models/models';
 import { HttpResponseBase } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
+import { FlaggedEventService } from '../services/flaggedEvent.service';
 
-interface AttendanceData {
+export interface AttendanceData {
   id: string;
   studentId: string;
   studentName: string;
@@ -23,6 +25,7 @@ interface AttendanceData {
   status: string;
   flagged: boolean;
 }
+
 
 @Component({
   selector: 'flags.component',
@@ -60,10 +63,14 @@ export class FlagsComponent {
   @ViewChildren(MatSort) sort = new QueryList<MatSort>();
 
   selectedElement: AttendanceData | null = null;
+
+
   flaggedAttendanceRecordsToReview: AttendanceData[] = [];
   escalatedAttendanceRecordsToReview: AttendanceData[] = [];
-
-  constructor(private apiService: ApiService) {}
+ 
+  constructor(private apiService: ApiService,
+    private flaggedEventService: FlaggedEventService 
+  ) {}
 
   selectedTabIndex = 0;
 
