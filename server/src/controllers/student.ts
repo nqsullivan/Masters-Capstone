@@ -48,7 +48,7 @@ const deleteStudent = async (
   const { id } = req.params;
   try {
     await StudentService.deleteStudent(id);
-    res.status(200).send(`Deleted student ${id}`);
+    res.status(200).json({ message: `Deleted student ${id}` });
   } catch (e: any) {
     res.status(404).json({ error: e.message });
   }

@@ -12,6 +12,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AttendanceRecord } from '../models/models';
+import { HttpResponseBase } from '@angular/common/http';
 
 interface AttendanceData {
   id: string;
@@ -59,15 +60,27 @@ export class FlagsComponent {
   @ViewChildren(MatSort) sort = new QueryList<MatSort>();
 
   selectedElement: AttendanceData | null = null;
-  flaggedAttendanceRecords: AttendanceData[] = [];
+  flaggedAttendanceRecordsToReview: AttendanceData[] = [];
+  escalatedAttendanceRecordsToReview: AttendanceData[] = [];
 
   constructor(private apiService: ApiService) {}
 
+  selectedTabIndex = 0;
+
   ngOnInit(): void {
+    const savedIndex = localStorage.getItem('flags-selected-tab');
+    this.selectedTabIndex = savedIndex ? parseInt(savedIndex, 10) : 0;
     this.getFlaggedAttendanceData();
   }
 
+  onTabChange(index: number): void {
+    this.selectedTabIndex = index;
+    localStorage.setItem('flags-selected-tab', index.toString());
+  }
+
   getFlaggedAttendanceData() {
+    this.flaggedAttendanceRecordsToReview = [];
+    this.escalatedAttendanceRecordsToReview = [];
     this.apiService.get<{ data: AttendanceRecord[] }>(`attendance`).subscribe({
       next: (response) => {
         let attendance = response.data;
@@ -82,35 +95,60 @@ export class FlagsComponent {
             flagged: attendance.flagged,
           };
 
-          if (attendanceRecord.flagged) {
-            this.flaggedAttendanceRecords.push(attendanceRecord);
+          if (attendanceRecord.flagged && attendanceRecord.status === '') {
+            this.flaggedAttendanceRecordsToReview.push(attendanceRecord);
+          }
+
+          if (attendanceRecord.status === 'ESCALATED') {
+            this.escalatedAttendanceRecordsToReview.push(attendanceRecord);
           }
         });
 
-        console.log('Attendance', attendance);
-        console.log('FlaggedAttendance', this.flaggedAttendanceRecords);
         this.flaggedDataSource = new MatTableDataSource(
-          this.flaggedAttendanceRecords
+          this.flaggedAttendanceRecordsToReview
         );
         this.flaggedDataSource.paginator = this.paginator.toArray()[0];
         this.flaggedDataSource.sort = this.sort.toArray()[0];
+
+        this.escalatedDataSource = new MatTableDataSource(
+          this.escalatedAttendanceRecordsToReview
+        );
+        this.escalatedDataSource.paginator = this.paginator.toArray()[1];
+        this.escalatedDataSource.sort = this.sort.toArray()[1];
       },
     });
   }
 
-  getStudentName(studentId: string): string {
-    this.apiService.get<{ name: string }>(`student/${studentId}`).subscribe({
-      next: (response) => {
-        console.log('Student', response);
-        return response.name;
-      },
-    });
-    return '';
+  handleEscalate() {
+    let data = {
+      status: 'ESCALATED',
+    };
+    this.putAttendanceRequest(data);
   }
 
-  handleEscalate() {}
+  handleDeEscalate() {
+    let data = {
+      status: '',
+    };
+    this.putAttendanceRequest(data);
+  }
 
-  handleDimiss() {}
+  handleDimiss() {
+    let data = {
+      status: 'DISMISSED',
+    };
+    this.putAttendanceRequest(data);
+  }
+
+  putAttendanceRequest(data: { status: string }) {
+    this.apiService
+      .put<HttpResponseBase>(`attendance/${this.selectedElement?.id}`, data)
+      .subscribe({
+        next: () => {
+          this.getFlaggedAttendanceData();
+        },
+      });
+  }
 
   applyFlaggedFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -118,6 +156,15 @@ export class FlagsComponent {
 
     if (this.flaggedDataSource.paginator) {
       this.flaggedDataSource.paginator.firstPage();
+    }
+  }
+
+  applyEscalatedFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.escalatedDataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.escalatedDataSource.paginator) {
+      this.escalatedDataSource.paginator.firstPage();
     }
   }
 }

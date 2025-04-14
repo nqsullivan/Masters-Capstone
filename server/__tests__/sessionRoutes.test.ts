@@ -236,7 +236,7 @@ describe('Session Routes', () => {
     expect(response.body).toHaveProperty('error');
   });
 
-  test('PUT /api/session/:sessionId/attendance/:attendanceId should return 200 and updated attendance details', async () => {
+  test('PUT /api/attendance/:attendanceId should return 200 and updated attendance details', async () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
@@ -260,9 +260,7 @@ describe('Session Routes', () => {
     };
 
     const response = await request(app)
-      .put(
-        `/api/session/${sessionResponse.id}/attendance/${attendanceResponse.id}`
-      )
+      .put(`/api/attendance/${attendanceResponse.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send(updatedAttendanceData);
 
@@ -275,7 +273,7 @@ describe('Session Routes', () => {
     expect(response.body).toHaveProperty('portraitCaptured', true);
   });
 
-  test('PUT /api/session/:sessionId/attendance/:attendanceId with Flag lifecycle updates should return 200 and updated attendance details', async () => {
+  test('PUT /api/attendance/:attendanceId with Flag lifecycle updates should return 200 and updated attendance details', async () => {
     const sessionResponse = await SessionService.createSession(
       mockStartTime,
       mockEndTime,
@@ -299,9 +297,7 @@ describe('Session Routes', () => {
     };
 
     const response = await request(app)
-      .put(
-        `/api/session/${sessionResponse.id}/attendance/${attendanceResponse.id}`
-      )
+      .put(`/api/attendance/${attendanceResponse.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send(updatedAttendanceData);
 
@@ -312,21 +308,6 @@ describe('Session Routes', () => {
     expect(response.body).toHaveProperty('FRIdentifiedId', 'different-id');
     expect(response.body).toHaveProperty('status', 'ESCALATED');
     expect(response.body).toHaveProperty('flagged', true);
-  });
-
-  test('PUT /api/session/:sessionId/attendance/:attendanceId with invalid sessionId should return 400 and error details', async () => {
-    const updatedAttendanceData = {
-      checkInTime: '2025-02-17T18:00:00.000Z',
-      portraitUrl: 'www.test.com',
-    };
-
-    const response = await request(app)
-      .put(`/api/session/${'invalidId'}/attendance/1`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(updatedAttendanceData);
-
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('error');
   });
 
   test('PUT /api/session/:sessionId/attendance/:attendanceId with invalid attendanceId should return 400 and error details', async () => {
@@ -342,7 +323,7 @@ describe('Session Routes', () => {
     };
 
     const response = await request(app)
-      .put(`/api/session/${sessionResponse.id}/attendance/1`)
+      .put(`/api/attendance/1`)
       .set('Authorization', `Bearer ${token}`)
       .send(updatedAttendanceData);
 

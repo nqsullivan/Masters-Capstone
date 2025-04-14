@@ -144,6 +144,14 @@ export class DashboardComponent implements OnInit {
 
     attendance.forEach((sessionRecords) => {
       sessionRecords.forEach((record: AttendanceRecord) => {
+        if (
+          record.checkIn === null ||
+          record.checkIn === undefined ||
+          record.checkIn === ''
+        ) {
+          return;
+        }
+
         const date = new Date(record.checkIn).toISOString().split('T')[0];
 
         attendanceByDate[date] = (attendanceByDate[date] || 0) + 1;
