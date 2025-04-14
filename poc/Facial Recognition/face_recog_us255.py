@@ -292,12 +292,12 @@ def run_face_recognition_on_rawpics():
 def run_face_recognition_on_videos():
     """
     Process each clipped video in CLIP_VIDEO folder and create an output video in CLIP_VIDEO_V
-    with continuous bounding boxes & text overlays.
-    - We only run actual face recognition on a small number of frames (e.g., once per second).
-    - We display the last recognized bounding box & label on every frame in between.
-    - Once we find 3 recognized matches, we stop running FR but still overlay the last bounding box
-      until the end of the video.
-    - At the end, rename the output file with " VV" or " VF" based on match_count >= 3.
+    with continuous overlays based on 5 evenly spaced sample frames.
+    For each video, sample frames at 10%, 30%, 50%, 70%, and 90% of its duration.
+    For each sample, run FR and store the overlay result. Then, each frame in the
+    final output video is overlaid with the result from the corresponding interval.
+    If at least 3 out of 5 samples have an identity matching the one in the video title,
+    mark the output video as verified (" VV"); otherwise, flag as " VF".
     """
     video_files = [f for f in os.listdir(CLIP_VIDEO_DIR) if f.lower().endswith(".mp4")]
 
@@ -307,131 +307,132 @@ def run_face_recognition_on_videos():
             continue
 
         video_path = os.path.join(CLIP_VIDEO_DIR, vf)
-
-        # Parse name for final "VV" or "VF" rename
         base_name = os.path.splitext(vf)[0]
         try:
-            # Extract identity from "Zhiguo Ren (0.51)_04122025_231228_767"
-            # We do "split(' (')": everything before " (" is the identity
+            # Parse identity from video filename using " (" as delimiter
             identity_from_filename = base_name.split(" (")[0]
         except Exception as e:
             print(f"⚠️ Cannot parse video filename {vf}: {e}")
             continue
 
-        # Open input video
+        # Open the video once to get properties
         cap_video = cv2.VideoCapture(video_path)
         if not cap_video.isOpened():
             print(f"⚠️ Cannot open video {video_path}")
             continue
-
-        # Prepare output video writer
         frame_rate = cap_video.get(cv2.CAP_PROP_FPS)
+        total_frames = int(cap_video.get(cv2.CAP_PROP_FRAME_COUNT))
+        video_duration_sec = total_frames / frame_rate if frame_rate > 0 else 0
         width  = int(cap_video.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap_video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        out_video_path = os.path.join(CLIP_VIDEO_V_DIR, vf)  # same name for now; we rename later
+        cap_video.release()
+        if video_duration_sec <= 0:
+            print(f"⚠️ Zero-length or invalid video: {video_path}")
+            continue
+
+        # Set sample fractions to [0.1, 0.3, 0.5, 0.7, 0.9]
+        fractions = [0.1, 0.3, 0.5, 0.7, 0.9]
+        sample_times_sec = [frac * video_duration_sec for frac in fractions]
+
+        # For each sample time, read that frame and run FR
+        samples = []
+        cap_video = cv2.VideoCapture(video_path)
+        for t in sample_times_sec:
+            # Ensure that if t exceeds the video duration, we use the last frame
+            t = min(t, video_duration_sec - 0.001)
+            cap_video.set(cv2.CAP_PROP_POS_MSEC, t * 1000)
+            ret, frame = cap_video.read()
+            if not ret:
+                samples.append(None)
+                continue
+
+            img_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            boxes, _ = mtcnn.detect(img_pil)
+            sample_result = None
+            if boxes is not None:
+                for box in boxes:
+                    x1, y1, x2, y2 = box
+                    if (x2 - x1) < 80 or (y2 - y1) < 100:
+                        continue
+                    face_crop_pil = img_pil.crop((x1, y1, x2, y2))
+                    face_crop_160 = face_crop_pil.resize((160, 160))
+                    face_tensor = mtcnn(face_crop_160)
+                    if face_tensor is None:
+                        continue
+                    if face_tensor.dim() == 3:
+                        face_tensor = face_tensor.unsqueeze(0)
+                    face_tensor = face_tensor.to(device)
+                    with torch.no_grad():
+                        embedding = resnet(face_tensor)
+                    identity, dist = compare_faces(embedding)
+                    sample_result = {
+                        "time_sec": t,
+                        "box": (int(x1), int(y1), int(x2), int(y2)),
+                        "identity": identity,
+                        "distance": dist
+                    }
+                    break  # use first valid face
+            samples.append(sample_result)
+        cap_video.release()
+
+        # Count matches
+        match_count = sum(1 for s in samples if s and s["identity"] == identity_from_filename)
+
+        # Prepare output video writer for final output in CLIP_VIDEO_V folder
+        cap_video = cv2.VideoCapture(video_path)
+        out_video_temp = os.path.join(CLIP_VIDEO_V_DIR, vf)  # temporary name; will rename later
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out_writer = cv2.VideoWriter(out_video_path, fourcc, frame_rate, (width, height))
+        out_writer = cv2.VideoWriter(out_video_temp, fourcc, frame_rate, (width, height))
+        
+        # Define sample intervals based on sample_times_sec
+        # Create boundaries by taking midpoints between adjacent sample times
+        boundaries = []
+        for i in range(len(sample_times_sec) - 1):
+            boundaries.append((sample_times_sec[i] + sample_times_sec[i+1]) / 2)
+        # Define intervals: [0, b0), [b0, b1), ..., [b_last, video_duration_sec]
+        interval_boundaries = [0] + boundaries + [video_duration_sec]
 
-        # Decide we only run FR on 1 frame per second:
-        if frame_rate <= 0:
-            frame_interval = 1
-        else:
-            frame_interval = int(frame_rate)
-
-        match_count = 0
-        total_frames = 0
-        recognized_face = False
-
-        # We store the bounding box & label from the last processed frame
-        last_box = None
-        last_identity = None
-        last_distance = None
-
+        current_frame = 0
         while True:
             ret, frame = cap_video.read()
             if not ret:
                 break
-            total_frames += 1
+            current_frame += 1
+            current_time_sec = current_frame / frame_rate
 
-            # If we haven't found 3 matches yet, do FR only on 1 frame/sec
-            do_fr_this_frame = (match_count < 3) and (total_frames % frame_interval == 0)
+            # Determine which sample interval current_time_sec falls into
+            sample_index = None
+            for i in range(len(interval_boundaries) - 1):
+                if interval_boundaries[i] <= current_time_sec < interval_boundaries[i+1]:
+                    sample_index = i
+                    break
+            if sample_index is None:
+                sample_index = len(samples) - 1
 
-            if do_fr_this_frame:
-                img_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                boxes, _ = mtcnn.detect(img_pil)
-                found_match = False
-                if boxes is not None:
-                    for box in boxes:
-                        x1, y1, x2, y2 = box
-                        if (x2 - x1) < 80 or (y2 - y1) < 100:
-                            continue
-                        face_crop_pil = img_pil.crop((x1, y1, x2, y2))
-                        face_crop_160 = face_crop_pil.resize((160, 160))
-                        face_tensor = mtcnn(face_crop_160)
-                        if face_tensor is None:
-                            continue
-                        if face_tensor.dim() == 3:
-                            face_tensor = face_tensor.unsqueeze(0)
-                        face_tensor = face_tensor.to(device)
-                        with torch.no_grad():
-                            embedding = resnet(face_tensor)
-                        identity, dist = compare_faces(embedding)
-
-                        # If recognized identity matches the parsed identity
-                        # from the file name, count it as a match.
-                        if identity == identity_from_filename:
-                            match_count += 1
-                            found_match = True
-                            # Save bounding box & label
-                            last_box = (int(x1), int(y1), int(x2), int(y2))
-                            last_identity = identity
-                            last_distance = dist
-                            break  # only count once for this frame
-                if not found_match:
-                    # If no match found for this frame, you could clear or keep the last_box
-                    # For a smoother overlay, let's just keep the old box if we had one.
-                    pass
-
-            # Now overlay the last known box & label on the current frame
-            if last_box is not None and last_identity is not None:
-                x1, y1, x2, y2 = last_box
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, f"{last_identity} ({last_distance:.2f})",
-                            (x1, y1 - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-            # If we've reached 3 matches, we do not run FR anymore,
-            # but we keep showing that bounding box on subsequent frames.
-            if match_count >= 3:
-                pass  # do nothing special beyond the above box overlay
-
+            overlay_info = samples[sample_index]
+            if overlay_info:
+                box = overlay_info["box"]
+                ident = overlay_info["identity"]
+                dist = overlay_info["distance"]
+                cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0,255,0), 2)
+                cv2.putText(frame, f"{ident} ({dist:.2f})",
+                            (box[0], box[1] - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
             out_writer.write(frame)
-
         cap_video.release()
         out_writer.release()
 
-        # Now rename the final video (which we wrote as the same name) to add VV or VF
+        # Rename the processed file with a suffix based on match_count
         suffix = " VV" if match_count >= 3 else " VF"
         new_base_name = base_name + suffix
         new_filename = new_base_name + ".mp4"
         new_video_path = os.path.join(CLIP_VIDEO_V_DIR, new_filename)
-
-        # Move/rename the newly written file
-        old_video_fullpath = os.path.join(CLIP_VIDEO_V_DIR, vf)
-        if os.path.exists(old_video_fullpath):
-            try:
-                with video_rename_lock:
-                    os.rename(old_video_fullpath, new_video_path)
-                print(f"🔀 Processed video: {video_path} -> {new_video_path} (matches: {match_count})")
-            except PermissionError as e:
-                print(f"⚠️ Unable to rename video {old_video_fullpath} due to: {e}")
-
-
-        #if os.path.exists(old_video_fullpath):
-        #    os.rename(old_video_fullpath, new_video_path)
-        #    print(f"🔀 Processed video: {video_path} -> {new_video_path} (matches: {match_count})")
-
-        # Optionally delete the original clip from ClipVideo
+        try:
+            with video_rename_lock:
+                os.rename(out_video_temp, new_video_path)
+            print(f"🔀 Processed video: {video_path} -> {new_video_path} (matches: {match_count})")
+        except PermissionError as e:
+            print(f"⚠️ Unable to rename processed video {out_video_temp} due to: {e}")
         try:
             os.remove(video_path)
         except Exception as e:
