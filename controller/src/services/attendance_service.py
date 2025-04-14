@@ -9,25 +9,24 @@ from src.services.logging_service import printt
 class AttendanceService:
     _instance = None
 
-    def __new__(
-        cls,
-        api_service,
-        camera_controller,
-        face_recognition_service,
-        room_number,
-        *args,
-        **kwargs,
-    ):
+    def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(AttendanceService, cls).__new__(cls)
-            cls._instance.api_service = api_service
-            cls._instance.camera_controller = camera_controller
-            cls._instance.face_recognition_service = face_recognition_service
-            cls._instance.room_number = room_number
-            cls._instance.schedule = cls._instance.get_schedule()
-            cls._instance.current_class = cls._instance.get_current_class()
-            cls._instance.current_session = cls._instance.create_session()
         return cls._instance
+
+    def __init__(
+        self, api_service, camera_controller, face_recognition_service, room_number
+    ):
+        if not hasattr(self, "initialized"):
+            self.studentId_to_attendanceId = {}
+            self.api_service = api_service
+            self.camera_controller = camera_controller
+            self.face_recognition_service = face_recognition_service
+            self.room_number = room_number
+            self.schedule = self.get_schedule()
+            self.current_class = self.get_current_class()
+            self.current_session = self.create_session()
+            self.initialized = True
 
     def handle_attendance_event(self, nfc_event):
         printt("Handling attendance event...")
@@ -89,11 +88,11 @@ class AttendanceService:
             printt(f"Error during facial recognition or image upload: {e}")
 
         try:
-            response = self.api_service.post(
-                f"/session/{self.current_session.get('id')}/attendance",
+            response = self.api_service.put(
+                f"/attendance/{self.studentId_to_attendanceId.get(student_id)}",
                 json={
-                    "studentId": student_id,
-                    "checkInTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "FRIdentifiedId": "" if identity == "Unknown" else identity,
+                    "checkIn": time.strftime("%Y-%m-%d %H:%M:%S"),
                     "portraitUrl": portrait_url,
                 },
             )
@@ -154,9 +153,39 @@ class AttendanceService:
         }
 
         try:
-            response = self.api_service.post("/session", json=session_data)
-            printt(f"Session created: {response}")
-            return response
+            session = self.api_service.post("/session", json=session_data)
+            self.current_session = session
+            printt(f"Session created: {session}")
         except requests.RequestException as e:
             print(f"Error creating session: {e}")
             return None
+
+        try:
+            student_ids = self.api_service.get(
+                f"/class/{self.current_class.get('id')}/students"
+            )
+
+            for studentId in student_ids:
+                attendance_data = {"studentId": studentId}
+                attendance_record = self.api_service.post(
+                    f"/session/{self.current_session.get('id')}/attendance",
+                    json=attendance_data,
+                )
+
+                print(
+                    f"Attendance record created for student {studentId}: {attendance_record.get('id')}"
+                )
+
+                self.studentId_to_attendanceId[studentId] = attendance_record.get("id")
+
+            printt(
+                f"Attendance records inserted for session {self.current_session.get('id')}"
+            )
+        except requests.RequestException as e:
+            print(f"Error inserting attendance records: {e}")
+            return None
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return None
+
+        return session
