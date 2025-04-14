@@ -42,11 +42,7 @@ const getSession = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   try {
     const session = await SessionService.getSession(id);
-    if (session) {
-      res.status(200).send(session);
-    } else {
-      throw new Error('Session not found');
-    }
+    res.status(200).send(session);
   } catch (e: any) {
     if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
@@ -73,16 +69,12 @@ const updateSession = async (
       endTime,
       classId
     );
-    if (updatedSession) {
-      const sessionWithStrings = {
-        ...updatedSession,
-        startTime: updatedSession.startTime,
-        endTime: updatedSession.endTime,
-      };
-      res.status(200).send(sessionWithStrings);
-    } else {
-      throw new Error('Session not found');
-    }
+    const sessionWithStrings = {
+      ...updatedSession,
+      startTime: updatedSession.startTime,
+      endTime: updatedSession.endTime,
+    };
+    res.status(200).send(sessionWithStrings);
   } catch (e: any) {
     if (e.message === 'Session not found') {
       res.status(404).json({ error: e.message });
@@ -176,12 +168,7 @@ const getAttendanceRecordsForProfessorPaged = async (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-
+  const token = String(req.headers.authorization?.split(' ')[1]);
   const page: number = parseInt(req.query.page as string) || 1;
   const size: number = parseInt(req.query.size as string) || 10;
   const isFlagged: boolean | null =

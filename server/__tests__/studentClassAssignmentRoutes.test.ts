@@ -132,4 +132,21 @@ describe('Student-Class Assignment API', () => {
       "Class with id 'invalid_class' not found"
     );
   });
+
+  test('DELETE /api/class/:classId/students/:studentId should remove a student from a class', async () => {
+    const response = await request(app)
+      .delete(`/api/class/${classId}/student/student1`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty(
+      'message',
+      'Student removed from class successfully'
+    );
+    const students =
+      await StudentClassAssignmentService.getStudentsForClass(classId);
+
+    expect(students.length).toBe(1);
+    expect(students).not.toContainEqual('student1');
+    expect(students).toContainEqual('student2');
+  });
 });
