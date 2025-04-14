@@ -11,6 +11,7 @@ import { AuthService } from './services/auth.service';
 import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd } from '@angular/router';
+import { FlaggedEventService } from './services/flaggedEvent.service';
 
 @Component({
   selector: 'app-root',
@@ -34,13 +35,21 @@ export class AppComponent implements DoCheck {
   hasNewInfo: boolean = false; //indicate there are new unread flagged events
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private flaggedEventService: FlaggedEventService
   ) {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
         this.updatePageTitle();
       });
+  }
+
+  ngOnInit(): void {
+    // Subscribe to the hasFlaggedRecordsChanged$ observable
+    this.flaggedEventService.hasFlaggedRecordsChanged$.subscribe((hasChanged) => {
+      this.hasNewInfo = hasChanged; 
+    });
   }
 
   ngDoCheck(): void {

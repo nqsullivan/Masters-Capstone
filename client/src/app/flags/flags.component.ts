@@ -110,7 +110,8 @@ export class FlagsComponent {
             this.escalatedAttendanceRecordsToReview.push(attendanceRecord);
           }
         });
-
+        //update the flagged records with the flag event service
+        this.flaggedEventService.updateFlaggedAttendanceRecords(this.flaggedAttendanceRecordsToReview);
         this.flaggedDataSource = new MatTableDataSource(
           this.flaggedAttendanceRecordsToReview
         );
