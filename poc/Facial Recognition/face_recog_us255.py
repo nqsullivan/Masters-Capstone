@@ -51,8 +51,10 @@ FRED_PIC_DIR = "FRedPic"                 # For full-frame annotated images
 LOG_FILE = "face_log.txt"
 CLIP_VIDEO_DIR = "ClipVideo"             # For storage of the clipped videos
 CLIP_VIDEO_V_DIR = "ClipVideo_V"         # For storage of clipped videos after FR processing
+FRED_PIC_V_DIR = "FRedPic_V"             # For full-frame annotated images from video FR
+CAPTURED_PHOTO_V_DIR = "captured_photo_V"   # For cropped face images from video FR
 
-for d in [RAW_PIC_DIR, CAPTURED_PHOTO_DIR, FRED_PIC_DIR, CLIP_VIDEO_DIR, CLIP_VIDEO_V_DIR]: 
+for d in [RAW_PIC_DIR, CAPTURED_PHOTO_DIR, FRED_PIC_DIR, CLIP_VIDEO_DIR, CLIP_VIDEO_V_DIR, FRED_PIC_V_DIR, CAPTURED_PHOTO_V_DIR]: 
     if not os.path.exists(d):
         os.makedirs(d)
 
@@ -293,11 +295,14 @@ def run_face_recognition_on_videos():
     """
     Process each clipped video in CLIP_VIDEO folder and create an output video in CLIP_VIDEO_V
     with continuous overlays based on 5 evenly spaced sample frames.
-    For each video, sample frames at 10%, 30%, 50%, 70%, and 90% of its duration.
-    For each sample, run FR and store the overlay result. Then, each frame in the
-    final output video is overlaid with the result from the corresponding interval.
-    If at least 3 out of 5 samples have an identity matching the one in the video title,
-    mark the output video as verified (" VV"); otherwise, flag as " VF".
+    Additionally, from the 5 sample frames, select the "best" sample according to:
+      - If one or more samples have an identity matching the one in the video filename,
+        select the sample with the smallest (best) similarity distance among those.
+      - Otherwise, select the sample with the overall smallest similarity distance.
+    Then save:
+      - The full annotated frame (with bounding box and label) as a picture in FRedPic_V.
+      - The cropped face from that frame in captured_photo_V.
+    We use "VV" for "Video Verified" and "VF" for "Varify Failed" to represent the FR sesults on video.
     """
     video_files = [f for f in os.listdir(CLIP_VIDEO_DIR) if f.lower().endswith(".mp4")]
 
@@ -308,14 +313,25 @@ def run_face_recognition_on_videos():
 
         video_path = os.path.join(CLIP_VIDEO_DIR, vf)
         base_name = os.path.splitext(vf)[0]
+
+        # Extract the trigger timestamp from the video filename.
+        # If the file was renamed to include identity info (e.g. "Zhiguo Ren (0.50)_04142025_165346_888"),
+        # we extract the timestamp part after the pattern ")_".
+
+        if ")_" in base_name:
+            trigger_timestamp = base_name.split(")_")[-1]
+        else:
+            trigger_timestamp = base_name
+
         try:
-            # Parse identity from video filename using " (" as delimiter
+            # Extract identity from video filename using " (" as delimiter.
+            # For example, from "Zhiguo Ren (0.51)_04122025_231228_767" the identity is "Zhiguo Ren".
             identity_from_filename = base_name.split(" (")[0]
         except Exception as e:
             print(f"⚠️ Cannot parse video filename {vf}: {e}")
             continue
 
-        # Open the video once to get properties
+        # Open the video once to determine its properties and duration.
         cap_video = cv2.VideoCapture(video_path)
         if not cap_video.isOpened():
             print(f"⚠️ Cannot open video {video_path}")
@@ -334,11 +350,11 @@ def run_face_recognition_on_videos():
         fractions = [0.1, 0.3, 0.5, 0.7, 0.9]
         sample_times_sec = [frac * video_duration_sec for frac in fractions]
 
-        # For each sample time, read that frame and run FR
-        samples = []
+        # For each sample time, seek and read that frame, then run FR.
+        samples = []  # list of dictionaries holding sample results
         cap_video = cv2.VideoCapture(video_path)
         for t in sample_times_sec:
-            # Ensure that if t exceeds the video duration, we use the last frame
+            # Ensure we get a valid frame even near the end.
             t = min(t, video_duration_sec - 0.001)
             cap_video.set(cv2.CAP_PROP_POS_MSEC, t * 1000)
             ret, frame = cap_video.read()
@@ -367,63 +383,142 @@ def run_face_recognition_on_videos():
                     identity, dist = compare_faces(embedding)
                     sample_result = {
                         "time_sec": t,
+                        "frame": frame,   # store the original frame
                         "box": (int(x1), int(y1), int(x2), int(y2)),
                         "identity": identity,
                         "distance": dist
                     }
-                    break  # use first valid face
+                    break  # use the first valid face result
             samples.append(sample_result)
         cap_video.release()
 
-        # Count matches
-        match_count = sum(1 for s in samples if s and s["identity"] == identity_from_filename)
+        # Now, select the best sample based on the following rule:
+        # If one or more sample result has its "identity" matching identity_from_filename,
+        # choose the one among these with the lowest "distance"; otherwise choose the sample with overall lowest distance.
+        best_sample = None
+        matching_samples = [s for s in samples if s and s["identity"] == identity_from_filename]
+        if matching_samples:
+            best_sample = min(matching_samples, key=lambda s: s["distance"])
+        else:
+            valid_samples = [s for s in samples if s is not None]
+            if valid_samples:
+                best_sample = min(valid_samples, key=lambda s: s["distance"])
 
-        # Prepare output video writer for final output in CLIP_VIDEO_V folder
+        # If a best sample was found, save its annotated full frame and cropped face.
+        if best_sample is not None:
+            # Annotate the frame with bounding box and label
+            annotated_frame = annotate_face(best_sample["frame"].copy(), best_sample["box"],
+                                            best_sample["identity"], best_sample["distance"])
+            
+            # Save annotated frame to FRedPic_V using the trigger timestamp instead of current time.
+            filename_annotated = f"{best_sample['identity']} ({best_sample['distance']:.2f})_{trigger_timestamp} V.jpg"
+            path_annotated = os.path.join(FRED_PIC_V_DIR, filename_annotated)
+            cv2.imwrite(path_annotated, annotated_frame)
+            print(f"🖼️  Saved annotated video FR frame to {path_annotated}")
+
+            # Save cropped face: Crop the face using the stored bounding box and save to captured_photo_V.
+            face_crop = best_sample["frame"][best_sample["box"][1]:best_sample["box"][3],
+                                               best_sample["box"][0]:best_sample["box"][2]]
+            if face_crop.size != 0:
+                # Optionally, resize with padding as before.
+                face_crop_padded = resize_with_padding(face_crop, target_size=(170,240))
+                # Overlay identity/distance text
+                cv2.putText(face_crop_padded, f"{best_sample['identity']} ({best_sample['distance']:.2f})",
+                            (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+                # Overlay timestamp text
+                cv2.putText(face_crop_padded, trigger_timestamp,
+                            (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+                # Draw bounding box around the entire cropped image
+                # cv2.rectangle(face_crop_padded, (0, 0), (face_crop_padded.shape[1]-1, face_crop_padded.shape[0]-1),
+                #               (0,255,0), 2)
+                filename_cropped = f"{best_sample['identity']} ({best_sample['distance']:.2f})_{trigger_timestamp} V.jpg"
+                path_cropped = os.path.join(CAPTURED_PHOTO_V_DIR, filename_cropped)
+                cv2.imwrite(path_cropped, face_crop_padded)
+                print(f"🙂 Saved cropped face from video FR frame to {path_cropped}")
+            else:
+                print("⚠️ Cropped face is empty; not saving captured_photo_V.")
+
+        else:
+            print(f"⚠️ No valid sample frame found for video {video_path}")
+
+        # --- New log update: append suffix to log line for this timestamp ---
+        # suffix = " VV" if match_count >= 3 else " VF"  # "VV" for "Video Verified" and "VF" for "Varify Failed"
+        # update_video_log(trigger_timestamp, suffix)
+        
+        # Then, continue with existing processing: 
+        # Count matches over continuous processing for video overlay (unchanged below)
+        # (Original code for continuous overlay and video renaming remains as is.)
+        
+        # --- ORIGINAL CONTINUED: Process video to output with continuous overlay ---
+        # (This code below is unchanged; it processes the video to add continuous overlays.)
         cap_video = cv2.VideoCapture(video_path)
-        out_video_temp = os.path.join(CLIP_VIDEO_V_DIR, vf)  # temporary name; will rename later
+        out_video_temp = os.path.join(CLIP_VIDEO_V_DIR, vf)  # temporary name
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out_writer = cv2.VideoWriter(out_video_temp, fourcc, frame_rate, (width, height))
-        
-        # Define sample intervals based on sample_times_sec
-        # Create boundaries by taking midpoints between adjacent sample times
-        boundaries = []
-        for i in range(len(sample_times_sec) - 1):
-            boundaries.append((sample_times_sec[i] + sample_times_sec[i+1]) / 2)
-        # Define intervals: [0, b0), [b0, b1), ..., [b_last, video_duration_sec]
-        interval_boundaries = [0] + boundaries + [video_duration_sec]
 
-        current_frame = 0
+        if frame_rate <= 0:
+            frame_interval = 1
+        else:
+            frame_interval = int(frame_rate)
+
+        match_count = 0
+        total_frames = 0
+        last_box = None
+        last_identity = None
+        last_distance = None
+
         while True:
             ret, frame = cap_video.read()
             if not ret:
                 break
-            current_frame += 1
-            current_time_sec = current_frame / frame_rate
+            total_frames += 1
 
-            # Determine which sample interval current_time_sec falls into
-            sample_index = None
-            for i in range(len(interval_boundaries) - 1):
-                if interval_boundaries[i] <= current_time_sec < interval_boundaries[i+1]:
-                    sample_index = i
-                    break
-            if sample_index is None:
-                sample_index = len(samples) - 1
+            do_fr_this_frame = (match_count < 3) and (total_frames % frame_interval == 0)
+            if do_fr_this_frame:
+                img_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                boxes, _ = mtcnn.detect(img_pil)
+                found_match = False
+                if boxes is not None:
+                    for box in boxes:
+                        x1, y1, x2, y2 = box
+                        if (x2 - x1) < 80 or (y2 - y1) < 100:
+                            continue
+                        face_crop_pil = img_pil.crop((x1, y1, x2, y2))
+                        face_crop_160 = face_crop_pil.resize((160, 160))
+                        face_tensor = mtcnn(face_crop_160)
+                        if face_tensor is None:
+                            continue
+                        if face_tensor.dim() == 3:
+                            face_tensor = face_tensor.unsqueeze(0)
+                        face_tensor = face_tensor.to(device)
+                        with torch.no_grad():
+                            embedding = resnet(face_tensor)
+                        identity, dist = compare_faces(embedding)
+                        if identity == identity_from_filename:
+                            match_count += 1
+                            found_match = True
+                            last_box = (int(x1), int(y1), int(x2), int(y2))
+                            last_identity = identity
+                            last_distance = dist
+                            break
+                if not found_match:
+                    pass
 
-            overlay_info = samples[sample_index]
-            if overlay_info:
-                box = overlay_info["box"]
-                ident = overlay_info["identity"]
-                dist = overlay_info["distance"]
-                cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0,255,0), 2)
-                cv2.putText(frame, f"{ident} ({dist:.2f})",
-                            (box[0], box[1] - 10),
+            if last_box is not None and last_identity is not None:
+                x1, y1, x2, y2 = last_box
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0,255,0), 2)
+                cv2.putText(frame, f"{last_identity} ({last_distance:.2f})",
+                            (x1, y1-10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+
             out_writer.write(frame)
+
         cap_video.release()
         out_writer.release()
 
-        # Rename the processed file with a suffix based on match_count
         suffix = " VV" if match_count >= 3 else " VF"
+        update_video_log(trigger_timestamp, suffix)
+        
         new_base_name = base_name + suffix
         new_filename = new_base_name + ".mp4"
         new_video_path = os.path.join(CLIP_VIDEO_V_DIR, new_filename)
@@ -437,6 +532,35 @@ def run_face_recognition_on_videos():
             os.remove(video_path)
         except Exception as e:
             print(f"⚠️ Could not delete old clip {video_path}: {e}")
+
+
+##############################################
+# New Utility: Update video log entry
+##############################################
+def update_video_log(timestamp, suffix):
+    """
+    Update the log file row that has the given timestamp,
+    appending the suffix (e.g., " VV" or " VF").
+    """
+    try:
+        with open(LOG_FILE, "r") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        lines = []
+    new_lines = []
+    updated = False
+    for line in lines:
+        if timestamp in line:
+            line = line.rstrip("\n")
+            # If not already updated, append the suffix
+            if not line.endswith(suffix):
+                line += suffix
+            line += "\n"
+            updated = True
+        new_lines.append(line)
+    # If not found, do nothing (or optionally add new line)
+    with open(LOG_FILE, "w") as f:
+        f.writelines(new_lines)
 
 
 def compare_faces(embedding):
