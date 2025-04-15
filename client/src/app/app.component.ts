@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from './services/auth.service';
-import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd } from '@angular/router';
 import { AttendanceService } from './services/attendanceService.service';

@@ -8,7 +8,7 @@ import { ApiService } from './api.service';
   providedIn: 'root',
 })
 export class AttendanceService {
-  private readonly POLL_INTERVAL = 5000;
+  private readonly POLL_INTERVAL = 2000;
 
   private attendanceSubject = new BehaviorSubject<AttendanceRecord[] | null>(
     null
@@ -23,9 +23,6 @@ export class AttendanceService {
         switchMap(() =>
           this.getAllAttendanceRecords().then((records) => {
             this.attendanceSubject.next(records);
-            console.log(
-              `[AttendanceService] Polled at ${new Date().toISOString()} with ${records.length} records`
-            );
             return EMPTY;
           })
         ),
@@ -39,9 +36,6 @@ export class AttendanceService {
 
   refreshNow(): void {
     this.getAllAttendanceRecords().then((records) => {
-      console.log(
-        `[AttendanceService] Manual refresh at ${new Date().toISOString()} with ${records.length} records`
-      );
       this.attendanceSubject.next(records);
     });
   }
