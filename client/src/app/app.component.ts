@@ -11,6 +11,7 @@ import { AuthService } from './services/auth.service';
 import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd } from '@angular/router';
+import { AttendanceService } from './services/attendanceService.service';
 
 @Component({
   selector: 'app-root',
@@ -33,13 +34,16 @@ export class AppComponent implements DoCheck {
   currentPageTitle: string = 'Dashboard';
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private attendanceService: AttendanceService
   ) {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
         this.updatePageTitle();
       });
+
+    this.attendanceService.startPolling();
   }
 
   ngDoCheck(): void {

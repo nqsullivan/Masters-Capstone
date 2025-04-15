@@ -29,6 +29,14 @@ export interface AttendanceRecord {
   flagged: boolean;
 }
 
+export interface AttendancePage {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  data: AttendanceRecord[];
+}
+
 export interface DashboardData {
   class: Class;
   professor: string;
