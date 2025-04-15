@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AttendanceData } from '../flags/flags.component'; 
+import { AttendanceData } from '../flags/flags.component';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -8,12 +8,15 @@ import { BehaviorSubject } from 'rxjs';
 export class FlaggedEventService {
   private flaggedAttendanceRecords: AttendanceData[] = [];
   private hasFlaggedRecordsChangedSubject = new BehaviorSubject<boolean>(false);
-  hasFlaggedRecordsChanged$ = this.hasFlaggedRecordsChangedSubject.asObservable();
+  hasFlaggedRecordsChanged$ =
+    this.hasFlaggedRecordsChangedSubject.asObservable();
 
   private previousRecords: AttendanceData[] = []; // Store the previous value for comparison
 
   // Method to update the flagged attendance records
   updateFlaggedAttendanceRecords(records: AttendanceData[]): void {
+    const storedRecords = localStorage.getItem('previousRecords');
+    this.previousRecords = storedRecords ? JSON.parse(storedRecords) : [];
     // Compare the new records with the previous records
     const hasChanged = !this.areRecordsEqual(this.previousRecords, records);
 
@@ -21,6 +24,11 @@ export class FlaggedEventService {
       this.flaggedAttendanceRecords = records;
       this.hasFlaggedRecordsChangedSubject.next(true);
       this.previousRecords = [...records];
+      //store previous records to local storages to prevent effects of refreshing the page
+      localStorage.setItem(
+        'previousRecords',
+        JSON.stringify(this.previousRecords)
+      );
     }
   }
 

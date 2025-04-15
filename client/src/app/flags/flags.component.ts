@@ -26,7 +26,6 @@ export interface AttendanceData {
   flagged: boolean;
 }
 
-
 @Component({
   selector: 'flags.component',
   imports: [
@@ -64,12 +63,12 @@ export class FlagsComponent {
 
   selectedElement: AttendanceData | null = null;
 
-
   flaggedAttendanceRecordsToReview: AttendanceData[] = [];
   escalatedAttendanceRecordsToReview: AttendanceData[] = [];
- 
-  constructor(private apiService: ApiService,
-    private flaggedEventService: FlaggedEventService 
+
+  constructor(
+    private apiService: ApiService,
+    private flaggedEventService: FlaggedEventService
   ) {}
 
   selectedTabIndex = 0;
@@ -111,7 +110,9 @@ export class FlagsComponent {
           }
         });
         //update the flagged records with the flag event service
-        this.flaggedEventService.updateFlaggedAttendanceRecords(this.flaggedAttendanceRecordsToReview);
+        this.flaggedEventService.updateFlaggedAttendanceRecords(
+          this.flaggedAttendanceRecordsToReview
+        );
         this.flaggedDataSource = new MatTableDataSource(
           this.flaggedAttendanceRecordsToReview
         );

@@ -33,23 +33,41 @@ export class AppComponent implements DoCheck {
   welcomeMessage: string | null = null;
   currentPageTitle: string = 'Dashboard';
   hasNewInfo: boolean = false; //indicate there are new unread flagged events
+  previousUrl: boolean = false;
   constructor(
     private authService: AuthService,
     private router: Router,
     private flaggedEventService: FlaggedEventService
   ) {
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
+      .pipe(
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd
+        )
+      )
+      .subscribe((event) => {
         this.updatePageTitle();
+
+        // Reset hasNewInfo when navigating to the "Flags" route
+        if (event?.url === '/attendance-flags') {
+          this.hasNewInfo = false;
+          this.previousUrl = true;
+        }
+
+        if (this.previousUrl == true && event.url != '/attendance-flags') {
+          this.hasNewInfo = false;
+          this.previousUrl = false;
+        }
       });
   }
 
   ngOnInit(): void {
     // Subscribe to the hasFlaggedRecordsChanged$ observable
-    this.flaggedEventService.hasFlaggedRecordsChanged$.subscribe((hasChanged) => {
-      this.hasNewInfo = hasChanged; 
-    });
+    this.flaggedEventService.hasFlaggedRecordsChanged$.subscribe(
+      (hasChanged) => {
+        this.hasNewInfo = hasChanged;
+      }
+    );
   }
 
   ngDoCheck(): void {
