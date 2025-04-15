@@ -4,6 +4,9 @@ from datetime import date
 from datetime import datetime
 
 from src.services.logging_service import printt
+from src.services.face_recognition_service import FaceRecognitionService
+
+face_recognition_service = FaceRecognitionService()
 
 
 class AttendanceService:
@@ -14,14 +17,12 @@ class AttendanceService:
             cls._instance = super(AttendanceService, cls).__new__(cls)
         return cls._instance
 
-    def __init__(
-        self, api_service, camera_controller, face_recognition_service, room_number
-    ):
+    def __init__(self, api_service, camera_controller, thread_pool, room_number):
         if not hasattr(self, "initialized"):
             self.studentId_to_attendanceId = {}
             self.api_service = api_service
             self.camera_controller = camera_controller
-            self.face_recognition_service = face_recognition_service
+            self.thread_pool = thread_pool
             self.room_number = room_number
             self.schedule = self.get_schedule()
             self.current_class = self.get_current_class()
@@ -58,37 +59,33 @@ class AttendanceService:
             printt(f"Error taking picture: {e}")
             return
 
-        portrait_url = None
         student_id = nfc_event.get("card_id")
 
+        self.thread_pool.submit(
+            self.process_facial_recognition, full_picture_path, student_id
+        )
+
+    def process_facial_recognition(self, image_path, student_id):
+        """Processes the image for facial recognition and logs attendance."""
         try:
-            recognition_results = self.face_recognition_service.run_on_image(
-                full_picture_path
-            )
-            if recognition_results:
-                primary_result = recognition_results[0]
-                portrait_path = primary_result.get("croppedPath")
-                identity = primary_result.get("identity")
+            results = face_recognition_service.run_on_image(image_path)
+            if not results:
+                return
 
-                with open(portrait_path, "rb") as f:
-                    response = self.api_service.post("/image", files={"image": f})
+            primary = results[0]
+            identity = primary["identity"]
+            portrait_path = primary["croppedPath"]
+            portrait_url = None
 
+            with open(portrait_path, "rb") as f:
+                response = self.api_service.post("/image", files={"image": f})
                 if response.get("error"):
-                    printt("Error uploading image:", response["error"])
                     raise Exception("Image upload failed.")
-
                 image_url = response.get("message", {}).get("fileUrl")
-                if image_url:
-                    printt(f"Image uploaded successfully: {image_url}")
-                    portrait_url = image_url
-                    # TODO
-                    # if identity != "Unknown" and identity != student_id
-                    #     flagged = True
-        except Exception as e:
-            printt(f"Error during facial recognition or image upload: {e}")
+                portrait_url = image_url
+                printt(f"Image uploaded: {image_url}")
 
-        try:
-            response = self.api_service.put(
+            self.api_service.put(
                 f"/attendance/{self.studentId_to_attendanceId.get(student_id)}",
                 json={
                     "FRIdentifiedId": "" if identity == "Unknown" else identity,
@@ -96,9 +93,10 @@ class AttendanceService:
                     "portraitUrl": portrait_url,
                 },
             )
-            printt(f"Attendance event logged: {response}")
-        except requests.RequestException as e:
-            printt(f"Error logging attendance event: {e}")
+            printt(f"Attendance logged for {student_id} as {identity}")
+
+        except Exception as e:
+            printt(f"Error in async recognition: {e}")
 
     def get_schedule(self):
         """Fetches the schedule from the API."""
@@ -126,6 +124,8 @@ class AttendanceService:
 
             if current_class:
                 return current_class
+            elif not current_class and self.schedule.__len__() > 0:
+                return self.schedule[0]
             else:
                 printt("No current class found.")
                 return None
