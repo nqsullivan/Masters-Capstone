@@ -111,19 +111,19 @@ export class FlagsComponent {
               this.flaggedAttendanceRecordsToReview.push(attendanceRecord);
             }
 
-          if (attendanceRecord.status === 'ESCALATED') {
-            this.escalatedAttendanceRecordsToReview.push(attendanceRecord);
-          }
-        });
-        //update the flagged records with the flag event service
-        this.flaggedEventService.updateFlaggedAttendanceRecords(
-          this.flaggedAttendanceRecordsToReview
-        );
-        this.flaggedDataSource = new MatTableDataSource(
-          this.flaggedAttendanceRecordsToReview
-        );
-        this.flaggedDataSource.paginator = this.paginator.toArray()[0];
-        this.flaggedDataSource.sort = this.sort.toArray()[0];
+            if (attendanceRecord.status === 'ESCALATED') {
+              this.escalatedAttendanceRecordsToReview.push(attendanceRecord);
+            }
+          });
+          //update the flagged records with the flag event service
+          this.flaggedEventService.updateFlaggedAttendanceRecords(
+            this.flaggedAttendanceRecordsToReview
+          );
+          this.flaggedDataSource = new MatTableDataSource(
+            this.flaggedAttendanceRecordsToReview
+          );
+          this.flaggedDataSource.paginator = this.paginator.toArray()[0];
+          this.flaggedDataSource.sort = this.sort.toArray()[0];
 
           this.escalatedDataSource = new MatTableDataSource(
             this.escalatedAttendanceRecordsToReview
