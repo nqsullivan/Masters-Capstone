@@ -14,7 +14,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { AttendanceRecord } from '../models/models';
 import { HttpResponseBase } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
-import { FlaggedEventService } from '../services/flaggedEvent.service';
 
 export interface AttendanceData {
   id: string;
@@ -66,10 +65,7 @@ export class FlagsComponent {
   flaggedAttendanceRecordsToReview: AttendanceData[] = [];
   escalatedAttendanceRecordsToReview: AttendanceData[] = [];
 
-  constructor(
-    private apiService: ApiService,
-    private flaggedEventService: FlaggedEventService
-  ) {}
+  constructor(private apiService: ApiService) {}
 
   selectedTabIndex = 0;
 
@@ -115,10 +111,7 @@ export class FlagsComponent {
               this.escalatedAttendanceRecordsToReview.push(attendanceRecord);
             }
           });
-          //update the flagged records with the flag event service
-          this.flaggedEventService.updateFlaggedAttendanceRecords(
-            this.flaggedAttendanceRecordsToReview
-          );
+
           this.flaggedDataSource = new MatTableDataSource(
             this.flaggedAttendanceRecordsToReview
           );

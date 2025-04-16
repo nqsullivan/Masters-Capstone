@@ -12,6 +12,7 @@ import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd } from '@angular/router';
 import { AttendanceService } from './services/attendanceService.service';
 import { FlaggedEventService } from './services/flaggedEvent.service';
+import { AttendanceData } from './flags/flags.component';
 
 @Component({
   selector: 'app-root',
@@ -34,6 +35,8 @@ export class AppComponent implements DoCheck {
   currentPageTitle: string = 'Dashboard';
   hasNewInfo: boolean = false; //indicate there are new unread flagged events
   previousUrl: boolean = false;
+  flaggedRecords: AttendanceData[] = [];
+  oldToReview: AttendanceData[] = [];
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -63,14 +66,34 @@ export class AppComponent implements DoCheck {
   }
 
   ngOnInit(): void {
-    // Subscribe to the hasFlaggedRecordsChanged$ observable
-    this.flaggedEventService.hasFlaggedRecordsChanged$.subscribe(
-      (hasChanged) => {
-        this.hasNewInfo = hasChanged;
-      }
-    );
-
     this.attendanceService.startPolling();
+    //subscribe to the flaggedAttendanceRecords$ observable
+    this.flaggedEventService.flaggedAttendanceRecords$.subscribe((records) => {
+      this.flaggedRecords = records; // Update the local flagged records
+      console.log('Flagged Attendance Records:', this.flaggedRecords);
+
+      //retrieve flagged events to review from local storage
+      const storedFlaggedRecordsToReview = localStorage.getItem(
+        'flaggedAttendanceRecordsToReview'
+      );
+      this.oldToReview = storedFlaggedRecordsToReview
+        ? JSON.parse(storedFlaggedRecordsToReview)
+        : [];
+
+      //compare oldToReview with flaggedReocrds
+      if (this.hasNewInfo == false) {
+        this.hasNewInfo = this.hasNewRecords(
+          this.oldToReview,
+          this.flaggedRecords
+        );
+      }
+
+      localStorage.setItem(
+        'flaggedAttendanceRecordsToReview',
+        JSON.stringify(this.flaggedRecords)
+      );
+    });
+    this.flaggedEventService.startPollingFlaggedAttendance();
   }
 
   ngDoCheck(): void {
@@ -87,5 +110,15 @@ export class AppComponent implements DoCheck {
     this.welcomeMessage = null;
     this.hasNewInfo = false;
     this.authService.logout();
+  }
+
+  // check if there are new records to review
+  private hasNewRecords(
+    records1: AttendanceData[],
+    records2: AttendanceData[]
+  ): boolean {
+    const record1Ids = new Set(records1.map((record) => record.id)); // Create a set of IDs from records1
+
+    return records2.some((record) => !record1Ids.has(record.id));
   }
 }

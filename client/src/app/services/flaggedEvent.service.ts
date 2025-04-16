@@ -1,63 +1,65 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, timer, EMPTY, firstValueFrom } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
 import { AttendanceData } from '../flags/flags.component';
-import { BehaviorSubject } from 'rxjs';
+import { ApiService } from './api.service';
+
+// this service is used to retrive flagged attendance records repeatedly.
 
 @Injectable({
   providedIn: 'root',
 })
 export class FlaggedEventService {
-  private flaggedAttendanceRecords: AttendanceData[] = [];
-  private hasFlaggedRecordsChangedSubject = new BehaviorSubject<boolean>(false);
-  hasFlaggedRecordsChanged$ =
-    this.hasFlaggedRecordsChangedSubject.asObservable();
+  private readonly POLL_INTERVAL = 1000;
 
-  private previousRecords: AttendanceData[] = []; // Store the previous value for comparison
+  private flaggedAttendanceRecordsSubject = new BehaviorSubject<
+    AttendanceData[]
+  >([]);
+  flaggedAttendanceRecords$ =
+    this.flaggedAttendanceRecordsSubject.asObservable();
 
-  // Method to update the flagged attendance records
-  updateFlaggedAttendanceRecords(records: AttendanceData[]): void {
-    const storedRecords = localStorage.getItem('previousRecords');
-    this.previousRecords = storedRecords ? JSON.parse(storedRecords) : [];
-    // Compare the new records with the previous records
-    const hasChanged = !this.areRecordsEqual(this.previousRecords, records);
+  constructor(private apiService: ApiService) {}
 
-    if (hasChanged) {
-      this.flaggedAttendanceRecords = records;
-      this.hasFlaggedRecordsChangedSubject.next(true);
-      this.previousRecords = [...records];
-      //store previous records to local storages to prevent effects of refreshing the page
-      localStorage.setItem(
-        'previousRecords',
-        JSON.stringify(this.previousRecords)
-      );
-    }
+  // Start polling flagged attendance data
+  startPollingFlaggedAttendance(): void {
+    timer(0, this.POLL_INTERVAL)
+      .pipe(
+        switchMap(() =>
+          this.getFlaggedAttendanceData().then((records) => {
+            this.flaggedAttendanceRecordsSubject.next(records);
+            return EMPTY;
+          })
+        ),
+        catchError((err) => {
+          console.error('Polling error:', err);
+          return EMPTY;
+        })
+      )
+      .subscribe();
   }
 
-  // Method to get the flagged attendance records
-  getFlaggedAttendanceRecords(): AttendanceData[] {
-    return this.flaggedAttendanceRecords;
-  }
-
-  // Utility method to compare two arrays of AttendanceData
-  private areRecordsEqual(
-    records1: AttendanceData[],
-    records2: AttendanceData[]
-  ): boolean {
-    if (records1.length !== records2.length) {
-      return false;
-    }
-
-    // Compare each record in the arrays
-    return records1.every((record, index) => {
-      const otherRecord = records2[index];
-      return (
-        record.id === otherRecord.id &&
-        record.studentId === otherRecord.studentId &&
-        record.studentName === otherRecord.studentName &&
-        record.FRIdentifiedId === otherRecord.FRIdentifiedId &&
-        record.checkInTime === otherRecord.checkInTime &&
-        record.status === otherRecord.status &&
-        record.flagged === otherRecord.flagged
-      );
+  // Refresh flagged attendance data immediately
+  refreshFlaggedAttendanceNow(): void {
+    this.getFlaggedAttendanceData().then((records) => {
+      this.flaggedAttendanceRecordsSubject.next(records);
     });
+  }
+
+  // Fetch flagged attendance data from the API
+  private async getFlaggedAttendanceData(): Promise<AttendanceData[]> {
+    const pageSize = 100;
+    const result = await firstValueFrom(
+      this.apiService.get<{ data: AttendanceData[] }>(
+        `attendance?isFlagged=true`
+      )
+    );
+
+    // Filter records where status is null or an empty string and flagged is true
+    const filteredRecords = result.data.filter(
+      (record) =>
+        record.flagged && (record.status === null || record.status === '')
+    );
+
+    return filteredRecords;
   }
 }
