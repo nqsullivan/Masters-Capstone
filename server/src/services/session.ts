@@ -165,7 +165,8 @@ class SessionService {
   async getAttendanceRecordsForProfessorPaged(
     professorId: string,
     page: number,
-    pageSize: number
+    pageSize: number,
+    isFlagged: boolean | null
   ): Promise<{ attendanceRecords: Attendance[]; totalCount: number }> {
     const offset = (page - 1) * pageSize;
 
@@ -182,15 +183,17 @@ class SessionService {
       flagged: boolean;
     }>(
       `
-      SELECT a.id, a.studentId, s.name, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
+      SELECT a.id, a.studentId, s.name, a.sessionId, a.checkIn, a.portraitUrl, 
+             a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
       FROM attendance a
       JOIN student s ON a.studentId = s.id
       JOIN student_class_lookup scl ON s.id = scl.studentId
       JOIN professor_class_lookup pcl ON scl.classId = pcl.classId
       WHERE pcl.username = ?
+        AND (? IS NULL OR a.flagged = ?)
       LIMIT ? OFFSET ?
       `,
-      [professorId, pageSize, offset]
+      [professorId, isFlagged, isFlagged, pageSize, offset]
     );
 
     const totalCountResult = await this.db.runAndReadAll<{ count: number }>(
@@ -201,11 +204,12 @@ class SessionService {
       JOIN student_class_lookup scl ON s.id = scl.studentId
       JOIN professor_class_lookup pcl ON scl.classId = pcl.classId
       WHERE pcl.username = ?
+        AND (? IS NULL OR a.flagged = ?)
       `,
-      [professorId]
+      [professorId, isFlagged, isFlagged]
     );
 
-    let totalCount = UtilService.formatNumber(totalCountResult[0].count);
+    const totalCount = UtilService.formatNumber(totalCountResult[0].count);
 
     const attendanceRecords = result.map((row) => ({
       id: row.id,
@@ -220,14 +224,12 @@ class SessionService {
       flagged: row.flagged,
     }));
 
-    console.log(attendanceRecords);
-
     return { attendanceRecords, totalCount };
   }
 
   async modifyAttendanceRecord(
     attendanceId: string,
-    checkInTime: string | null | undefined,
+    checkIn: string | null | undefined,
     portraitUrl: string | null | undefined,
     FRIdentifiedId: string | null | undefined,
     status: string | null | undefined
@@ -239,7 +241,7 @@ class SessionService {
     const attendance = await this.getAttendanceRecord(attendanceId);
     let flagged = attendance.flagged;
 
-    checkInTime = checkInTime ?? null;
+    checkIn = checkIn ?? null;
     portraitUrl = portraitUrl ?? attendance.portraitUrl ?? '';
     FRIdentifiedId = FRIdentifiedId ?? attendance.FRIdentifiedId ?? null;
     status = status ?? attendance.status ?? null;
@@ -262,7 +264,7 @@ class SessionService {
       await this.db.runWithNoReturned(
         'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ? WHERE id = ?',
         [
-          checkInTime,
+          checkIn,
           portraitUrl,
           portraitCaptured,
           FRIdentifiedId,
@@ -286,7 +288,7 @@ class SessionService {
       studentId: attendance.studentId,
       studentName: nameResult[0].name,
       sessionId: attendance.sessionId,
-      checkIn: UtilService.formatDate(checkInTime),
+      checkIn: UtilService.formatDate(checkIn),
       portraitUrl: portraitUrl,
       portraitCaptured: portraitCaptured,
       FRIdentifiedId: FRIdentifiedId,

@@ -1,4 +1,5 @@
 import requests
+import os
 
 from src.services.logging_service import printt
 
@@ -56,7 +57,17 @@ class APIService:
     def _handle_response(self, response):
         if response.status_code // 200:
             try:
-                return response.json()
+                json_response = response.json()
+
+                if (
+                    isinstance(json_response, dict)
+                    and "error" in json_response
+                    and json_response["error"] == "Unauthorized"
+                ):
+                    print("Error: Unauthorized access (please check your API key)")
+                    os._exit(1)
+
+                return json_response
             except ValueError:
                 print("Response is not valid JSON")
                 return None

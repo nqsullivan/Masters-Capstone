@@ -4,30 +4,30 @@ from datetime import date
 from datetime import datetime
 
 from src.services.logging_service import printt
+from src.services.face_recognition_service import FaceRecognitionService
+
+face_recognition_service = FaceRecognitionService()
 
 
 class AttendanceService:
     _instance = None
 
-    def __new__(
-        cls,
-        api_service,
-        camera_controller,
-        face_recognition_service,
-        room_number,
-        *args,
-        **kwargs,
-    ):
+    def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(AttendanceService, cls).__new__(cls)
-            cls._instance.api_service = api_service
-            cls._instance.camera_controller = camera_controller
-            cls._instance.face_recognition_service = face_recognition_service
-            cls._instance.room_number = room_number
-            cls._instance.schedule = cls._instance.get_schedule()
-            cls._instance.current_class = cls._instance.get_current_class()
-            cls._instance.current_session = cls._instance.create_session()
         return cls._instance
+
+    def __init__(self, api_service, camera_controller, thread_pool, room_number):
+        if not hasattr(self, "initialized"):
+            self.studentId_to_attendanceId = {}
+            self.api_service = api_service
+            self.camera_controller = camera_controller
+            self.thread_pool = thread_pool
+            self.room_number = room_number
+            self.schedule = self.get_schedule()
+            self.current_class = self.get_current_class()
+            self.current_session = self.create_session()
+            self.initialized = True
 
     def handle_attendance_event(self, nfc_event):
         printt("Handling attendance event...")
@@ -59,47 +59,44 @@ class AttendanceService:
             printt(f"Error taking picture: {e}")
             return
 
-        portrait_url = None
         student_id = nfc_event.get("card_id")
 
+        self.thread_pool.submit(
+            self.process_facial_recognition, full_picture_path, student_id
+        )
+
+    def process_facial_recognition(self, image_path, student_id):
+        """Processes the image for facial recognition and logs attendance."""
         try:
-            recognition_results = self.face_recognition_service.run_on_image(
-                full_picture_path
-            )
-            if recognition_results:
-                primary_result = recognition_results[0]
-                portrait_path = primary_result.get("croppedPath")
-                identity = primary_result.get("identity")
+            results = face_recognition_service.run_on_image(image_path)
+            if not results:
+                return
 
-                with open(portrait_path, "rb") as f:
-                    response = self.api_service.post("/image", files={"image": f})
+            primary = results[0]
+            identity = primary["identity"]
+            portrait_path = primary["croppedPath"]
+            portrait_url = None
 
+            with open(portrait_path, "rb") as f:
+                response = self.api_service.post("/image", files={"image": f})
                 if response.get("error"):
-                    printt("Error uploading image:", response["error"])
                     raise Exception("Image upload failed.")
-
                 image_url = response.get("message", {}).get("fileUrl")
-                if image_url:
-                    printt(f"Image uploaded successfully: {image_url}")
-                    portrait_url = image_url
-                    # TODO
-                    # if identity != "Unknown" and identity != student_id
-                    #     flagged = True
-        except Exception as e:
-            printt(f"Error during facial recognition or image upload: {e}")
+                portrait_url = image_url
+                printt(f"Image uploaded: {image_url}")
 
-        try:
-            response = self.api_service.post(
-                f"/session/{self.current_session.get('id')}/attendance",
+            self.api_service.put(
+                f"/attendance/{self.studentId_to_attendanceId.get(student_id)}",
                 json={
-                    "studentId": student_id,
-                    "checkInTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "FRIdentifiedId": "" if identity == "Unknown" else identity,
+                    "checkIn": time.strftime("%Y-%m-%d %H:%M:%S"),
                     "portraitUrl": portrait_url,
                 },
             )
-            printt(f"Attendance event logged: {response}")
-        except requests.RequestException as e:
-            printt(f"Error logging attendance event: {e}")
+            printt(f"Attendance logged for {student_id} as {identity}")
+
+        except Exception as e:
+            printt(f"Error in async recognition: {e}")
 
     def get_schedule(self):
         """Fetches the schedule from the API."""
@@ -127,6 +124,8 @@ class AttendanceService:
 
             if current_class:
                 return current_class
+            elif not current_class and self.schedule.__len__() > 0:
+                return self.schedule[0]
             else:
                 printt("No current class found.")
                 return None
@@ -154,9 +153,39 @@ class AttendanceService:
         }
 
         try:
-            response = self.api_service.post("/session", json=session_data)
-            printt(f"Session created: {response}")
-            return response
+            session = self.api_service.post("/session", json=session_data)
+            self.current_session = session
+            printt(f"Session created: {session}")
         except requests.RequestException as e:
             print(f"Error creating session: {e}")
             return None
+
+        try:
+            student_ids = self.api_service.get(
+                f"/class/{self.current_class.get('id')}/students"
+            )
+
+            for studentId in student_ids:
+                attendance_data = {"studentId": studentId}
+                attendance_record = self.api_service.post(
+                    f"/session/{self.current_session.get('id')}/attendance",
+                    json=attendance_data,
+                )
+
+                print(
+                    f"Attendance record created for student {studentId}: {attendance_record.get('id')}"
+                )
+
+                self.studentId_to_attendanceId[studentId] = attendance_record.get("id")
+
+            printt(
+                f"Attendance records inserted for session {self.current_session.get('id')}"
+            )
+        except requests.RequestException as e:
+            print(f"Error inserting attendance records: {e}")
+            return None
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return None
+
+        return session

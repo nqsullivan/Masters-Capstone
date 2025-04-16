@@ -11,7 +11,11 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  get<T>(endpoint: string): Observable<T> {
+  get<T>(endpoint: string, params?: any): Observable<T> {
+    if (params) {
+      return this.http.get<T>(`${this.baseUrl}/${endpoint}`, { params });
+    }
+
     return this.http.get<T>(`${this.baseUrl}/${endpoint}`);
   }
 
