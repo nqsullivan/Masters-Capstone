@@ -29,6 +29,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { AttendanceService } from '../services/attendanceService.service';
 
 interface AttendanceData {
   id: string;
@@ -70,7 +71,7 @@ export class IndividualSessionComponent {
     'name',
     'actions',
   ];
-  dataSource: MatTableDataSource<AttendanceData>;
+  dataSource = new MatTableDataSource<AttendanceData>([]);
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -97,7 +98,8 @@ export class IndividualSessionComponent {
   className: string | null = null;
   constructor(
     private route: ActivatedRoute,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private attendanceService: AttendanceService
   ) {}
 
   selectedElement: AttendanceData | null = null;
@@ -107,17 +109,63 @@ export class IndividualSessionComponent {
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       this.sessionId = params.get('id');
+      if (this.sessionId) {
+        this.getSessionInfo(this.sessionId);
+      }
     });
-    if (this.sessionId) {
-      this.getSessionInfo(this.sessionId);
-      this.reloadAttendanceData();
-    }
+
+    this.attendanceService.attendance$.subscribe((newData) => {
+      if (!newData || !this.sessionId) return;
+
+      const filtered = newData.filter(
+        (record) => record.sessionId === this.sessionId
+      );
+
+      let didChange = false;
+
+      for (const newRecord of filtered) {
+        const existing = this.attendances.find((a) => a.id === newRecord.id);
+
+        const stripUrl = (url: string) => decodeURIComponent(url.split('?')[0]);
+
+        if (
+          !existing ||
+          existing.checkIn !== newRecord.checkIn ||
+          stripUrl(existing.portraitUrl) !== stripUrl(newRecord.portraitUrl)
+        ) {
+          didChange = true;
+
+          const enriched: AttendanceData = {
+            ...newRecord,
+            studentName: '',
+          };
+
+          if (existing) {
+            Object.assign(existing, enriched);
+          } else {
+            this.attendances.push(enriched);
+          }
+        }
+      }
+
+      if (didChange) {
+        this.dataSource.data = [...this.attendances];
+        this.resolveVisibleMetadata();
+      }
+    });
+
+    this.resolveVisibleMetadata();
   }
 
-  reloadAttendanceData() {
-    if (this.sessionId) {
-      this.getAttendances(this.sessionId);
-    }
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+
+    this.resolveVisibleMetadata();
+
+    this.paginator.page.subscribe(() => {
+      this.resolveVisibleMetadata();
+    });
   }
 
   getSessionInfo(sessionId: string): void {
@@ -144,70 +192,47 @@ export class IndividualSessionComponent {
       });
   }
 
-  getAttendances(sessionId: string): void {
-    this.attendances = [];
-    this.apiService
-      .get<{
-        [key: string]: Array<{
-          id: string;
-          studentId: string;
-          sessionId: string;
-          checkIn: string;
-          portraitUrl: string;
-          portraitCaptured: boolean;
-        }>;
-      }>(`session/${sessionId}/attendance`)
-      .subscribe((response) => {
-        for (let entry of response[sessionId]) {
-          let attendanceRecord = {
-            id: entry.id,
-            studentId: entry.studentId,
-            studentName: '',
-            portraitUrl: entry.portraitUrl,
-            portraitCaptured: entry.portraitCaptured,
-            checkIn: entry.checkIn,
-            sessionId: entry.sessionId,
-          };
-          this.apiService
-            .get<{ name: string; id: string }>(`student/${entry.studentId}`)
-            .subscribe((response) => {
-              attendanceRecord['studentName'] = response.name;
-            });
+  resolveVisibleMetadata(): void {
+    if (!this.paginator || !this.dataSource?.data) return;
 
-          if (entry.portraitUrl.includes('amazonaws.com')) {
-            const index = entry.portraitUrl.indexOf('amazonaws.com');
-            entry.portraitUrl = entry.portraitUrl.slice(
-              index + 'amazonaws.com/'.length
-            );
-          }
+    const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
+    const endIndex = startIndex + this.paginator.pageSize;
 
-          this.apiService
-            .get<{ imageUrl: string }>(`image/${entry.portraitUrl}`)
-            .subscribe((response) => {
-              attendanceRecord['portraitUrl'] = response['imageUrl'];
-            });
+    const visibleRows = this.dataSource.data.slice(startIndex, endIndex);
 
-          this.attendances.push(attendanceRecord);
-        }
-        // Assign the data to the data source for the table to render
-        this.dataSource = new MatTableDataSource(this.attendances);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      });
+    for (let record of visibleRows) {
+      if (!record.studentName) {
+        this.apiService
+          .get<{ name: string }>(`student/${record.studentId}`)
+          .subscribe((res) => (record.studentName = res.name));
+      }
+
+      if (record.portraitUrl.includes('amazonaws.com')) {
+        const index = record.portraitUrl.indexOf('amazonaws.com');
+        const key = record.portraitUrl.slice(index + 'amazonaws.com/'.length);
+        this.apiService
+          .get<{ imageUrl: string }>(`image/${key}`)
+          .subscribe((res) => (record.portraitUrl = res.imageUrl));
+      }
+    }
   }
 
-  editAttendance(checkInTime: string, attendanceData: AttendanceData): void {
-    console.log(checkInTime);
-    console.log(attendanceData);
-    if (checkInTime && attendanceData) {
-      console.log('Entered if block');
+  editAttendance(
+    checkInTime: string | null,
+    attendanceData: AttendanceData
+  ): void {
+    if (attendanceData) {
+      if (checkInTime == '') {
+        checkInTime = null;
+      }
+
       this.apiService
         .put(`session/${this.sessionId}/attendance/${attendanceData.id}`, {
           checkInTime: checkInTime,
         })
         .subscribe({
           next: () => {
-            this.reloadAttendanceData();
+            this.attendanceService.refreshNow();
           },
           error: (result) => {
             alert(result.error.error);
@@ -217,7 +242,6 @@ export class IndividualSessionComponent {
   }
 
   edit() {
-    console.log('edit =>', this.selectedElement);
     const dialogRef = this.dialog.open(EditAttendanceDialog, {
       width: '500px',
       data: {
@@ -227,9 +251,7 @@ export class IndividualSessionComponent {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
       if (result !== undefined) {
-        console.log(result);
         this.editAttendance(result.checkInTime, result.selectedElement);
       }
     });
@@ -272,7 +294,7 @@ export class EditAttendanceDialog {
     this.dialogRef.close();
   }
 
-  checkInTimeFormControl = new FormControl('', [Validators.required]);
+  checkInTimeFormControl = new FormControl('');
   matcher = new MyErrorStateMatcher();
 }
 

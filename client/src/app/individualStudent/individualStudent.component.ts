@@ -29,6 +29,8 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatMenu, MatMenuModule } from '@angular/material/menu';
 
 interface DialogData {
   image: string;
@@ -48,6 +50,8 @@ interface DialogData {
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    MatIconModule,
+    MatMenuModule,
   ],
 })
 export class IndividualStudentComponent {

@@ -19,10 +19,22 @@ export interface Student {
 export interface AttendanceRecord {
   id: string;
   studentId: string;
+  studentName: string;
   sessionId: string;
   checkIn: string;
   portraitUrl: string;
   portraitCaptured: boolean;
+  FRIdentifiedId: string;
+  status: string | null;
+  flagged: boolean;
+}
+
+export interface AttendancePage {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  data: AttendanceRecord[];
 }
 
 export interface DashboardData {

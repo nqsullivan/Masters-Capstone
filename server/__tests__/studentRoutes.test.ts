@@ -138,7 +138,9 @@ describe('Student API', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
-    expect(response.text).toBe(`Deleted student ${studentResponse.body.id}`);
+    expect(response.text).toBe(
+      `{"message":"Deleted student ${studentResponse.body.id}"}`
+    );
   });
 
   test('DELETE /api/student/:id should return 404 for an invalid student ID', async () => {

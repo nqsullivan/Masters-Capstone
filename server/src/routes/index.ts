@@ -14,6 +14,7 @@ import {
 import {
   addStudentsToClass,
   getStudentsForClass,
+  deleteStudentFromClass,
 } from '../controllers/studentClassAssignment.js';
 import {
   getClass,
@@ -54,6 +55,7 @@ router.post('/register', register);
 
 // Attendance routes
 router.get('/attendance', verifyToken, getAttendanceRecordsForProfessorPaged);
+router.put('/attendance/:attendanceId', verifyToken, modifyAttendanceRecord);
 
 // Class routes
 router.get('/class/:id', verifyToken, getClass);
@@ -67,6 +69,11 @@ router.post('/class/assign', verifyToken, assignProfessorToClass);
 router.post('/class/unassign', verifyToken, unassignProfessorFromClass);
 router.post('/class/:classId/students', verifyToken, addStudentsToClass);
 router.get('/class/:classId/students', verifyToken, getStudentsForClass);
+router.delete(
+  '/class/:classId/student/:studentId',
+  verifyToken,
+  deleteStudentFromClass
+);
 
 router.get('/schedule/:roomNumber', verifyToken, getSchedulesForRoomNumber);
 
@@ -76,11 +83,6 @@ router.delete('/session/:id', verifyToken, deleteSession);
 router.get('/session/:id', verifyToken, getSession);
 router.put('/session/:id', verifyToken, updateSession);
 router.post('/session/:sessionId/attendance', verifyToken, addAttendanceRecord);
-router.put(
-  '/session/:sessionId/attendance/:attendanceId',
-  verifyToken,
-  modifyAttendanceRecord
-);
 router.delete(
   '/session/:sessionId/attendance/:attendanceId',
   verifyToken,

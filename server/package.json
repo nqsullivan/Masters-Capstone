@@ -7,14 +7,13 @@
   "scripts": {
     "start": "NODE_OPTIONS='--loader ts-node/esm' ts-node index.ts",
     "dev": "nodemon index.ts",
-    "build": "tsc && cp Dockerfile dist/server/Dockerfile && cp package*.json dist/server/ && cp -r data dist/server/",
+    "build": "tsc && cp Dockerfile dist/server/Dockerfile && cp package*.json dist/server/ && cp -r data dist/server/ && cp -r scripts dist/server/",
     "serve": "node dist/index.js",
     "format": "prettier --write .",
     "test": "jest --coverage",
     "check-format": "prettier --check .",
     "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky; fi",
-    "init-data": "node scripts/initializeData.js",
-    "generate-test-data": "node dist/server/scripts/generateTestData.js"
+    "init-data": "node scripts/initializeData.js"
   },
   "keywords": [],
   "author": "",

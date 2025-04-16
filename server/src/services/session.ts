@@ -125,6 +125,7 @@ class SessionService {
     const result = await this.db.runAndReadAll<{
       id: string;
       studentId: string;
+      name: string;
       sessionId: string;
       checkIn: string | null;
       portraitUrl: string;
@@ -133,14 +134,15 @@ class SessionService {
       status: string | null;
       flagged: boolean;
     }>(
-      `SELECT id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured, FRIdentifiedId, status, flagged FROM attendance WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
+      `SELECT a.id, a.studentId, s.name, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged FROM attendance a JOIN student s ON a.studentId = s.id WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
       [...sessionIds]
     );
 
-    result.forEach((row) => {
+    result.forEach(async (row) => {
       const attendance: Attendance = {
         id: row.id,
         studentId: row.studentId,
+        studentName: row.name,
         sessionId: row.sessionId,
         checkIn: UtilService.formatDate(row.checkIn || ''),
         portraitUrl: row.portraitUrl,
@@ -163,13 +165,15 @@ class SessionService {
   async getAttendanceRecordsForProfessorPaged(
     professorId: string,
     page: number,
-    pageSize: number
+    pageSize: number,
+    isFlagged: boolean | null
   ): Promise<{ attendanceRecords: Attendance[]; totalCount: number }> {
     const offset = (page - 1) * pageSize;
 
     const result = await this.db.runAndReadAll<{
       id: string;
       studentId: string;
+      name: string;
       sessionId: string;
       checkIn: string;
       portraitUrl: string;
@@ -179,15 +183,17 @@ class SessionService {
       flagged: boolean;
     }>(
       `
-      SELECT a.id, a.studentId, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
+      SELECT a.id, a.studentId, s.name, a.sessionId, a.checkIn, a.portraitUrl, 
+             a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
       FROM attendance a
       JOIN student s ON a.studentId = s.id
       JOIN student_class_lookup scl ON s.id = scl.studentId
       JOIN professor_class_lookup pcl ON scl.classId = pcl.classId
       WHERE pcl.username = ?
+        AND (? IS NULL OR a.flagged = ?)
       LIMIT ? OFFSET ?
       `,
-      [professorId, pageSize, offset]
+      [professorId, isFlagged, isFlagged, pageSize, offset]
     );
 
     const totalCountResult = await this.db.runAndReadAll<{ count: number }>(
@@ -198,15 +204,17 @@ class SessionService {
       JOIN student_class_lookup scl ON s.id = scl.studentId
       JOIN professor_class_lookup pcl ON scl.classId = pcl.classId
       WHERE pcl.username = ?
+        AND (? IS NULL OR a.flagged = ?)
       `,
-      [professorId]
+      [professorId, isFlagged, isFlagged]
     );
 
-    let totalCount = UtilService.formatNumber(totalCountResult[0].count);
+    const totalCount = UtilService.formatNumber(totalCountResult[0].count);
 
     const attendanceRecords = result.map((row) => ({
       id: row.id,
       studentId: row.studentId,
+      studentName: row.name,
       sessionId: row.sessionId,
       checkIn: UtilService.formatDate(row.checkIn),
       portraitUrl: row.portraitUrl,
@@ -221,7 +229,7 @@ class SessionService {
 
   async modifyAttendanceRecord(
     attendanceId: string,
-    checkInTime: string | null | undefined,
+    checkIn: string | null | undefined,
     portraitUrl: string | null | undefined,
     FRIdentifiedId: string | null | undefined,
     status: string | null | undefined
@@ -233,7 +241,7 @@ class SessionService {
     const attendance = await this.getAttendanceRecord(attendanceId);
     let flagged = attendance.flagged;
 
-    checkInTime = checkInTime ?? attendance.checkIn ?? null;
+    checkIn = checkIn ?? null;
     portraitUrl = portraitUrl ?? attendance.portraitUrl ?? '';
     FRIdentifiedId = FRIdentifiedId ?? attendance.FRIdentifiedId ?? null;
     status = status ?? attendance.status ?? null;
@@ -243,9 +251,9 @@ class SessionService {
     }
 
     if (status !== null) {
-      if (!['ESCALATED', 'DISMISSED'].includes(status)) {
+      if (!['ESCALATED', 'DISMISSED', ''].includes(status)) {
         throw new Error(
-          'status field can only be updated to DISMISSED or ESCALATED'
+          'status field can only be updated to be blank or one of the values: [DISMISSED, ESCALATED]'
         );
       }
     }
@@ -256,7 +264,7 @@ class SessionService {
       await this.db.runWithNoReturned(
         'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ? WHERE id = ?',
         [
-          checkInTime,
+          checkIn,
           portraitUrl,
           portraitCaptured,
           FRIdentifiedId,
@@ -270,11 +278,17 @@ class SessionService {
       throw e;
     }
 
+    let nameResult = await this.db.runAndReadAll<{ name: string }>(
+      `select name from student where id = ?`,
+      [attendance.studentId]
+    );
+
     return {
       id: attendance.id,
       studentId: attendance.studentId,
+      studentName: nameResult[0].name,
       sessionId: attendance.sessionId,
-      checkIn: UtilService.formatDate(checkInTime),
+      checkIn: UtilService.formatDate(checkIn),
       portraitUrl: portraitUrl,
       portraitCaptured: portraitCaptured,
       FRIdentifiedId: FRIdentifiedId,
@@ -287,6 +301,7 @@ class SessionService {
     const result = await this.db.runAndReadAll<{
       id: string;
       studentId: string;
+      name: string;
       sessionId: string;
       checkIn: string | null;
       portraitUrl: string;
@@ -295,7 +310,9 @@ class SessionService {
       status: string | null;
       flagged: boolean;
     }>(
-      `SELECT id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured, FRIdentifiedId, status, flagged FROM attendance WHERE id = ?`,
+      `SELECT a.id, a.studentId, s.name, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
+      FROM attendance a
+      JOIN student s ON a.studentId = s.id WHERE a.id = ?`,
       [attendanceId]
     );
 
@@ -303,6 +320,7 @@ class SessionService {
       return {
         id: result[0].id,
         studentId: result[0].studentId,
+        studentName: result[0].name,
         sessionId: result[0].sessionId,
         checkIn: this.getFormattedCheckInTime(result[0].checkIn),
         portraitUrl: result[0].portraitUrl,
