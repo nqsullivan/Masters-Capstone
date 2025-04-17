@@ -5,6 +5,11 @@
 *.db
 *.wal
 
+*.jpg
+*.mp4
+*.txt
+*.npy
+
 # Below file is sourced from https://github.com/github/gitignore/blob/main/Node.gitignore
 
 # Logs
