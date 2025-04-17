@@ -13,8 +13,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AttendanceRecord } from '../models/models';
 import { HttpResponseBase } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
-interface AttendanceData {
+export interface AttendanceData {
   id: string;
   studentId: string;
   studentName: string;
@@ -60,6 +61,7 @@ export class FlagsComponent {
   @ViewChildren(MatSort) sort = new QueryList<MatSort>();
 
   selectedElement: AttendanceData | null = null;
+
   flaggedAttendanceRecordsToReview: AttendanceData[] = [];
   escalatedAttendanceRecordsToReview: AttendanceData[] = [];
 
