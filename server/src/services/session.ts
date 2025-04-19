@@ -176,7 +176,7 @@ class SessionService {
       id: string;
       studentId: string;
       name: string;
-      image: string,
+      image: string;
       sessionId: string;
       checkIn: string;
       portraitUrl: string;
@@ -282,10 +282,10 @@ class SessionService {
       throw e;
     }
 
-    let studentResult = await this.db.runAndReadAll<{ name: string, image: string }>(
-      `select name, image from student where id = ?`,
-      [attendance.studentId]
-    );
+    let studentResult = await this.db.runAndReadAll<{
+      name: string;
+      image: string;
+    }>(`select name, image from student where id = ?`, [attendance.studentId]);
 
     return {
       id: attendance.id,

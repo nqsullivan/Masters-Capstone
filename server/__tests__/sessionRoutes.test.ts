@@ -561,7 +561,7 @@ describe('Session Routes', () => {
 
     const response = await request(app)
       .get(`/api/attendance/${attendanceResponse.id}`)
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('id');
@@ -590,7 +590,7 @@ describe('Session Routes', () => {
 
     const response = await request(app)
       .get(`/api/attendance/unknown`)
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(404);
   });
