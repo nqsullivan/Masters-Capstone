@@ -31,7 +31,7 @@ export const routes: Routes = [
   {
     path: 'about',
     component: AboutComponent,
-    data: {title: 'About Us'}
+    data: { title: 'About Us' },
   },
   { path: 'login', component: LoginComponent, data: { title: 'Login' } },
   {
