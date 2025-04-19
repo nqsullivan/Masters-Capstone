@@ -2,6 +2,7 @@ export interface Attendance {
   id: string;
   studentId: string;
   studentName: string;
+  studentImage: string;
   sessionId: string;
   checkIn: string | null;
   portraitUrl: string;

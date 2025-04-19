@@ -540,4 +540,58 @@ describe('Session Routes', () => {
     expect(response.body.data).toHaveLength(1);
     expect(response.body.data[0]).toHaveProperty('studentId');
   });
+
+  test('GET /api/attendance/:id should return attendance record with specific id', async () => {
+    const sessionResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classId
+    );
+
+    const studentResponse = await StudentService.createStudent(
+      'John Doe',
+      'path/to/image.jpg'
+    );
+
+    const attendanceResponse = await SessionService.addAttendanceRecord(
+      sessionResponse.id,
+      studentResponse.id,
+      'www.test.com'
+    );
+
+    const response = await request(app)
+      .get(`/api/attendance/${attendanceResponse.id}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body).toHaveProperty('studentId', studentResponse.id);
+    expect(response.body).toHaveProperty('sessionId', sessionResponse.id);
+    expect(response.body).toHaveProperty('studentName', studentResponse.name);
+  });
+
+  test('GET /api/attendance/:id with nonexistent ID should return 404 error', async () => {
+    const sessionResponse = await SessionService.createSession(
+      mockStartTime,
+      mockEndTime,
+      classId
+    );
+
+    const studentResponse = await StudentService.createStudent(
+      'John Doe',
+      'path/to/image.jpg'
+    );
+
+    const attendanceResponse = await SessionService.addAttendanceRecord(
+      sessionResponse.id,
+      studentResponse.id,
+      'www.test.com'
+    );
+
+    const response = await request(app)
+      .get(`/api/attendance/unknown`)
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.status).toBe(404);
+  });
 });
