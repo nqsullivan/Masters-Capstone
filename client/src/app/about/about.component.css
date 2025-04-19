@@ -1,0 +1,14 @@
+.profile {
+    display: flex;
+    flex-direction: column;
+    padding-top: 25px;
+}
+img {
+    max-width: 25%;
+    height: auto;
+}
+
+h2 {
+    padding-top: 20px;
+    margin: 0px;
+}
