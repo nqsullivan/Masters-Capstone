@@ -1,0 +1,44 @@
+<div class="dashboard-widgets">
+  <div class="widget">
+    <h2>Attendance Information</h2>
+    <table class="refined-table">
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Student Name</th>
+          <th>Student Image</th>
+          <th>Face Scanned Image</th>
+          <th>Face Scanned ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <a [routerLink]="['/student', attendanceInfo.studentId]">{{
+              attendanceInfo.studentId
+            }}</a>
+          </td>
+          <td>{{ attendanceInfo.studentName }}</td>
+          <td>
+            <img
+              [src]="attendanceInfo.studentImage"
+              alt="Student Photo"
+              class="attendance-photo"
+              style="width: 100px; height: 100px; object-fit: cover"
+            />
+          </td>
+          <td>
+            <img
+              [src]="attendanceInfo.portraitUrl"
+              alt="Attendance Photo"
+              class="attendance-photo"
+              style="width: 100px; height: 100px; object-fit: cover"
+            />
+          </td>
+          <td>{{ attendanceInfo.FRIdentifiedId }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div>Insert Video Clip Here</div>
+  </div>
+</div>
