@@ -7,6 +7,7 @@ import { ClassListComponent } from './class-list/class-list.component';
 import { IndividualClassComponent } from './individualClass/individualClass.component';
 import { IndividualSessionComponent } from './individualSession/individualSession.component';
 import { IndividualStudentComponent } from './individualStudent/individualStudent.component';
+import { AboutComponent } from './about/about.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -26,6 +27,11 @@ export const routes: Routes = [
     path: 'attendance-flags',
     component: FlagsComponent,
     data: { title: 'Attendance Flags' },
+  },
+  {
+    path: 'about',
+    component: AboutComponent,
+    data: { title: 'About Us' },
   },
   { path: 'login', component: LoginComponent, data: { title: 'Login' } },
   {
