@@ -134,6 +134,7 @@ class SessionService {
       FRIdentifiedId: string;
       status: string | null;
       flagged: boolean;
+      videoKey: string | null;
     }>(
       `SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged FROM attendance a JOIN student s ON a.studentId = s.id WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
       [...sessionIds]
@@ -152,6 +153,7 @@ class SessionService {
         FRIdentifiedId: row.FRIdentifiedId,
         status: row.status,
         flagged: row.flagged,
+        videoKey: row.videoKey || null,
       };
 
       if (attendanceRecords.has(row.sessionId)) {
@@ -184,6 +186,7 @@ class SessionService {
       FRIdentifiedId: string;
       status: string | null;
       flagged: boolean;
+      videoKey: string | null;
     }>(
       `
       SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, 
@@ -226,6 +229,7 @@ class SessionService {
       FRIdentifiedId: row.FRIdentifiedId,
       status: row.status,
       flagged: row.flagged,
+      videoKey: row.videoKey || null,
     }));
 
     return { attendanceRecords, totalCount };
@@ -236,7 +240,8 @@ class SessionService {
     checkIn: string | null | undefined,
     portraitUrl: string | null | undefined,
     FRIdentifiedId: string | null | undefined,
-    status: string | null | undefined
+    status: string | null | undefined,
+    videoKey: string | null
   ): Promise<Attendance> {
     if (!attendanceId) {
       throw new Error('attendanceId is required');
@@ -299,6 +304,8 @@ class SessionService {
       FRIdentifiedId: FRIdentifiedId,
       status: status,
       flagged: flagged,
+      videoKey: videoKey || null,
+      
     };
   }
 
