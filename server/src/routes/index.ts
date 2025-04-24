@@ -113,6 +113,9 @@ router.get('/logs', verifyToken, getLogsPaginated);
 router.post('/image', verifyToken, upload.single('image'), uploadImage);
 router.get('/image/:imageKey', verifyToken, retrieveImage);
 
+//video routes
+router.get('/video/presigned-url/:videoKey', verifyToken, generatePresignedUrl);
+
 // Dashboard routes
 router.get('/dashboard/:classId', verifyToken, getDashboardData);
 

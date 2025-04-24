@@ -315,8 +315,9 @@ class SessionService {
       FRIdentifiedId: string;
       status: string | null;
       flagged: boolean;
+      videoKey: string | null;
     }>(
-      `SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
+      `SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged, a.videoKey
       FROM attendance a
       JOIN student s ON a.studentId = s.id WHERE a.id = ?`,
       [attendanceId]
@@ -335,6 +336,7 @@ class SessionService {
         FRIdentifiedId: result[0].FRIdentifiedId,
         status: result[0].status,
         flagged: result[0].flagged,
+        videoKey: result[0].videoKey,
       };
     }
     throw new Error('Attendance record not found');
