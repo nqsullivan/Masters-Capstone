@@ -35,6 +35,22 @@ export class IndividualAttendanceComponent {
       .subscribe((response) => {
         this.attendanceInfo = response;
         console.log(this.attendanceInfo);
+
+        if (this.attendanceInfo.studentImage.includes('amazonaws.com')) {
+          const index = this.attendanceInfo.studentImage.indexOf('amazonaws.com');
+          const key = this.attendanceInfo.studentImage.slice(index + 'amazonaws.com/'.length);
+          this.apiService
+            .get<{ imageUrl: string }>(`image/${key}`)
+            .subscribe((res) => (this.attendanceInfo.studentImage = res.imageUrl));
+        }
+
+        if (this.attendanceInfo.portraitUrl.includes('amazonaws.com')) {
+          const index = this.attendanceInfo.portraitUrl.indexOf('amazonaws.com');
+          const key = this.attendanceInfo.portraitUrl.slice(index + 'amazonaws.com/'.length);
+          this.apiService
+            .get<{ imageUrl: string }>(`image/${key}`)
+            .subscribe((res) => (this.attendanceInfo.portraitUrl = res.imageUrl));
+        }
       });
   }
 }
