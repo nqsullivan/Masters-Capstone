@@ -46,6 +46,7 @@ import {
 import upload from '../middleware/upload-middleware.js';
 import { uploadImage, retrieveImage } from '../controllers/imageStorage.js';
 import { getDashboardData } from '../controllers/dashboard.js';
+import { getAttendanceRecord } from '../controllers/attendance.js';
 
 const router = express.Router();
 
@@ -55,6 +56,7 @@ router.post('/register', register);
 
 // Attendance routes
 router.get('/attendance', verifyToken, getAttendanceRecordsForProfessorPaged);
+router.get('/attendance/:id', verifyToken, getAttendanceRecord);
 router.put('/attendance/:attendanceId', verifyToken, modifyAttendanceRecord);
 
 // Class routes

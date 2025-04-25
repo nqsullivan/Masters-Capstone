@@ -8,6 +8,7 @@ import { IndividualClassComponent } from './individualClass/individualClass.comp
 import { IndividualSessionComponent } from './individualSession/individualSession.component';
 import { IndividualStudentComponent } from './individualStudent/individualStudent.component';
 import { AboutComponent } from './about/about.component';
+import { IndividualAttendanceComponent } from './individualAttendance/individual-attendance.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -48,6 +49,11 @@ export const routes: Routes = [
     path: 'student/:id',
     component: IndividualStudentComponent,
     data: { title: 'Student Details' },
+  },
+  {
+    path: 'attendance/:id',
+    component: IndividualAttendanceComponent,
+    data: { title: 'Attendance Details' },
   },
   { path: '**', redirectTo: 'dashboard' },
 ];

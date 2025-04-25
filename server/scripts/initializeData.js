@@ -75,7 +75,8 @@ const initializeDatabase = async (db) => {
     portraitCaptured BOOLEAN,
     FRIdentifiedId VARCHAR,
     status VARCHAR,
-    flagged BOOLEAN DEFAULT FALSE
+    flagged BOOLEAN DEFAULT FALSE,
+    videoUrl VARCHAR(2083),
   )`);
 
   await db.run(`CREATE TABLE IF NOT EXISTS user (

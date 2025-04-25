@@ -126,6 +126,7 @@ class SessionService {
       id: string;
       studentId: string;
       name: string;
+      image: string;
       sessionId: string;
       checkIn: string | null;
       portraitUrl: string;
@@ -134,7 +135,7 @@ class SessionService {
       status: string | null;
       flagged: boolean;
     }>(
-      `SELECT a.id, a.studentId, s.name, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged FROM attendance a JOIN student s ON a.studentId = s.id WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
+      `SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged FROM attendance a JOIN student s ON a.studentId = s.id WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
       [...sessionIds]
     );
 
@@ -143,6 +144,7 @@ class SessionService {
         id: row.id,
         studentId: row.studentId,
         studentName: row.name,
+        studentImage: row.image,
         sessionId: row.sessionId,
         checkIn: UtilService.formatDate(row.checkIn || ''),
         portraitUrl: row.portraitUrl,
@@ -174,6 +176,7 @@ class SessionService {
       id: string;
       studentId: string;
       name: string;
+      image: string;
       sessionId: string;
       checkIn: string;
       portraitUrl: string;
@@ -183,7 +186,7 @@ class SessionService {
       flagged: boolean;
     }>(
       `
-      SELECT a.id, a.studentId, s.name, a.sessionId, a.checkIn, a.portraitUrl, 
+      SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, 
              a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
       FROM attendance a
       JOIN student s ON a.studentId = s.id
@@ -215,6 +218,7 @@ class SessionService {
       id: row.id,
       studentId: row.studentId,
       studentName: row.name,
+      studentImage: row.image,
       sessionId: row.sessionId,
       checkIn: UtilService.formatDate(row.checkIn),
       portraitUrl: row.portraitUrl,
@@ -278,15 +282,16 @@ class SessionService {
       throw e;
     }
 
-    let nameResult = await this.db.runAndReadAll<{ name: string }>(
-      `select name from student where id = ?`,
-      [attendance.studentId]
-    );
+    let studentResult = await this.db.runAndReadAll<{
+      name: string;
+      image: string;
+    }>(`select name, image from student where id = ?`, [attendance.studentId]);
 
     return {
       id: attendance.id,
       studentId: attendance.studentId,
-      studentName: nameResult[0].name,
+      studentName: studentResult[0].name,
+      studentImage: studentResult[0].image,
       sessionId: attendance.sessionId,
       checkIn: UtilService.formatDate(checkIn),
       portraitUrl: portraitUrl,
@@ -302,6 +307,7 @@ class SessionService {
       id: string;
       studentId: string;
       name: string;
+      image: string;
       sessionId: string;
       checkIn: string | null;
       portraitUrl: string;
@@ -310,7 +316,7 @@ class SessionService {
       status: string | null;
       flagged: boolean;
     }>(
-      `SELECT a.id, a.studentId, s.name, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
+      `SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
       FROM attendance a
       JOIN student s ON a.studentId = s.id WHERE a.id = ?`,
       [attendanceId]
@@ -321,6 +327,7 @@ class SessionService {
         id: result[0].id,
         studentId: result[0].studentId,
         studentName: result[0].name,
+        studentImage: result[0].image,
         sessionId: result[0].sessionId,
         checkIn: this.getFormattedCheckInTime(result[0].checkIn),
         portraitUrl: result[0].portraitUrl,
