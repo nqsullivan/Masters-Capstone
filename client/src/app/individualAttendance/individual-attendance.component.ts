@@ -14,6 +14,7 @@ export class IndividualAttendanceComponent {
   attendanceId: string | null = null;
 
   attendanceInfo: AttendanceRecord;
+  videoUrl: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +36,24 @@ export class IndividualAttendanceComponent {
       .subscribe((response) => {
         this.attendanceInfo = response;
         console.log(this.attendanceInfo);
+
+        if (this.attendanceInfo.videoKey) {
+          this.getVideoPresignedUrl(this.attendanceInfo.videoKey);
+        }
       });
+  }
+
+  getVideoPresignedUrl(videoKey: string): void {
+    this.apiService
+      .get<{ videoUrl: string }>(`video/presigned-url/${videoKey}`)
+      .subscribe(
+        (response) => {
+          this.videoUrl = response.videoUrl; // Set the pre-signed URL
+          console.log('Pre-signed video URL:', this.videoUrl);
+        },
+        (error) => {
+          console.error('Error fetching pre-signed video URL:', error);
+        }
+      );
   }
 }

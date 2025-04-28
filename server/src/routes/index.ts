@@ -115,7 +115,11 @@ router.post('/image', verifyToken, upload.single('image'), uploadImage);
 router.get('/image/:imageKey', verifyToken, retrieveImage);
 
 //video routes
-router.get('/video/presigned-url/:videoKey', verifyToken, generatePresignedVideoUrl);
+router.get(
+  '/video/presigned-url/:videoKey',
+  verifyToken,
+  generatePresignedVideoUrl
+);
 
 // Dashboard routes
 router.get('/dashboard/:classId', verifyToken, getDashboardData);

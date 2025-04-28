@@ -28,6 +28,7 @@ export interface AttendanceRecord {
   FRIdentifiedId: string;
   status: string | null;
   flagged: boolean;
+  videoKey: string;
 }
 
 export interface AttendancePage {

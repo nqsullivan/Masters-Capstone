@@ -134,7 +134,7 @@ class SessionService {
       FRIdentifiedId: string;
       status: string | null;
       flagged: boolean;
-      videoKey: string | null;
+      videoKey: string;
     }>(
       `SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged FROM attendance a JOIN student s ON a.studentId = s.id WHERE sessionId IN (${sessionIds.map(() => '?').join(', ')})`,
       [...sessionIds]
@@ -186,11 +186,11 @@ class SessionService {
       FRIdentifiedId: string;
       status: string | null;
       flagged: boolean;
-      videoKey: string | null;
+      videoKey: string;
     }>(
       `
       SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, 
-             a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged
+             a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged, a.videoKey
       FROM attendance a
       JOIN student s ON a.studentId = s.id
       JOIN student_class_lookup scl ON s.id = scl.studentId
@@ -241,7 +241,7 @@ class SessionService {
     portraitUrl: string | null | undefined,
     FRIdentifiedId: string | null | undefined,
     status: string | null | undefined,
-    videoKey: string | null
+    videoKey: string
   ): Promise<Attendance> {
     if (!attendanceId) {
       throw new Error('attendanceId is required');
@@ -254,6 +254,7 @@ class SessionService {
     portraitUrl = portraitUrl ?? attendance.portraitUrl ?? '';
     FRIdentifiedId = FRIdentifiedId ?? attendance.FRIdentifiedId ?? null;
     status = status ?? attendance.status ?? null;
+    videoKey = videoKey ?? attendance.videoKey ?? '';
 
     if (FRIdentifiedId !== null && attendance.studentId !== FRIdentifiedId) {
       flagged = true;
@@ -271,7 +272,7 @@ class SessionService {
 
     try {
       await this.db.runWithNoReturned(
-        'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ? WHERE id = ?',
+        'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ?, videoKey = ? WHERE id = ?',
         [
           checkIn,
           portraitUrl,
@@ -279,6 +280,7 @@ class SessionService {
           FRIdentifiedId,
           status,
           flagged,
+          videoKey,
           attendanceId,
         ]
       );
@@ -305,7 +307,6 @@ class SessionService {
       status: status,
       flagged: flagged,
       videoKey: videoKey || null,
-      
     };
   }
 
@@ -322,7 +323,7 @@ class SessionService {
       FRIdentifiedId: string;
       status: string | null;
       flagged: boolean;
-      videoKey: string | null;
+      videoKey: string;
     }>(
       `SELECT a.id, a.studentId, s.name, s.image, a.sessionId, a.checkIn, a.portraitUrl, a.portraitCaptured, a.FRIdentifiedId, a.status, a.flagged, a.videoKey
       FROM attendance a
