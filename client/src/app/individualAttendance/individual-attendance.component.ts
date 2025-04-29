@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { AttendanceRecord } from '../models/models';
@@ -6,7 +7,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-individual-attendance',
-  imports: [RouterModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './individual-attendance.component.html',
   styleUrl: './individual-attendance.component.css',
 })

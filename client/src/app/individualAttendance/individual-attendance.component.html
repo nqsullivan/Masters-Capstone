@@ -39,13 +39,10 @@
         </tr>
       </tbody>
     </table>
-    <div>
-      <video controls width="600">
-        <!-- Replace the src with the dynamically queried pre-signed URL from service -->
-        <source src="{{ videoUrl }}" type="video/mp4" />
-
-        Your browser does not support the video tag.
-      </video>
+    <div *ngIf="videoUrl">
+        <video controls name="media" width="600">
+            <source src="{{ videoUrl }}" type="video/mp4" />
+        </video>
     </div>
   </div>
 </div>
