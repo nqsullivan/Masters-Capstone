@@ -85,10 +85,12 @@ describe('Video Display Routes', () => {
 
   test('GET /video/presigned-url/:videoKey should return 404 if video is not found in AWS', async () => {
     // Mock the generatePresignedUrl method to return null
-    jest.spyOn(VideoStorage.prototype, 'generatePresignedUrl').mockResolvedValueOnce(null);
-  
+    jest
+      .spyOn(VideoStorage.prototype, 'generatePresignedUrl')
+      .mockResolvedValueOnce(null);
+
     const mockVideoKey = 'non-existent-video-key.mp4';
-  
+
     const response = await request(app)
       .get(`/api/video/presigned-url/${mockVideoKey}`)
       .set('Authorization', `Bearer ${token}`);
