@@ -76,7 +76,7 @@ const initializeDatabase = async (db) => {
     FRIdentifiedId VARCHAR,
     status VARCHAR,
     flagged BOOLEAN DEFAULT FALSE,
-    videoKey VARCHAR(2083),
+    videoKey VARCHAR(2083)
   )`);
 
   await db.run(`CREATE TABLE IF NOT EXISTS user (

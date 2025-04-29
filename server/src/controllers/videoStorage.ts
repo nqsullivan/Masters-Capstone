@@ -26,7 +26,7 @@ const generatePresignedVideoUrl = async (
     next();
   } catch (e: any) {
     if (e.message === 'No video key provided') {
-      res.status(400).json({ error: e.message });
+      res.status(404).json({ error: e.message });
     } else if (e.message === 'Video not found in AWS') {
       res.status(404).json({ error: e.message });
     } else if (
