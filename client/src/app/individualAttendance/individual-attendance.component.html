@@ -39,15 +39,9 @@
         </tr>
       </tbody>
     </table>
-    <div>
-      <video controls width="600">
-        <!-- Replace the src with the dynamically queried pre-signed URL from service -->
-        <source
-          src="
-                https://media.geeksforgeeks.org/wp-content/uploads/20190616234019/Canvas.move_.mp4"
-          type="video/mp4"
-        />
-        Your browser does not support the video tag.
+    <div *ngIf="videoUrl">
+      <video controls name="media" width="600">
+        <source src="{{ videoUrl }}" type="video/mp4" />
       </video>
     </div>
   </div>

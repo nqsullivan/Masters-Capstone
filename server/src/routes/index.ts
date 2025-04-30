@@ -47,6 +47,7 @@ import upload from '../middleware/upload-middleware.js';
 import { uploadImage, retrieveImage } from '../controllers/imageStorage.js';
 import { getDashboardData } from '../controllers/dashboard.js';
 import { getAttendanceRecord } from '../controllers/attendance.js';
+import { generatePresignedVideoUrl } from '../controllers/videoStorage.js';
 
 const router = express.Router();
 
@@ -112,6 +113,13 @@ router.get('/logs', verifyToken, getLogsPaginated);
 // Image routes
 router.post('/image', verifyToken, upload.single('image'), uploadImage);
 router.get('/image/:imageKey', verifyToken, retrieveImage);
+
+//video routes
+router.get(
+  '/video/presigned-url/:videoKey',
+  verifyToken,
+  generatePresignedVideoUrl
+);
 
 // Dashboard routes
 router.get('/dashboard/:classId', verifyToken, getDashboardData);

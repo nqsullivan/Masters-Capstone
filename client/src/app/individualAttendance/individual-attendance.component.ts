@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { AttendanceRecord } from '../models/models';
@@ -6,7 +7,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-individual-attendance',
-  imports: [RouterModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './individual-attendance.component.html',
   styleUrl: './individual-attendance.component.css',
 })
@@ -14,6 +15,7 @@ export class IndividualAttendanceComponent {
   attendanceId: string | null = null;
 
   attendanceInfo: AttendanceRecord;
+  videoUrl: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -61,6 +63,24 @@ export class IndividualAttendanceComponent {
               (res) => (this.attendanceInfo.portraitUrl = res.imageUrl)
             );
         }
+
+        if (this.attendanceInfo.videoKey) {
+          this.getVideoPresignedUrl(this.attendanceInfo.videoKey);
+        }
       });
+  }
+
+  getVideoPresignedUrl(videoKey: string): void {
+    this.apiService
+      .get<{ videoUrl: string }>(`video/presigned-url/${videoKey}`)
+      .subscribe(
+        (response) => {
+          this.videoUrl = response.videoUrl; // Set the pre-signed URL
+          console.log('Pre-signed video URL:', this.videoUrl);
+        },
+        (error) => {
+          console.error('Error fetching pre-signed video URL:', error);
+        }
+      );
   }
 }

@@ -10,4 +10,5 @@ export interface Attendance {
   FRIdentifiedId: string | null;
   status: string | null;
   flagged: boolean;
+  videoKey: string | null;
 }

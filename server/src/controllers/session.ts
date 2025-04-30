@@ -113,14 +113,15 @@ const modifyAttendanceRecord = async (
   next: NextFunction
 ) => {
   const { attendanceId } = req.params;
-  const { checkIn, portraitUrl, FRIdentifiedId, status } = req.body;
+  const { checkIn, portraitUrl, FRIdentifiedId, status, videoKey } = req.body;
   try {
     const attendance = await SessionService.modifyAttendanceRecord(
       attendanceId,
       checkIn,
       portraitUrl,
       FRIdentifiedId,
-      status
+      status,
+      videoKey
     );
     res.status(200).send(attendance);
   } catch (e: any) {
