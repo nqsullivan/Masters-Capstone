@@ -38,7 +38,7 @@ S3 Bucket Name: team-5-capstone-25
 
 ### Frontend Service
 The web client is built on Angular with Typescript.
-Use the following script to install dependencies and startup the web client
+In a second terminal window, use the following script to install dependencies and startup the web client
 
 ```bash
 cd client
