@@ -2,6 +2,7 @@ import { DuckDBInstance } from '@duckdb/node-api';
 import * as fs from 'node:fs/promises';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
 
 async function archiveDatabase(dbPath) {
   try {
@@ -158,10 +159,10 @@ const generateTestData = async (db) => {
   }
 
   // Create sample students
-  const students = Array.from({ length: 10 }, () => ({
+  const students = Array.from({ length: 200 }, () => ({
     id: uuidv4(),
-    name: `Student ${Math.floor(Math.random() * 1000)}`,
-    image: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 100)}.jpg`,
+    name: `${faker.person.fullName()}`,
+    image: `${faker.image.personPortrait()}`,
   }));
 
   for (const student of students) {
@@ -204,8 +205,9 @@ const generateTestData = async (db) => {
   for (const session of sessions) {
     for (const student of students) {
       if (randomBoolean()) {
+        const addFlag = Math.random() < 0.02;
         await db.run(
-          `INSERT INTO attendance (id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured, FRIdentifiedId) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO attendance (id, studentId, sessionId, checkIn, portraitUrl, portraitCaptured, FRIdentifiedId, flagged) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             uuidv4(),
             student.id,
@@ -213,7 +215,8 @@ const generateTestData = async (db) => {
             randomDate(),
             student.image,
             true,
-            student.id,
+            addFlag ? 'unknown' : student.id,
+            addFlag
           ]
         );
       }

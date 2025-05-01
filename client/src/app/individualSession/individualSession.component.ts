@@ -189,6 +189,8 @@ export class IndividualSessionComponent {
           .subscribe((response) => {
             this.sessionInfo.className = response.name;
           });
+
+        this.apiService.get(`session/${sessionId}/attendance`);
       });
   }
 
