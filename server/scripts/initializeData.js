@@ -216,7 +216,7 @@ const generateTestData = async (db) => {
             student.image,
             true,
             addFlag ? 'unknown' : student.id,
-            addFlag
+            addFlag,
           ]
         );
       }
