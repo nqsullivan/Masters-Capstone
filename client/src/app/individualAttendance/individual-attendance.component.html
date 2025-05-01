@@ -39,10 +39,11 @@
         </tr>
       </tbody>
     </table>
-    <div *ngIf="videoUrl">
-      <video controls name="media" width="600">
-        <source src="{{ videoUrl }}" type="video/mp4" />
+    <ng-container *ngIf="videoUrlLoaded">
+      <video controls width="600">
+        <source [attr.src]="videoUrl" type="video/mp4" />
+        Your browser does not support the video tag.
       </video>
-    </div>
+    </ng-container>
   </div>
 </div>

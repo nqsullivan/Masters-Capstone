@@ -12,22 +12,21 @@ const generatePresignedVideoUrl = async (
       throw new Error('No video key provided');
     }
 
-    const VideoStorageInstance = new VideoStorage();
-
+    const videoStorageInstance = new VideoStorage();
     const videoResponse =
-      await VideoStorageInstance.generatePresignedUrl(videoKey);
+      await videoStorageInstance.generatePresignedUrl(videoKey);
 
     if (!videoResponse) {
       throw new Error('Video not found in AWS');
     }
 
     res.status(200).json({ videoUrl: videoResponse });
-
     next();
   } catch (e: any) {
-    if (e.message === 'No video key provided') {
-      res.status(404).json({ error: e.message });
-    } else if (e.message === 'Video not found in AWS') {
+    if (
+      e.message === 'No video key provided' ||
+      e.message === 'Video not found in AWS'
+    ) {
       res.status(404).json({ error: e.message });
     } else if (
       e.message === 'Missing AWS configuration in environment variables'
@@ -37,4 +36,27 @@ const generatePresignedVideoUrl = async (
   }
 };
 
-export { generatePresignedVideoUrl };
+const uploadVideo = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const video = req.file;
+    if (!video) {
+      throw new Error('No video file provided');
+    }
+
+    const videoStorageInstance = new VideoStorage();
+    const savedVideo = await videoStorageInstance.uploadVideoToAWS(video);
+
+    res.status(201).json(savedVideo);
+    next();
+  } catch (e: any) {
+    if (e.message === 'No video file provided') {
+      res.status(400).json({ error: e.message });
+    } else if (
+      e.message === 'Missing AWS configuration in environment variables'
+    ) {
+      res.status(500).json({ error: e.message });
+    }
+  }
+};
+
+export { generatePresignedVideoUrl, uploadVideo };

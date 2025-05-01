@@ -16,6 +16,7 @@ export class IndividualAttendanceComponent {
 
   attendanceInfo: AttendanceRecord;
   videoUrl: string | null = null;
+  videoUrlLoaded = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -75,7 +76,8 @@ export class IndividualAttendanceComponent {
       .get<{ videoUrl: string }>(`video/presigned-url/${videoKey}`)
       .subscribe(
         (response) => {
-          this.videoUrl = response.videoUrl; // Set the pre-signed URL
+          this.videoUrl = response.videoUrl;
+          this.videoUrlLoaded = true;
           console.log('Pre-signed video URL:', this.videoUrl);
         },
         (error) => {

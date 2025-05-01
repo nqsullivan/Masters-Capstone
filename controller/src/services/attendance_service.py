@@ -65,6 +65,45 @@ class AttendanceService:
             self.process_facial_recognition, full_picture_path, student_id
         )
 
+    def handle_video_clip(self, video_path, nfc_event):
+        """Uploads a video clip and updates the attendance record."""
+        try:
+            student_id = nfc_event.get("card_id")
+
+            if not student_id:
+                printt("Missing student_id in NFC event.")
+                return
+
+            with open(video_path, "rb") as f:
+                response = self.api_service.post("/video", files={"video": f})
+                if response.get("error"):
+                    raise Exception("Video upload failed.")
+
+                video_url = response.get("fileUrl") or response.get("message", {}).get(
+                    "fileUrl"
+                )
+                if not video_url:
+                    raise Exception("No videoUrl returned.")
+
+                printt(f"Video uploaded: {video_url}")
+
+            attendance_id = self.studentId_to_attendanceId.get(student_id)
+            if not attendance_id:
+                printt(f"No attendance record found for student: {student_id}")
+                return
+
+            self.api_service.put(
+                f"/attendance/{attendance_id}",
+                json={
+                    "videoKey": video_url.split("/")[-1],
+                },
+            )
+
+            printt(f"Video URL attached to attendance for {student_id}")
+
+        except Exception as e:
+            printt(f"Error uploading video: {e}")
+
     def process_facial_recognition(self, image_path, student_id):
         """Processes the image for facial recognition and logs attendance."""
         try:

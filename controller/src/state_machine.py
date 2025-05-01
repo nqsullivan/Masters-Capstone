@@ -10,7 +10,7 @@ STREAMING_TIMEOUT = 60
 
 
 class StateMachine:
-    states = ["IDLE", "ACTIVE", "STREAMING"]
+    states = ["IDLE", "ACTIVE"]
 
     def __init__(
         self,
@@ -49,14 +49,27 @@ class StateMachine:
         """Handles state transitions based on events."""
         printt(f"Event received: {event_name}")
 
-        if event_name in ["motion_detected", "nfc_scanned"] and self.state == "IDLE":
-            self.transition_to("ACTIVE")
+        if event_name == "motion_detected":
+            if self.state == "IDLE":
+                self.transition_to("ACTIVE")
+            elif self.state == "ACTIVE":
+                self.last_motion_time = time.time()
 
-        if event_name == "nfc_scanned" and (
-            self.state == "ACTIVE" or self.state == "STREAMING"
-        ):
-            self.transition_to("STREAMING")
-            self.attendance_service.handle_attendance_event(event_data)
+        elif event_name == "nfc_scanned":
+            if self.state == "IDLE":
+                self.transition_to("ACTIVE")
+            if self.state == "ACTIVE":
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                threading.Thread(
+                    target=self.save_and_handle, args=(timestamp, event_data)
+                ).start()
+
+                self.attendance_service.handle_attendance_event(event_data)
+
+    def save_and_handle(self, timestamp, event_data):
+        filename = f"{timestamp}.mp4"
+        file_path = self.camera_controller.save_video_clip(filename)
+        self.attendance_service.handle_video_clip(file_path, event_data)
 
     def transition_to(self, new_state):
         """Executes the transition between states."""
@@ -73,10 +86,6 @@ class StateMachine:
                 self.camera_controller.turn_on()
                 self.last_motion_time = time.time()
 
-            elif new_state == "STREAMING":
-                self.camera_controller.turn_on()
-                self.last_streaming_time = time.time()
-
     def check_timeouts(self):
         """Handles automatic time-based transitions."""
         current_time = time.time()
@@ -85,11 +94,6 @@ class StateMachine:
             if current_time - self.last_motion_time > ACTIVE_TIMEOUT:
                 printt("Timeout: No motion for 20s. Returning to IDLE.")
                 self.transition_to("IDLE")
-
-        elif self.state == "STREAMING" and self.last_streaming_time:
-            if current_time - self.last_streaming_time > STREAMING_TIMEOUT:
-                printt("Timeout: No NFC scan for 1 min. Returning to ACTIVE.")
-                self.transition_to("ACTIVE")
 
     def send_event(self, event_name, event_data=None):
         """Adds an event to the queue for processing."""
