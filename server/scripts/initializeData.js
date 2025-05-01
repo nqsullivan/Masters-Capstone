@@ -260,6 +260,24 @@ const generateTestData = async (db) => {
     }
   }
 
+  await db.run(
+    `INSERT INTO class (id, name, roomNumber, startTime, endTime)
+    VALUES ('1', 'CS101', 'SAN101', '2023-10-01 08:00:00', '2023-10-01 09:30:00');
+    
+    INSERT INTO professor_class_lookup (username, classId)
+    SELECT 'prof1', id
+    FROM class
+    WHERE roomNumber = 'SAN101';
+    
+    INSERT INTO student (id, name, image)
+    VALUES ('E2EEC801', 'Nathaniel Sullivan', 'https://team-5-capstone-25.s3.us-west-1.amazonaws.com/nathanielSullivan.jpeg'), 
+    ('5D8AFD03', 'Zhiguo Ren', 'https://team-5-capstone-25.s3.us-west-1.amazonaws.com/zhiguoRen.png');
+    
+    INSERT INTO student_class_lookup (studentId, classId)
+    VALUES ('E2EEC801', '1'), 
+    ('5D8AFD03', '1');`
+  );
+
   console.log('Test data successfully inserted.');
 };
 
