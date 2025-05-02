@@ -65,6 +65,7 @@ interface DialogData {
 })
 export class IndividualSessionComponent {
   displayedColumns: string[] = [
+    'id',
     'didCheckIn',
     'checkInTime',
     'photo',
