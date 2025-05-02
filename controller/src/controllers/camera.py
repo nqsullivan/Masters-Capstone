@@ -8,6 +8,7 @@ from picamera2.outputs import FileOutput
 from picamera2 import Picamera2
 from src.services.logging_service import printt
 import os
+import subprocess
 
 IMAGE_DIR = "/capstone/captures/"
 CLIP_DIR = "/capstone/clips/"
@@ -115,6 +116,38 @@ class CameraController:
             time.sleep(1.0 / FPS)
 
         writer.release()
+
         printt(f"Clip saved: {filepath}")
 
-        return filepath
+        browser_path = self.convert_to_browser_compatible_mp4(filepath)
+        return browser_path
+
+    def convert_to_browser_compatible_mp4(self, input_path):
+        output_path = input_path.replace(".mp4", "_browser.mp4")
+        command = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            input_path,
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-crf",
+            "23",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
+            "-movflags",
+            "+faststart",
+            output_path,
+        ]
+        try:
+            subprocess.run(command, check=True)
+            printt(f"Converted to browser-compatible MP4: {output_path}")
+            os.remove(input_path)
+            return output_path
+        except subprocess.CalledProcessError as e:
+            printt(f"FFmpeg conversion failed: {e}")
+            return input_path
