@@ -20,7 +20,7 @@ class LoggingService:
         try:
             self.api_service.post("/log", json=log_entry)
         except Exception as e:
-            printt(f"Logging failed: {e}")
+            print(f"Logging failed: {e}")
 
 
 def printt(message, *args, **kwargs):
