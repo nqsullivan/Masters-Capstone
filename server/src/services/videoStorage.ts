@@ -32,16 +32,35 @@ class VideoStorage {
     });
   }
 
-  async generatePresignedUrl(imageKey: string) {
+  async uploadVideoToAWS(video: Express.Multer.File) {
+    const key = Date.now() + '_' + video.originalname;
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+      Body: video.buffer,
+      ContentType: 'video/mp4',
+    });
+
+    try {
+      const response = await this.s3.send(command);
+      const fileUrl = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
+      return { fileUrl, response };
+    } catch (e: any) {
+      console.error(`Failed to upload video: ${e.message}`);
+      throw new Error('Failed to upload video');
+    }
+  }
+
+  async generatePresignedUrl(videoKey: string) {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
-      Key: imageKey,
+      Key: videoKey,
     });
 
     try {
       return await getSignedUrl(this.s3, command, { expiresIn: 60 });
-    } catch (e) {
-      console.error(`Failed to generate presigned URL: ${e}`);
+    } catch (e: any) {
+      console.error(`Failed to generate presigned URL: ${e.message}`);
       return null;
     }
   }

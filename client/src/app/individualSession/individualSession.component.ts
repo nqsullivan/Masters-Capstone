@@ -65,6 +65,7 @@ interface DialogData {
 })
 export class IndividualSessionComponent {
   displayedColumns: string[] = [
+    'id',
     'didCheckIn',
     'checkInTime',
     'photo',
@@ -189,6 +190,8 @@ export class IndividualSessionComponent {
           .subscribe((response) => {
             this.sessionInfo.className = response.name;
           });
+
+        this.apiService.get(`session/${sessionId}/attendance`);
       });
   }
 

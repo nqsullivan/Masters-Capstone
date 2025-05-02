@@ -45,6 +45,20 @@
       </mat-form-field>
       <div class="mat-elevation-z8">
         <table mat-table [dataSource]="dataSource" matSort>
+
+          <!-- Attendance ID -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Attendance ID
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <a [routerLink]="['/attendance', row.id]">{{
+                row.id
+              }}</a>
+            </td>
+          </ng-container>
+
+
           <!-- Did Check In -->
           <ng-container matColumnDef="didCheckIn">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>

@@ -93,7 +93,7 @@ export class AppComponent implements DoCheck {
         JSON.stringify(this.flaggedRecords)
       );
     });
-    this.flaggedEventService.startPollingFlaggedAttendance();
+    // this.flaggedEventService.startPollingFlaggedAttendance();
   }
 
   ngDoCheck(): void {

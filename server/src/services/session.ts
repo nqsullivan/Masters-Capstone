@@ -241,73 +241,78 @@ class SessionService {
     portraitUrl: string | null | undefined,
     FRIdentifiedId: string | null | undefined,
     status: string | null | undefined,
-    videoKey: string
+    videoKey: string | null | undefined
   ): Promise<Attendance> {
     if (!attendanceId) {
       throw new Error('attendanceId is required');
     }
 
     const attendance = await this.getAttendanceRecord(attendanceId);
+    const updates: Record<string, any> = {};
     let flagged = attendance.flagged;
 
-    checkIn = checkIn ?? null;
-    portraitUrl = portraitUrl ?? attendance.portraitUrl ?? '';
-    FRIdentifiedId = FRIdentifiedId ?? attendance.FRIdentifiedId ?? null;
-    status = status ?? attendance.status ?? null;
-    videoKey = videoKey ?? attendance.videoKey ?? '';
-
-    if (FRIdentifiedId !== null && attendance.studentId !== FRIdentifiedId) {
-      flagged = true;
+    if (checkIn != null) updates.checkIn = checkIn;
+    if (portraitUrl != null) {
+      updates.portraitUrl = portraitUrl;
+      updates.portraitCaptured = portraitUrl !== '';
     }
 
-    if (status !== null) {
+    if (FRIdentifiedId != null) {
+      updates.FRIdentifiedId = FRIdentifiedId;
+      if (attendance.studentId !== FRIdentifiedId) {
+        flagged = true;
+      }
+    }
+
+    if (status != null) {
       if (!['ESCALATED', 'DISMISSED', ''].includes(status)) {
         throw new Error(
           'status field can only be updated to be blank or one of the values: [DISMISSED, ESCALATED]'
         );
       }
+      updates.status = status;
     }
 
-    const portraitCaptured = portraitUrl !== '';
+    if (videoKey != null) updates.videoKey = videoKey;
+
+    if ('FRIdentifiedId' in updates) {
+      updates.flagged = flagged;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return attendance;
+    }
+
+    const setClause = Object.keys(updates)
+      .map((key) => `${key} = ?`)
+      .join(', ');
+    const values = [...Object.values(updates), attendanceId];
 
     try {
       await this.db.runWithNoReturned(
-        'UPDATE attendance SET checkIn = ?, portraitUrl = ?, portraitCaptured = ?, FRIdentifiedId = ?, status = ?, flagged = ?, videoKey = ? WHERE id = ?',
-        [
-          checkIn,
-          portraitUrl,
-          portraitCaptured,
-          FRIdentifiedId,
-          status,
-          flagged,
-          videoKey,
-          attendanceId,
-        ]
+        `UPDATE attendance SET ${setClause} WHERE id = ?`,
+        values
       );
     } catch (e) {
       console.error('DB update error:', e);
       throw e;
     }
 
-    let studentResult = await this.db.runAndReadAll<{
+    const studentResult = await this.db.runAndReadAll<{
       name: string;
       image: string;
-    }>(`select name, image from student where id = ?`, [attendance.studentId]);
+    }>(`SELECT name, image FROM student WHERE id = ?`, [attendance.studentId]);
 
-    return {
-      id: attendance.id,
-      studentId: attendance.studentId,
+    const final = {
+      ...attendance,
+      ...updates,
       studentName: studentResult[0].name,
       studentImage: studentResult[0].image,
-      sessionId: attendance.sessionId,
-      checkIn: UtilService.formatDate(checkIn),
-      portraitUrl: portraitUrl,
-      portraitCaptured: portraitCaptured,
-      FRIdentifiedId: FRIdentifiedId,
-      status: status,
-      flagged: flagged,
-      videoKey: videoKey || null,
+      checkIn: UtilService.formatDate(updates.checkIn ?? attendance.checkIn),
+      portraitCaptured: updates.portraitCaptured ?? attendance.portraitCaptured,
     };
+
+    return final;
   }
 
   async getAttendanceRecord(attendanceId: string): Promise<Attendance> {

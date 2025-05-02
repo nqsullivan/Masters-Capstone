@@ -8,7 +8,7 @@ import { ApiService } from './api.service';
   providedIn: 'root',
 })
 export class AttendanceService {
-  private readonly POLL_INTERVAL = 2000;
+  private readonly POLL_INTERVAL = 4000;
 
   private attendanceSubject = new BehaviorSubject<AttendanceRecord[] | null>(
     null
@@ -56,6 +56,10 @@ export class AttendanceService {
       allRecords = allRecords.concat(result.data);
       page++;
       hasMore = page <= result.totalPages;
+
+      if (hasMore) {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
     }
 
     return allRecords;
